@@ -16,3 +16,9 @@
 *.sln
 *.obj
 *.user
+*.suo
+*.filters
+
+/Output
+/Debug
+/Release

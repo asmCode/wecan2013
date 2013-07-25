@@ -1,0 +1,57 @@
+﻿Build started 2012-09-15 13:01:16.
+     1>Project "D:\stuff\we-can_2012-demo\camera_anim\GraphicsLibrary\GraphicsLibrary.vcxproj" on node 2 (rebuild target(s)).
+     1>InitializeBuildStatus:
+         Creating "Release\GraphicsLibrary.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files\NVIDIA Corporation\Cg\include" /IC:\Users\majak\code\mac\libs\Utils /IC:\Users\majak\code\Machineris\Code\headers /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt Animation.cpp AnimCamera.cpp BoundingBox.cpp BoundingSphere.cpp CubeTexture.cpp DepthTexture.cpp Effect.cpp Framebuffer.cpp GlExtFactory.cpp ImageLoader.cpp Material.cpp Mesh.cpp MeshPart.cpp Model.cpp OpenglWindow.cpp Shader.cpp SteerCamera.cpp Texture.cpp TimeControl.cpp Utils.cpp
+         Animation.cpp
+         AnimCamera.cpp
+         BoundingBox.cpp
+         BoundingSphere.cpp
+         CubeTexture.cpp
+         DepthTexture.cpp
+         Effect.cpp
+         Framebuffer.cpp
+         GlExtFactory.cpp
+         ImageLoader.cpp
+         Material.cpp
+         Mesh.cpp
+         MeshPart.cpp
+         Model.cpp
+         OpenglWindow.cpp
+         Shader.cpp
+     1>Shader.cpp(11): warning C4244: 'initializing' : conversion from 'std::streamoff' to 'int', possible loss of data
+         SteerCamera.cpp
+         Texture.cpp
+         TimeControl.cpp
+         Utils.cpp
+       Lib:
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\Lib.exe /OUT:"D:\stuff\we-can_2012-demo\camera_anim\Output\Release\GraphicsLibrary.lib" /NOLOGO /LTCG Release\Animation.obj
+         Release\AnimCamera.obj
+         Release\BoundingBox.obj
+         Release\BoundingSphere.obj
+         Release\CubeTexture.obj
+         Release\DepthTexture.obj
+         Release\Effect.obj
+         Release\Framebuffer.obj
+         Release\GlExtFactory.obj
+         Release\ImageLoader.obj
+         Release\Material.obj
+         Release\Mesh.obj
+         Release\MeshPart.obj
+         Release\Model.obj
+         Release\OpenglWindow.obj
+         Release\Shader.obj
+         Release\SteerCamera.obj
+         Release\Texture.obj
+         Release\TimeControl.obj
+         Release\Utils.obj
+         GraphicsLibrary.vcxproj -> D:\stuff\we-can_2012-demo\camera_anim\Output\Release\GraphicsLibrary.lib
+       FinalizeBuildStatus:
+         Deleting file "Release\GraphicsLibrary.unsuccessfulbuild".
+         Touching "Release\GraphicsLibrary.lastbuildstate".
+     1>Done Building Project "D:\stuff\we-can_2012-demo\camera_anim\GraphicsLibrary\GraphicsLibrary.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:13.19
