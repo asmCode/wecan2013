@@ -1,6 +1,27 @@
-﻿Build started 2013-07-25 02:02:07.
-     1>Project "d:\stuff\we-can_2013-demo\code\GraphicsLibrary\GraphicsLibrary.vcxproj" on node 2 (Build target(s)).
-     1>Lib:
+﻿Build started 2013-08-02 08:50:58.
+     1>Project "D:\stuff\we-can_2013-demo\code\GraphicsLibrary\GraphicsLibrary.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"D:\stuff\we-can_2013-demo\code\Framework" /I"D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _CRT_SECURE_NO_WARNINGS /Gm /EHsc /RTC1 /MTd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Animation.cpp AnimCamera.cpp BoundingBox.cpp BoundingSphere.cpp CubeTexture.cpp DepthTexture.cpp Framebuffer.cpp Material.cpp Mesh.cpp MeshPart.cpp Model.cpp OpenglWindow.cpp Shader.cpp SteerCamera.cpp Texture.cpp TimeControl.cpp Utils.cpp
+         Utils.cpp
+         TimeControl.cpp
+         Texture.cpp
+         SteerCamera.cpp
+         Shader.cpp
+     1>d:\stuff\we-can_2013-demo\code\graphicslibrary\shader.cpp(116): warning C4244: 'initializing' : conversion from 'std::streamoff' to 'unsigned int', possible loss of data
+         OpenglWindow.cpp
+         Model.cpp
+         MeshPart.cpp
+         Mesh.cpp
+         Material.cpp
+         Framebuffer.cpp
+         DepthTexture.cpp
+         CubeTexture.cpp
+         BoundingSphere.cpp
+         BoundingBox.cpp
+         AnimCamera.cpp
+         Animation.cpp
+         Generating Code...
+       Lib:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\Lib.exe /OUT:"D:\stuff\we-can_2013-demo\code\Output\Debug\GraphicsLibrary.lib" /NOLOGO Debug\Animation.obj
          Debug\AnimCamera.obj
          Debug\BoundingBox.obj
@@ -19,8 +40,8 @@
          Debug\TimeControl.obj
          Debug\Utils.obj
          GraphicsLibrary.vcxproj -> D:\stuff\we-can_2013-demo\code\Output\Debug\GraphicsLibrary.lib
-     1>Done Building Project "d:\stuff\we-can_2013-demo\code\GraphicsLibrary\GraphicsLibrary.vcxproj" (Build target(s)).
+     1>Done Building Project "D:\stuff\we-can_2013-demo\code\GraphicsLibrary\GraphicsLibrary.vcxproj" (Rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.34
+Time Elapsed 00:00:12.16

@@ -3,8 +3,8 @@
 #include <Math/Matrix.h>
 #include "ITransformable.h"
 #include <IO\BinaryReader.h>
-#include "Interpolators/IInterpolator.h"
-#include "Interpolators/InterpolatorFactory.h"
+#include <Graphics/Interpolators/IInterpolator.h>
+#include <Graphics/Interpolators/InterpolatorFactory.h>
 #include "ICamera.h"
 
 class AnimCamera : public ITransformable, public ICamera

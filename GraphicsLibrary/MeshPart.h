@@ -1,11 +1,10 @@
 #pragma once
 
 #include "Vertex.h"
-#include "Shader.h"
 #include "Material.h"
 
-#include "Utils.h"
 #include <string>
+#include <stdint.h>
 
 class Mesh;
 class BoundingBox;
@@ -14,9 +13,8 @@ class BoundingSphere;
 class MeshPart
 {
 public:
-	UINT vboId;
+	uint32_t vboId;
 	Material *material;
-	Shader *effect;
 
 	int verticesCount;
 	Vertex *vertices;
@@ -33,9 +31,6 @@ public:
 	MeshPart(int verticesCount, Vertex *vertices, Mesh *mesh);
 	~MeshPart();
 
-	void SetEffect(Shader *effect);
-	Shader *GetEffect();
-
 	void SetMaterial(Material *material);
 	Material *GetMaterial();
 
@@ -45,6 +40,6 @@ public:
 	bool IsVisible() const;
 	bool& IsAlvaysVisible();
 
+	// Set enable proper vertex channels before calling this method
 	void Draw();
-	void DrawOnlyTex();
 };

@@ -5,7 +5,7 @@
 #include <Math\Quat.h>
 #include <Math\Matrix.h>
 
-#include "Interpolators/InterpolatorFactory.h"
+#include <Graphics/Interpolators/InterpolatorFactory.h>
 
 #include "ITransformable.h"
 

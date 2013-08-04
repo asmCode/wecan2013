@@ -1,7 +1,8 @@
 #pragma once
 
 #include <windows.h>
-#include <gl\gl.h>
+#include <GL/glew.h>
+#include <GL/GL.h>
 #include <gl\glu.h>
 
 class OpenglWindow

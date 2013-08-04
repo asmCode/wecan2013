@@ -1,8 +1,8 @@
 #pragma once
 
-#include "D:\stuff\Infected Bunnies\code\ssg02\HerdBunniesSimulator\Framework\Graphics\Interpolators\StateInterpolator.h"
-#include "D:\stuff\Infected Bunnies\code\ssg02\HerdBunniesSimulator\Framework\Graphics\Interpolators\TCBInterpolator.h"
-#include "D:\stuff\Infected Bunnies\code\ssg02\HerdBunniesSimulator\Framework\Graphics\Interpolators\LinearInterpolator.h"
+#include <Graphics\Interpolators\StateInterpolator.h>
+#include <Graphics\Interpolators\TCBInterpolator.h>
+#include <Graphics\Interpolators\LinearInterpolator.h>
 
 #include <Math/Vec3.h>
 

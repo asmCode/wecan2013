@@ -1,6 +1,5 @@
 #include "CubeTexture.h"
 #include <Graphics/ImageLoader.h>
-#include <Windows.h>
 #include <gl/glew.h>
 #include <gl/gl.h>
 #include <assert.h>
