@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Math/Matrix.h>
-#include "ITransformable.h"
+#include <Graphics/ITransformable.h>
 #include <IO\BinaryReader.h>
 #include <Graphics/Interpolators/IInterpolator.h>
 #include <Graphics/Interpolators/InterpolatorFactory.h>

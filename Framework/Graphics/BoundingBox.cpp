@@ -1,5 +1,5 @@
 #include "BoundingBox.h"
-#include <Graphics/Vertex.h>
+#include "Vertex.h"
 #include <assert.h>
 
 BoundingBox BoundingBox::FromVertices(const Vertex *vertices, unsigned count)

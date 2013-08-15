@@ -1,6 +1,6 @@
 #include "BoundingSphere.h"
 #include "BoundingBox.h"
-#include <Graphics/Vertex.h>
+#include "Vertex.h"
 #include <assert.h>
 
 BoundingSphere BoundingSphere::FromVertices(const Vertex *vertices, unsigned count)
