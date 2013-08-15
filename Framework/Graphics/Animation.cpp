@@ -142,19 +142,7 @@ void Animation::Update(float time, const sm::Matrix &transform, float seconds)
 		
 		loda *= sm::Matrix::RotateAxisMatrix(angle, axis);
 
-		if (hasOwnRotate)
-		{
-			if (time > 82.5f)
-			{
-				tr *= sm::Matrix::RotateAxisMatrix(ownAngle, axis);
-				//tr *= sm::Matrix::RotateAxisMatrix(angle, axis);
-				ownAngle += seconds * 8.0f * angleScale;
-			}
-		}
-		else
-		{
-			tr *= sm::Matrix::RotateAxisMatrix(angle, axis);
-		}
+		tr *= sm::Matrix::RotateAxisMatrix(angle, axis);
 
 		if (mesh != NULL)
 		{

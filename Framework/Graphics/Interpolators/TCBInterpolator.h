@@ -9,12 +9,12 @@ class TCBInterpolator : public Interpolator<Type>
 {
 private:
 	//catmull-rom splines
-	void GetVectors(float time, float &normalizedTime, Type &pt1, Type &pt2, Type &tn1, Type &tn2)
+	int GetVectors(float time, float &normalizedTime, Type &pt1, Type &pt2, Type &tn1, Type &tn2, int lastKeyframeIndex)
 	{
 		//key on right side
 		std::vector<KeyFrame<Type>*>::iterator rk;
 
-		for (rk = keys.begin(); rk != keys.end(); rk++)
+		for (rk = keys.begin() + lastKeyframeIndex; rk != keys.end(); rk++, lastKeyframeIndex++)
 			if ((*rk) ->time >= time)
 				break;
 
@@ -44,6 +44,8 @@ private:
 			if ((rk + 1) == keys.end())
 				tn2 = (Type)(tn2 - (tn1 * 0.5f));
 		}
+
+		return lastKeyframeIndex;
 	}
 
 public:
@@ -91,7 +93,7 @@ public:
 		Type tn2;
 		float normTime;
 
-		GetVectors(time, normTime, pt1, pt2, tn1, tn2);
+		GetVectors(time, normTime, pt1, pt2, tn1, tn2, lastKeyframeIndex);
 
 		float t1 = normTime;
 		float t2 = t1 * normTime;
