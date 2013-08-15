@@ -1,0 +1,15 @@
+#version 400
+
+layout (location = 0) in vec2 a_position;
+layout (location = 1) in vec2 a_coords;
+
+uniform mat4 u_mvp;
+
+varying vec2 v_coords;
+
+void main()
+{
+	v_coords = a_coords;
+
+	gl_Position = u_mvp * vec4(a_position.x, a_position.y, 0, 1);
+}

@@ -1,0 +1,22 @@
+#version 400
+
+layout (location = 0) in vec4 a_position;
+layout (location = 1) in vec3 a_normal;
+
+uniform mat4 u_worldMatrix;
+uniform mat4 u_viewProjMatrix;
+uniform vec3 u_lightPosition;
+
+varying vec3 o_lightDirection;
+varying vec3 o_normal;
+
+void main()
+{
+	vec4 worldPosition = u_worldMatrix * a_position;
+	vec3 worldNormal = mat3(u_worldMatrix) * a_normal;
+	
+	o_lightDirection = normalize(u_lightPosition - worldPosition.xyz);
+	o_normal = normalize(worldNormal);
+	
+	gl_Position = u_viewProjMatrix * worldPosition;
+}

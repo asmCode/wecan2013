@@ -1,0 +1,16 @@
+#version 400
+
+in vec3 LightIntensity;
+
+layout( location = 0 ) out vec4 FragColor;
+
+varying vec3 o_lightDirection;
+varying vec3 o_normal;
+
+void main()
+{
+	float diffValue = max(dot(normalize(o_lightDirection), normalize(o_normal)), 0.2);
+	
+    FragColor = vec4(diffValue, diffValue, diffValue, 1.0);
+}
+
