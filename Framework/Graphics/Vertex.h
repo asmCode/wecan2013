@@ -1,14 +1,7 @@
 #pragma once
 
-#include "../Math/Vec3.h"
-#include "../Math/Vec2.h"
-
-class Vertex
-{
-public:
-	sm::Vec3 position;
-	sm::Vec3 normal;
-	sm::Vec3 tangent;
-	sm::Vec2 texCoord;
-};
- 
+#include "VertexP.h"
+#include "VertexPN.h"
+#include "VertexPCN.h"
+#include "VertexPC2N.h"
+#include "VertexPCNT.h"

@@ -1,12 +1,14 @@
 #include "MeshPart.h"
 
+#include "VertexInformation.h"
+
 #include "Mesh.h"
 #include "BoundingBox.h"
 #include "BoundingSphere.h"
 
 #include <GL/glew.h>
 
-MeshPart::MeshPart(int verticesCount, Vertex *vertices, Mesh *mesh)
+MeshPart::MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexChannels)
 {
 	bbox = new BoundingBox();
 	(*bbox) = BoundingBox::FromVertices(vertices, verticesCount);
@@ -22,11 +24,7 @@ MeshPart::MeshPart(int verticesCount, Vertex *vertices, Mesh *mesh)
 	
 	glGenBuffers(1, &vboId);
 	glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	glBufferData(GL_ARRAY_BUFFER, verticesCount * sizeof(Vertex), vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(0));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(sm::Vec3)));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(sm::Vec3) + sizeof(sm::Vec3)));
+	glBufferData(GL_ARRAY_BUFFER, verticesCount * VertexInformation::GetVertexSize(vertexChannels), vertices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 

@@ -32,7 +32,7 @@
 
 //#define DISABLE_MUSIC 1
 //#define DISABLE_FRUSTUM_CULLING 1
-//#define MAN_CAM 1
+#define MAN_CAM 1
 #define SHOW_FPS 1
 
 DemoController* GenericSingleton<DemoController>::instance;
@@ -253,13 +253,12 @@ bool DemoController::LoadContent(const char *basePath)
 
 	//m_envTexture = new CubeTexture(m_strBasePath + "\\images\\env_");
 
-	//camerasAnimation = dc->Get<Animation>("cameras");
-	//assert(camerasAnimation != NULL);
-
 	////m_mdl_teapot = dc->Get<Model*>("teapot");
 	////assert(m_mdl_teapot != NULL);
 
-	//animCamsMng.Load(m_strBasePath + "cameras\\cameras.cam", camerasAnimation);
+	camerasAnimation = dc->Get<Animation>("cameras");
+	assert(camerasAnimation != NULL);
+	animCamsMng.Load(m_strBasePath + "cameras\\cameras.cam", camerasAnimation);
 
 	//if (width <= 1024)
 	//	mask = dc->Get<Texture>("mask");
@@ -286,7 +285,11 @@ void DemoController::Release()
 		music.Stop();
 #endif
 
-	delete m_content;
+	if (m_content != NULL)
+	{
+		delete m_content;
+		m_content = NULL;
+	}
 
 	if (framebuffer != NULL)
 	{
@@ -335,11 +338,21 @@ bool DemoController::Update(float time, float ms)
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
 
+	ICamera *cam = NULL;
+
+#if MAN_CAM
 	manCam.Process(ms);
+	cam = &manCam;
+#else
+	camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	cam = animCamsMng.GetActiveCamera(time);
+#endif
+
+	
 
 	m_viewProj =
-		sm::Matrix::PerspectiveMatrix(60.0f, (float)width / (float)height, 0.1f, 200.0f) *
-		manCam.GetViewMatrix();
+		sm::Matrix::PerspectiveMatrix((cam->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 200.0f) *
+		cam->GetViewMatrix();
 
 	//anim->Update(time / 1000.0f, sm::Matrix::IdentityMatrix(), seconds);
 
@@ -848,7 +861,7 @@ int DemoController::GetNextId()
 
 void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYTE g, BYTE b)
 {
-	m_fontRenderer->DrawString("loda", 10, 10, Color::Blue);
+	//m_fontRenderer->DrawString("loda", 10, 10, Color::Blue);
 
 	// ustaw macierz na ortho
 

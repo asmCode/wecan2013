@@ -1,6 +1,9 @@
 #include "ModelLoader.h"
 
-#include "Vertex.h"
+#include "VertexP.h"
+#include "VertexPN.h"
+#include "VertexPCN.h"
+#include "VertexPC2N.h"
 #include "Model.h"
 #include "Mesh.h"
 #include "MeshPart.h"

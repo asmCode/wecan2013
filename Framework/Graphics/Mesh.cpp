@@ -1,6 +1,9 @@
 #include "Mesh.h"
 #include "Property.h"
-#include "Vertex.h"
+#include "VertexP.h"
+#include "VertexPN.h"
+#include "VertexPCN.h"
+#include "VertexPC2N.h"
 #include "Material.h"
 #include "MeshPart.h"
 

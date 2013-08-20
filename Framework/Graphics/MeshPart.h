@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Vertex.h"
 #include "Material.h"
 
 #include <string>
@@ -16,8 +15,10 @@ public:
 	uint32_t vboId;
 	Material *material;
 
+	uint8_t m_vertexChannels;
+
 	int verticesCount;
-	Vertex *vertices;
+	void *vertices;
 	Mesh *mesh;
 
 	BoundingBox *bbox;
@@ -28,14 +29,14 @@ public:
 public:
 	std::string materialName;
 
-	MeshPart(int verticesCount, Vertex *vertices, Mesh *mesh);
+	MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexChannels);
 	~MeshPart();
 
 	void SetMaterial(Material *material);
 	Material *GetMaterial();
 
 	int GetVerticesCount();
-	const Vertex* GetVertices();
+	const void* GetVertices();
 	void SetVisibility(bool visible);
 	bool IsVisible() const;
 	bool& IsAlvaysVisible();
