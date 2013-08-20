@@ -17,7 +17,7 @@ public:
 
 	sm::Vec3 center;
 
-	static BoundingBox FromVertices(const Vertex *vertices, unsigned count, uint8_t vertexChannels);
+	static BoundingBox FromVertices(const void *vertices, unsigned count, uint8_t vertexChannels);
 
 	sm::Vec3 GetBBoxVerticle(unsigned index) const;
 	void SetBBoxVerticle(unsigned index, const sm::Vec3 &v);

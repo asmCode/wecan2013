@@ -6,6 +6,7 @@
 #define deg(x) (float) ((180.0f * x) / 3.141592654f)
 
 #include <math.h>
+#include <assert.h>
 
 namespace sm
 {
@@ -15,11 +16,9 @@ namespace sm
 		float x;
 		float y;
 		float z;
-		float w;
 
 		Vec3()
 		{
-			w = 1.0f;
 		}
 
 		Vec3(float x, float y, float z)
@@ -27,7 +26,6 @@ namespace sm
 			this ->x = x;
 			this ->y = y;
 			this ->z = z;
-			this ->w = 1.0f;
 		}
 
 		void Set(float x, float y, float z)
@@ -35,7 +33,6 @@ namespace sm
 			this ->x = x;
 			this ->y = y;
 			this ->z = z;
-			this ->w = 1.0f;
 		}
 
 		float &operator [] (int i)
@@ -45,9 +42,10 @@ namespace sm
 			case 0: return x;
 			case 1: return y;
 			case 2: return z;
-			case 3: return w;
 			}
 
+			assert(false);
+			
 			return x;
 		}
 
@@ -58,8 +56,9 @@ namespace sm
 			case 0: return x;
 			case 1: return y;
 			case 2: return z;
-			case 3: return w;
 			}
+
+			assert(false);
 
 			return x;
 		}

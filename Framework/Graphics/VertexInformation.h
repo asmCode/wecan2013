@@ -1,6 +1,7 @@
 #pragma once
 
-#include "VertexChannel.h"
+#include "VertexType.h"
+#include "VertexAttrib.h"
 #include "../Math/Vec3.h"
 #include <stdint.h>
 
@@ -8,14 +9,16 @@ class VertexInformation
 {
 public:
 	// in bytes
-	static int GetStride(uint8_t vertexChannels);
-	static int GetOffset(uint8_t vertexChannels, VertexChannel channel);
-	static sm::Vec3 GetPosition(const void *vertex, uint8_t channels);
+	static int GetStride(uint8_t vertexType);
+
+	// in bytes
+	static int GetOffset(uint8_t vertexType, uint8_t vertexAttrib);
+
+	static sm::Vec3 GetPosition(const void *vertex, uint8_t vertexType);
+	static bool HasAttrib(uint8_t vertexType, uint8_t vertexAttrib);
 
 private:
-	static int m_vertexSizes[];
-//	static int m_offsets[][];
-
-
+	static int m_vertexStrides[VertexType::VertexTypesAmount];
+	static int m_vertexOffsets[VertexType::VertexTypesAmount][VertexAttrib::VertexAttribsAmount];
 };
 

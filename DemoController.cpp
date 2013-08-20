@@ -13,7 +13,7 @@
 #include "GraphicsLibrary\DepthTexture.h"
 #include <Graphics\MeshPart.h>
 #include "Frustum.h"
-#include "GraphicsLibrary/BoundingSphere.h"
+#include <Graphics/BoundingSphere.h>
 #include "common.h"
 #include "Robot.h"
 #include "MechArm.h"
@@ -188,11 +188,8 @@ bool DemoController::LoadContent(const char *basePath)
 	m_spriteBatch = new SpriteBatch(m_spriteShader, sm::Matrix::Ortho2DMatrix(0, width, height, 0));
 	m_fontRenderer = FontRenderer::LoadFromFile((m_strBasePath + std::string("fonts\\komika_title_32.xml")).c_str(), m_spriteBatch);
 
-	m_teapot = dc->Get<Model>("teapot");
-
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
-	headAnim->mesh = m_teapot->GetMeshes()[0];
 
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);

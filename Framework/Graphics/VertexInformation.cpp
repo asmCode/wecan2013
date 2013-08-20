@@ -1,55 +1,88 @@
 #include "VertexInformation.h"
 
+#include "VertexType.h"
+#include "VertexAttrib.h"
 #include "Vertex.h"
 #include <Math/Vec2.h>
 #include <Math/Vec3.h>
 #include <assert.h>
 
-int VertexInformation::m_vertexSizes[] =
+int VertexInformation::m_vertexStrides[] =
 {
-	sizeof(sm::Vec3),
-	sizeof(sm::Vec3),
+	sizeof(VertexP),
+	sizeof(VertexPN),
+	sizeof(VertexPCN),
+	sizeof(VertexPC2N),
+	sizeof(VertexPCNT)
 };
 
-//int VertexInformation::m_offsets[][];
-
-int VertexInformation::GetStride(uint8_t vertexChannels)
+int VertexInformation::m_vertexOffsets[VertexType::VertexTypesAmount][VertexAttrib::VertexAttribsAmount] =
 {
-	if (vertexChannels == VertexP::Channels)
-		return sizeof(VertexP);
-	else if (vertexChannels == VertexPN::Channels)
-		return sizeof(VertexPN);
-	else if (vertexChannels == VertexPCN::Channels)
-		return sizeof(VertexPCN);
-	else if (vertexChannels == VertexPC2N::Channels)
-		return sizeof(VertexPC2N);
-	else if (vertexChannels == VertexPCNT::Channels)
-		return sizeof(VertexPCNT);
+	{ // VertexP
+		0,	// position
+		-1, // coords1
+		-1, // coords2
+		-1, // coords3
+		-1, // normal
+		-1  // tangent
+	},
 
-	assert(false);
-	return 0;
+	{ // VertexPN
+		0, // position
+		-1, // coords1
+		-1, // coords2
+		-1, // coords3
+		sizeof(sm::Vec3), // normal
+		-1  // tangent
+	},
+
+	{ // VertexPCN
+		0, // position
+		sizeof(sm::Vec3), // coords1
+		-1, // coords2
+		-1, // coords3
+		sizeof(sm::Vec3) + sizeof(sm::Vec2), // normal
+		-1  // tangent
+	},
+
+	{ // VertexPC2N
+		0, // position
+		sizeof(sm::Vec3), // coords1
+		sizeof(sm::Vec3) + sizeof(sm::Vec2), // coords2
+		-1, // coords3
+		sizeof(sm::Vec3) + sizeof(sm::Vec2) + sizeof(sm::Vec2), // normal
+		-1  // tangent
+	},
+
+	{ // VertexPCNT
+		0, // position
+		sizeof(sm::Vec3), // coords1
+		-1, // coords2
+		-1, // coords3
+		sizeof(sm::Vec3) + sizeof(sm::Vec2), // normal
+		sizeof(sm::Vec3) + sizeof(sm::Vec2)  + sizeof(sm::Vec3)  // tangent
+	},
+};
+
+int VertexInformation::GetStride(uint8_t vertexType)
+{
+	return m_vertexStrides[vertexType];
 }
 
-int VertexInformation::GetOffset(uint8_t vertexChannels, VertexChannel channel)
+int VertexInformation::GetOffset(uint8_t vertexType, uint8_t vertexAttrib)
 {
-	assert(false);
-	return 0;
+	return m_vertexOffsets[vertexType][vertexAttrib];
 }
 
-sm::Vec3 VertexInformation::GetPosition(const void *vertex, uint8_t channels)
+sm::Vec3 VertexInformation::GetPosition(const void *vertex, uint8_t vertexType)
 {
-	if (channels == VertexP::Channels)
-		return reinterpret_cast<const VertexP*>(vertex)->position;
-	else if (channels == VertexPN::Channels)
-		return reinterpret_cast<const VertexPN*>(vertex)->position;
-	else if (channels == VertexPCN::Channels)
-		return reinterpret_cast<const VertexPCN*>(vertex)->position;
-	else if (channels == VertexPC2N::Channels)
-		return reinterpret_cast<const VertexPC2N*>(vertex)->position;
-	else if (channels == VertexPCNT::Channels)
-		return reinterpret_cast<const VertexPCNT*>(vertex)->position;
+	vertex = reinterpret_cast<const uint8_t*>(vertex) + GetOffset(vertexType, VertexAttrib::Position);
 
-	assert(false);
-	return sm::Vec3();
+	return *reinterpret_cast<const sm::Vec3*>(vertex);
+}
+
+bool VertexInformation::HasAttrib(uint8_t vertexType, uint8_t vertexAttrib)
+{
+	return GetOffset(vertexType, vertexAttrib) != -1;
 }
 

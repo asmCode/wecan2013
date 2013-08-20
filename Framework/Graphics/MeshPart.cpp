@@ -8,10 +8,11 @@
 
 #include <GL/glew.h>
 
-MeshPart::MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexChannels)
+MeshPart::MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexType) :
+	m_vertexType(vertexType)
 {
 	bbox = new BoundingBox();
-	(*bbox) = BoundingBox::FromVertices(vertices, verticesCount);
+	(*bbox) = BoundingBox::FromVertices(vertices, verticesCount, vertexType);
 	bsphere = new BoundingSphere();
 	(*bsphere) = BoundingSphere::FromBBox(*bbox);
 
@@ -24,7 +25,7 @@ MeshPart::MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertex
 	
 	glGenBuffers(1, &vboId);
 	glBindBuffer(GL_ARRAY_BUFFER, vboId);
-	glBufferData(GL_ARRAY_BUFFER, verticesCount * VertexInformation::GetVertexSize(vertexChannels), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, verticesCount * VertexInformation::GetStride(m_vertexType), vertices, GL_STATIC_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
@@ -50,9 +51,7 @@ void MeshPart::Draw()
 {
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboId);
 
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(0));
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(sm::Vec3)));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), reinterpret_cast<void*>(sizeof(sm::Vec3) + sizeof(sm::Vec3)));
+	SetupVertexPointers();
 
 	glDrawArrays(GL_TRIANGLES, 0, verticesCount);
 
@@ -74,7 +73,7 @@ int MeshPart::GetVerticesCount()
 	return verticesCount;
 }
 
-const Vertex* MeshPart::GetVertices()
+const void* MeshPart::GetVertices()
 {
 	return vertices;
 }
@@ -89,3 +88,14 @@ bool MeshPart::IsVisible() const
 	return visible;
 }
 
+void MeshPart::SetupVertexPointers()
+{
+	if (m_vertexType == VertexType::PCN)
+	{
+		uint32_t stride = VertexInformation::GetStride(m_vertexType);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Position)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Coords1)));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Normal)));
+	}
+}

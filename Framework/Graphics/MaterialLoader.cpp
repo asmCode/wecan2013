@@ -46,19 +46,19 @@ bool MaterialLoader::LoadMaterialParam(Material *mat, XMLNode &node)
 	
 	if (type == "Ambient")
 	{
-		mat->ambientColor = ParseVec3(node.GetAttribAsString("Value"));
+		mat->ambientColor = ParseVec4(node.GetAttribAsString("Value"));
 	}
 	else if (type == "Diffuse")
 	{
-		mat ->diffuseColor = ParseVec3(node.GetAttribAsString("Value"));
+		mat ->diffuseColor = ParseVec4(node.GetAttribAsString("Value"));
 	}
 	else if (type == "Specular")
 	{
-		mat ->specularColor = ParseVec3(node.GetAttribAsString("Value"));
+		mat ->specularColor = ParseVec4(node.GetAttribAsString("Value"));
 	}
 	else if (type == "Emissive")
 	{
-		mat ->emissiveColor = ParseVec3(node.GetAttribAsString("Value"));
+		mat ->emissiveColor = ParseVec4(node.GetAttribAsString("Value"));
 	}
 	else if (type == "Opacity")
 	{
@@ -118,9 +118,9 @@ bool MaterialLoader::LoadTexture(Material *material, XMLNode &node)
 	return true;
 }
 
-sm::Vec3 MaterialLoader::ParseVec3(const std::string &value)
+sm::Vec4 MaterialLoader::ParseVec4(const std::string &value)
 {
-	sm::Vec3 color;
+	sm::Vec4 color;
 	sscanf(value.c_str(), "%f;%f;%f;%f", &color.x, &color.y, &color.z, &color.w);
 	return color;
 }

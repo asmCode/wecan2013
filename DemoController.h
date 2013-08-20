@@ -215,8 +215,6 @@ public:
 	float delayLimit;
 	float fps;
 
-	Model *m_teapot;
-
 	BreakingWallScene *m_breakingWallScene;
 	AssemblingScene *m_assemblingScene;
 

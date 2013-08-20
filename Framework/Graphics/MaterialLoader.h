@@ -1,7 +1,7 @@
 #ifndef MATERIAL_LOADER
 #define MATERIAL_LOADER
 
-#include <Math/Vec3.h>
+#include <Math/Vec4.h>
 #include <string>
 
 class Material;
@@ -18,7 +18,7 @@ private:
 	static bool LoadTextures(Material *material, XMLNode &node);
 	static bool LoadTexture(Material *material, XMLNode &node);
 
-	static sm::Vec3 ParseVec3(const std::string &value);
+	static sm::Vec4 ParseVec4(const std::string &value);
 };
 
 #endif // MATERIAL_LOADER

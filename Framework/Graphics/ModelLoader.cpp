@@ -7,6 +7,7 @@
 #include "Model.h"
 #include "Mesh.h"
 #include "MeshPart.h"
+#include "VertexInformation.h"
 
 // TODO: temporary include?
 #include "Property.h"
@@ -100,29 +101,16 @@ Mesh* ModelLoader::LoadMesh(BinaryReader &br)
 MeshPart *ModelLoader::LoadMeshPart(BinaryReader &br)
 {
 	std::string materialName = br.Read<std::string>();
-
+	uint8_t vertexType = br.Read<uint8_t>();
 	int verticesCount = br.Read<int>();
-	Vertex *vertices = new Vertex[verticesCount];
 
-	for (int i = 0; i < verticesCount; i++)
-	{
-		vertices[i].position.x = br.Read<float>();
-		vertices[i].position.y = br.Read<float>();
-		vertices[i].position.z = br.Read<float>();
+	int vertexSize = VertexInformation::GetStride(vertexType);
+	int vertexDataSize = vertexSize * verticesCount;
+	
+	uint8_t *vertices = new uint8_t[vertexDataSize];
+	br.ReadBuffer((char*)vertices, vertexDataSize);
 
-		vertices[i].normal.x = br.Read<float>();
-		vertices[i].normal.y = br.Read<float>();
-		vertices[i].normal.z = br.Read<float>();
-
-		vertices[i].tangent.x = br.Read<float>();
-		vertices[i].tangent.y = br.Read<float>();
-		vertices[i].tangent.z = br.Read<float>();
-
-		vertices[i].texCoord.x = br.Read<float>();
-		vertices[i].texCoord.y = br.Read<float>();
-	}
-
-	MeshPart *meshPart = new MeshPart(verticesCount, vertices, NULL);
+	MeshPart *meshPart = new MeshPart(verticesCount, vertices, NULL, vertexType);
 	meshPart ->materialName = materialName;
 
 	return meshPart;

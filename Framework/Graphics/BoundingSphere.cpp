@@ -3,12 +3,6 @@
 #include "Vertex.h"
 #include <assert.h>
 
-BoundingSphere BoundingSphere::FromVertices(const Vertex *vertices, unsigned count)
-{
-	BoundingBox bb = BoundingBox::FromVertices(vertices, count);
-	return BoundingSphere::FromBBox(bb);
-}
-
 BoundingSphere BoundingSphere::FromBBox(const BoundingBox &bbox)
 {
 	BoundingSphere bs;

@@ -1,8 +1,10 @@
 #include "BoundingBox.h"
 #include "Vertex.h"
+#include "VertexInformation.h"
+#include <Math/Vec3.h>
 #include <assert.h>
 
-BoundingBox BoundingBox::FromVertices(const Vertex *vertices, unsigned count)
+BoundingBox BoundingBox::FromVertices(const void *vertices, unsigned count, uint8_t vertexType)
 {
 	BoundingBox bbox;
 
@@ -20,21 +22,27 @@ BoundingBox BoundingBox::FromVertices(const Vertex *vertices, unsigned count)
 		return bbox;
 	}
 
-	bbox.maxX = vertices[0].position.x;
-	bbox.minX = vertices[0].position.x;
-	bbox.maxY = vertices[0].position.y;
-	bbox.minY = vertices[0].position.y;
-	bbox.maxZ = vertices[0].position.z;
-	bbox.minZ = vertices[0].position.z;
+	sm::Vec3 v0Pos = VertexInformation::GetPosition(vertices, vertexType);
+
+	bbox.maxX = v0Pos.x;
+	bbox.minX = v0Pos.x;
+	bbox.maxY = v0Pos.y;
+	bbox.minY = v0Pos.y;
+	bbox.maxZ = v0Pos.z;
+	bbox.minZ = v0Pos.z;
 
 	for (unsigned i = 0; i < count; i++)
 	{
-		if (bbox.minX > vertices[i].position.x) bbox.minX = vertices[i].position.x;
-		if (bbox.maxX < vertices[i].position.x) bbox.maxX = vertices[i].position.x;
-		if (bbox.minY > vertices[i].position.y) bbox.minY = vertices[i].position.y;
-		if (bbox.maxY < vertices[i].position.y) bbox.maxY = vertices[i].position.y;
-		if (bbox.minZ > vertices[i].position.z) bbox.minZ = vertices[i].position.z;
-		if (bbox.maxZ < vertices[i].position.z) bbox.maxZ = vertices[i].position.z;
+		sm::Vec3 viPos = VertexInformation::GetPosition(vertices, vertexType);
+
+		if (bbox.minX > viPos.x) bbox.minX = viPos.x;
+		if (bbox.maxX < viPos.x) bbox.maxX = viPos.x;
+		if (bbox.minY > viPos.y) bbox.minY = viPos.y;
+		if (bbox.maxY < viPos.y) bbox.maxY = viPos.y;
+		if (bbox.minZ > viPos.z) bbox.minZ = viPos.z;
+		if (bbox.maxZ < viPos.z) bbox.maxZ = viPos.z;
+
+		vertices = reinterpret_cast<const uint8_t*>(vertices) + VertexInformation::GetStride(vertexType);
 	}
 
 	bbox.center.Set(

@@ -15,7 +15,7 @@ public:
 	uint32_t vboId;
 	Material *material;
 
-	uint8_t m_vertexChannels;
+	uint8_t m_vertexType;
 
 	int verticesCount;
 	void *vertices;
@@ -26,10 +26,12 @@ public:
 	bool visible;
 	bool isAlwaysVisible;
 
+	void SetupVertexPointers();
+
 public:
 	std::string materialName;
 
-	MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexChannels);
+	MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexType);
 	~MeshPart();
 
 	void SetMaterial(Material *material);

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Vec3.h"
+#include "Vec4.h"
 
 //[0] [4] [8]  [12]     [0]
 //[1] [5] [9]  [13]     [1]
@@ -283,17 +284,18 @@ namespace sm
 
 		Vec3 operator * (const Vec3 &right) const
 		{
-			Vec3 left;
+			Vec4 right4(right);
+			Vec4 left;
 
 			for (int i = 0; i < 4; i++)
 			{
 				float val = 0.0f;
 				for (int k = 0; k < 4; k++)
-					val += a[(k * 4) + i] * right[k];
+					val += a[(k * 4) + i] * right4[k];
 				left[i] = val;
 			}
 
-			return left;
+			return Vec3(left.x, left.y, left.z);
 		}
 
 		Matrix &operator *= (const Matrix &right)

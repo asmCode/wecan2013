@@ -77,8 +77,6 @@
     <ClInclude Include="CubeTexture.h" />
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="IKeyboardCallback.h" />
-    <ClInclude Include="BoundingBox.h" />
-    <ClInclude Include="BoundingSphere.h" />
     <ClInclude Include="DepthTexture.h" />
     <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="IGlContextService.h" />
@@ -90,8 +88,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimCamera.cpp" />
-    <ClCompile Include="BoundingBox.cpp" />
-    <ClCompile Include="BoundingSphere.cpp" />
     <ClCompile Include="CubeTexture.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
     <ClCompile Include="Framebuffer.cpp" />

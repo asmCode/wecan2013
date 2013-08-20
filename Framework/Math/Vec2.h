@@ -6,6 +6,7 @@
 #define deg(x) (float) ((180.0f * x) / 3.141592654f)
 
 #include <math.h>
+#include <assert.h>
 
 namespace sm
 {
@@ -14,25 +15,21 @@ namespace sm
 	public:
 		float x;
 		float y;
-		float z;
 
 		Vec2()
 		{
-			z = 1.0f;
 		}
 
 		Vec2(float x, float y)
 		{
 			this ->x = x;
 			this ->y = y;
-			this ->z = 1.0f;
 		}
 
 		void Set(float x, float y)
 		{
 			this ->x = x;
 			this ->y = y;
-			this ->z = 1.0f;
 		}
 
 		float &operator [] (int i)
@@ -41,8 +38,9 @@ namespace sm
 			{
 			case 0: return x;
 			case 1: return y;
-			case 2: return z;
 			}
+
+			assert(false);
 
 			return x;
 		}
@@ -53,21 +51,11 @@ namespace sm
 			{
 			case 0: return x;
 			case 1: return y;
-			case 2: return z;
 			}
 
+			assert(false);
+
 			return x;
-		}
-
-		Vec2 operator * (const Vec2 &v) const
-		{
-			///////////////////////////// zlooooooooooo
-			Vec2 vret(-1, -1);
-
-			/*vret.x = (v.y * z) - (y * v.z);
-			vret.y = (x * v.z) - (v.x * z);*/
-
-			return vret;
 		}
 
 		Vec2 operator * (float s) const
@@ -98,12 +86,6 @@ namespace sm
 			vret.y = y - v.y;
 
 			return vret;
-		}
-
-		Vec2 &operator *= (Vec2 &v)
-		{
-			///////////////////////////// zlooooooooooo
-			return *this;
 		}
 
 		Vec2 &operator *= (float s)
@@ -238,3 +220,4 @@ namespace sm
 }
 
 #endif
+

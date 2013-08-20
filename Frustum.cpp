@@ -1,5 +1,5 @@
 #include "Frustum.h"
-#include "GraphicsLibrary/BoundingBox.h"
+#include <Graphics/BoundingBox.h>
 
 Frustum::Frustum(void)
 {

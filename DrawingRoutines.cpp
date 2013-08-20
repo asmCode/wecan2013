@@ -392,7 +392,8 @@ bool DrawingRoutines::Initialize(Content *content)
 	assert(m_diffLightShader != NULL);
 
 	m_diffLightShader->BindVertexChannel(0, "a_position");
-	m_diffLightShader->BindVertexChannel(1, "a_normal");
+	m_diffLightShader->BindVertexChannel(1, "a_coords");
+	m_diffLightShader->BindVertexChannel(2, "a_normal");
 	m_diffLightShader->LinkProgram();
 
 	return true;
@@ -408,6 +409,7 @@ void DrawingRoutines::DrawDiffLight(Model *model, const sm::Matrix &viewProjMatr
 	glDepthMask(GL_TRUE);
 	glEnableVertexAttribArray(0); 
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 
 	m_diffLightShader->UseProgram();
 	m_diffLightShader->SetMatrixParameter("u_viewProjMatrix", viewProjMatrix);
@@ -422,6 +424,7 @@ void DrawingRoutines::DrawDiffLight(Model *model, const sm::Matrix &viewProjMatr
 	
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
 }
 
 void DrawingRoutines::DrawRobotElement(RobotElement *robotElement,
@@ -430,6 +433,7 @@ void DrawingRoutines::DrawRobotElement(RobotElement *robotElement,
 {
 	glEnableVertexAttribArray(0); 
 	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
 
 	m_diffLightShader->UseProgram();
 	m_diffLightShader->SetMatrixParameter("u_viewProjMatrix", viewProjMatrix);
@@ -444,5 +448,6 @@ void DrawingRoutines::DrawRobotElement(RobotElement *robotElement,
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
+	glDisableVertexAttribArray(3);
 }
 

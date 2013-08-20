@@ -1,7 +1,7 @@
 #ifndef MATERIAL
 #define MATERIAL
 
-#include <Math\Vec3.h>
+#include <Math\Vec4.h>
 #include <string>
 
 #include "Texture.h"
@@ -14,10 +14,10 @@ private:
 public:
 	std::string name;
 	
-	sm::Vec3 ambientColor;
-	sm::Vec3 diffuseColor;
-	sm::Vec3 specularColor;
-	sm::Vec3 emissiveColor;
+	sm::Vec4 ambientColor;
+	sm::Vec4 diffuseColor;
+	sm::Vec4 specularColor;
+	sm::Vec4 emissiveColor;
 
 	float opacity;
 	float glossiness;

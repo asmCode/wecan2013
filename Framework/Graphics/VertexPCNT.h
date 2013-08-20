@@ -1,6 +1,5 @@
 #pragma once
 
-#include "VertexChannel.h"
 #include "../Math/Vec3.h"
 #include "../Math/Vec2.h"
 #include <stdint.h>
