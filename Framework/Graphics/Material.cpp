@@ -16,6 +16,7 @@ Material::Material()
 	diffuseTex = NULL;
 	opacityTex = NULL;
 	normalTex = NULL;
+	lightmapTex = NULL;
 	//environmentTex = NULL;
 }
 

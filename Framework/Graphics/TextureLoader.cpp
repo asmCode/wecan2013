@@ -21,7 +21,7 @@ Texture* TextureLoader::Load(const std::string &path)
 		height,
 		bytesCount * 8,
 		data,
-		Texture::Wrap_ClampToEdge,
+		Texture::Wrap_Repeat,
 		Texture::Filter_LinearMipmapLinear,
 		Texture::Filter_Linear,
 		true);

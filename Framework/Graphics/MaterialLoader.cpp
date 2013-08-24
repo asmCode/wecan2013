@@ -109,6 +109,10 @@ bool MaterialLoader::LoadTexture(Material *material, XMLNode &node)
 	{
 		material ->normalTexName = assetFilename.GetFilename();
 	}
+	else if (type == "Lightmap")
+	{
+		material ->lightmapTexName = assetFilename.GetFilename();
+	}
 	else if (type == "Environment")
 	{
 		material->environmentTexName = assetFilename.GetFilename();

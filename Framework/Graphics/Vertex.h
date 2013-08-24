@@ -5,3 +5,4 @@
 #include "VertexPCN.h"
 #include "VertexPC2N.h"
 #include "VertexPCNT.h"
+#include "VertexPC2NT.h"

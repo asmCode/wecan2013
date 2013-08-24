@@ -1,0 +1,24 @@
+#version 400
+
+layout( location = 0 ) out vec4 FragColor;
+
+uniform sampler2D u_diffTex;
+uniform sampler2D u_lightmapTex;
+
+varying vec2 o_coordsDiff;
+varying vec2 o_coordsLightmap;
+varying vec3 o_normal;
+varying vec3 o_lightDirection;
+
+void main()
+{
+	float diffValue = max(dot(normalize(o_lightDirection), normalize(o_normal)), 0.2);
+	
+    FragColor =
+		texture(u_diffTex, o_coordsDiff) *
+		texture(u_lightmapTex, o_coordsLightmap) *
+		vec4(diffValue, diffValue, diffValue, 1.0);
+		
+	//FragColor = vec4(1, 0, 1, 1);
+}
+

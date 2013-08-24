@@ -34,6 +34,7 @@ public:
 	sm::Matrix& AnimTransform();
 
 	sm::Matrix GetViewMatrix();
+	sm::Vec3 GetPosition();
 
 	float GetFov(float time);
 	float GetTargetDistance(float time);

@@ -31,6 +31,7 @@ public:
 	sm::Matrix GetViewMatrix();
 
 	sm::Vec3 GetPosition(float time);
+	sm::Vec3 GetPosition();
 
 	float GetFov(float time);
 	float GetFocal(float time);

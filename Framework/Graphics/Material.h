@@ -37,6 +37,9 @@ public:
 	std::string environmentTexName;
 	//CubeTexture *environmentTex;
 
+	std::string lightmapTexName;
+	Texture *lightmapTex;
+
 	Material(void);
 	~Material(void);
 };

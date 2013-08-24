@@ -13,7 +13,8 @@ int VertexInformation::m_vertexStrides[] =
 	sizeof(VertexPN),
 	sizeof(VertexPCN),
 	sizeof(VertexPC2N),
-	sizeof(VertexPCNT)
+	sizeof(VertexPCNT),
+	sizeof(VertexPC2NT)
 };
 
 int VertexInformation::m_vertexOffsets[VertexType::VertexTypesAmount][VertexAttrib::VertexAttribsAmount] =
@@ -61,6 +62,15 @@ int VertexInformation::m_vertexOffsets[VertexType::VertexTypesAmount][VertexAttr
 		-1, // coords3
 		sizeof(sm::Vec3) + sizeof(sm::Vec2), // normal
 		sizeof(sm::Vec3) + sizeof(sm::Vec2)  + sizeof(sm::Vec3)  // tangent
+	},
+
+	{ // VertexPC2NT
+		0, // position
+		sizeof(sm::Vec3), // coords1
+		sizeof(sm::Vec3) + sizeof(sm::Vec2), // coords2
+		-1, // coords3
+		sizeof(sm::Vec3) + sizeof(sm::Vec2) + sizeof(sm::Vec2), // normal
+		sizeof(sm::Vec3) + sizeof(sm::Vec2) + sizeof(sm::Vec2)  + sizeof(sm::Vec3)  // tangent
 	},
 };
 

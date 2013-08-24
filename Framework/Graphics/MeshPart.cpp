@@ -90,12 +90,41 @@ bool MeshPart::IsVisible() const
 
 void MeshPart::SetupVertexPointers()
 {
-	if (m_vertexType == VertexType::PCN)
+	if (m_vertexType == VertexType::PN)
+	{
+		uint32_t stride = VertexInformation::GetStride(m_vertexType);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Position)));
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Normal)));
+	}
+	else if (m_vertexType == VertexType::PCN)
 	{
 		uint32_t stride = VertexInformation::GetStride(m_vertexType);
 
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Position)));
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Coords1)));
 		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Normal)));
+	}
+	else if (m_vertexType == VertexType::PC2N)
+	{
+		uint32_t stride = VertexInformation::GetStride(m_vertexType);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Position)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Coords1)));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Coords2)));
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Normal)));
+	}
+	else if (m_vertexType == VertexType::PCNT)
+	{
+		uint32_t stride = VertexInformation::GetStride(m_vertexType);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Position)));
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Coords1)));
+		glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Normal)));
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, stride, reinterpret_cast<void*>(VertexInformation::GetOffset(m_vertexType, VertexAttrib::Tangent)));
+	}
+	else
+	{
+		int f = 0;
 	}
 }

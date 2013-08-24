@@ -123,3 +123,8 @@ sm::Matrix AnimCamera::GetViewMatrix()
 {
 	return view;
 }
+
+sm::Vec3 AnimCamera::GetPosition()
+{
+	return AnimTransform() * sm::Vec3(0, 0, 0);
+}

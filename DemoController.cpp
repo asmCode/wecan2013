@@ -191,6 +191,12 @@ bool DemoController::LoadContent(const char *basePath)
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
 
+	m_lightmapTest = m_content->Get<Model>("lightmap_test");
+	assert(m_lightmapTest != NULL);
+
+	m_teapots = m_content->Get<Model>("teapots");
+	assert(m_teapots != NULL);
+
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);
 
@@ -335,21 +341,21 @@ bool DemoController::Update(float time, float ms)
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
 
-	ICamera *cam = NULL;
+	m_activeCamera = NULL;
 
 #if MAN_CAM
 	manCam.Process(ms);
-	cam = &manCam;
+	m_activeCamera = &manCam;
 #else
 	camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
-	cam = animCamsMng.GetActiveCamera(time);
+	m_activeCamera = animCamsMng.GetActiveCamera(time);
 #endif
 
 	
 
 	m_viewProj =
-		sm::Matrix::PerspectiveMatrix((cam->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 200.0f) *
-		cam->GetViewMatrix();
+		sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 200.0f) *
+		m_activeCamera->GetViewMatrix();
 
 	//anim->Update(time / 1000.0f, sm::Matrix::IdentityMatrix(), seconds);
 
@@ -533,7 +539,16 @@ bool DemoController::Draw(float time, float ms)
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	m_robot->Draw(time, seconds);
+	DrawingRoutines::SetViewProjMatrix(m_viewProj);
+	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
+	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
+
+	//m_robot->Draw(time, seconds);
+	
+	//DrawingRoutines::DrawDiffLightLightMap(m_lightmapTest);
+
+	DrawingRoutines::DrawWithMaterial(m_teapots);
+
 
 	//DrawingRoutines::DrawDiffLight(m_teapot, viewProj, sm::Vec3(0, 0, 100));
 
@@ -755,7 +770,7 @@ void DemoController::SetOpenglParams()
 
 	glShadeModel(GL_SMOOTH);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.5f, 0.5f, 0.9f, 1.0f);
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -879,14 +894,14 @@ void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYT
 
 	glColor3ub(r, g, b);
 	glCallLists((int)text.size(), GL_UNSIGNED_BYTE, text.c_str());
-
+	
 	glPopAttrib();
 }
 
 float DemoController::CalcFps(float ms)
 {
 	flaps++;
-
+	
 	delay += ms;
 	if (delay > delayLimit)
 	{

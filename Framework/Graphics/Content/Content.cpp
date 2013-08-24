@@ -20,6 +20,7 @@ void Content::LoadTextures(const std::string &fullPath)
 {
 	std::vector<std::string> filesNames;
 	Path::GetAllFiles(filesNames, fullPath, "*.png");
+	Path::GetAllFiles(filesNames, fullPath, "*.jpg");
 
 	for (uint32_t i = 0 ; i < filesNames.size(); i++)
 	{
@@ -103,6 +104,7 @@ void Content::CombineResources()
 		materialsIt->second->diffuseTex = Get<Texture>(materialsIt->second->diffuseTexName);
 		materialsIt->second->normalTex = Get<Texture>(materialsIt->second->normalTexName);
 		materialsIt->second->opacityTex = Get<Texture>(materialsIt->second->opacityTexName);
+		materialsIt->second->lightmapTex = Get<Texture>(materialsIt->second->lightmapTexName);
 		// materialsIt->second->environmentTex = Get<CubeTexture>(materialsIt->second->environmentTexName); not implemented yet
 	}
 }

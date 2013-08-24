@@ -9,30 +9,47 @@ class Model;
 class MeshPart;
 class Content;
 class RobotElement;
+class Material;
 //class BasicLightingEffect;
 
 class DrawingRoutines
 {
 private:
-	//BasicLightingEffect *basicLightingEffect;
-	//Effect *earlyZEffect;
-	//static sm::Matrix fixCoordsMatrix;
+	static sm::Matrix m_viewProjMatrix;
+	static sm::Vec3 m_lightPosition;
+	static sm::Vec3 m_eyePosition;
 
 	// diffuse lighting
 	static Shader *m_diffLightShader;
 
+	// diffuse lighting, diff tex, shadowmap tex
+	static Shader *m_diffLightLightMapShader;
+
+	// diffuse texture, lighting
+	static Shader *m_diffShader;
+
+	// diffuse and specular lighting
+	static Shader *m_colorShader;
+
+	// diffuse texture, normal map
+	static Shader *m_diffNormShader;
+
+	static bool SetupShader(Material *material, const sm::Matrix &worldatrix);
+	
 public:
 	static bool Initialize(Content *content);
 
-	static void DrawDiffLight(
-		Model *model,
-		const sm::Matrix &viewProjMatrix,
-		const sm::Vec3 &lightPosition);
+	static void SetViewProjMatrix(const sm::Matrix &viewProj);
+	static void SetLightPosition(const sm::Vec3 &lightPosition);
+	static void SetEyePosition(const sm::Vec3 &eyePosition);
 
-	static void DrawRobotElement(
-		RobotElement *robotElement,
-		const sm::Matrix &viewProjMatrix,
-		const sm::Vec3 &lightPosition);
+	static void DrawWithMaterial(Model *model);
+
+	static void DrawDiffLight(Model *model);
+
+	static void DrawDiffLightLightMap(Model *model);
+
+	static void DrawRobotElement(RobotElement *robotElement);
 
 	/*void Initialize(
 		Effect *stdLightingFx,

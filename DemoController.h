@@ -98,6 +98,11 @@ public:
 	Model *m_doors;
 	Animation *m_doorsAnim;
 
+	Model *m_lightmapTest;
+	Model *m_teapots;
+
+	ICamera *m_activeCamera;
+
 	SparksGenerator m_sparksGenerator;
 
 	SpriteBatch *m_spriteBatch;
