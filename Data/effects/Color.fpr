@@ -2,6 +2,9 @@
 
 layout( location = 0 ) out vec4 FragColor;
 
+uniform vec4 u_diffuseColor;
+uniform vec4 u_specularColor;
+
 varying vec3 o_normal;
 varying vec3 o_lightDirection;
 varying vec3 o_eyeDirection;
@@ -11,9 +14,15 @@ void main()
 {
 	float diffValue = max(dot(normalize(o_lightDirection), normalize(o_normal)), 0.2);
 	float specValue = pow(max(dot(normalize(o_halfVector), normalize(o_normal)), 0), 16.0);
+	
+	vec4 diffuseColor = u_diffuseColor;
+	diffuseColor.xyz *= diffValue;
+	
+	vec4 specularColor = u_specularColor;
+	specularColor.xyz *= specValue;
 		
 	FragColor =
-		vec4(diffValue, diffValue, diffValue, 1.0) +
-		vec4(specValue, specValue, specValue, 1.0);
+		diffuseColor +
+		specularColor;
 }
 

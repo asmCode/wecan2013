@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Windows.h>
+#include <stdint.h>
 
 class Texture;
 class Shader;
@@ -11,23 +11,29 @@ class Blur
 private:
 	int blurCount;
 
-	Shader *blurEffect;
+	Shader *m_vertBlurShader;
+	Shader *m_horiBlurShader;
 	Framebuffer *framebuffer;
 
 	Texture **blurredTextures;
 	Texture *tmpTex;
 
-	void BlurTexture(UINT srcTex, UINT dstTex, bool glow);
+	void BlurTexture(uint32_t srcTex, uint32_t dstTex, bool glow);
 
 	int width;
 	int height;
 	int bpp;
 
+	uint32_t m_quadVBO;
+	float m_quadVerts[16];
+
+	void CreateQuad(int width, int height);
+
 public:
-	Blur(int blurCount, Shader *blurEffect, int width, int height);
+	Blur(int blurCount, Shader *horiBlurShader, Shader *vertBlurShader, int width, int height);
 	~Blur(void);
 
-	void MakeBlur(UINT texIdToBlur, int sampleStep, bool glow);
+	void MakeBlur(uint32_t texIdToBlur, Texture *tex);
 
-	UINT GetBlurredTexture(int index);
+	Texture* GetBlurredTexture(int index);
 };

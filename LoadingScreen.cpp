@@ -1,5 +1,5 @@
 #include "LoadingScreen.h"
-#include "GraphicsLibrary/Texture.h"
+#include <Graphics/Texture.h>
 #include <Graphics/TextureLoader.h>
 #include "DemoController.h"
 

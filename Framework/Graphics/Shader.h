@@ -3,6 +3,7 @@
 
 #include "../Math/Matrix.h"
 #include "../Math/Vec3.h"
+#include "../Math/Vec4.h"
 #include <string>
 #include <Windows.h>
 #include <GL/glew.h>
@@ -26,6 +27,7 @@ public:
 	void SetParameter(const char *name, float val1, float val2, float val3, float val4);
 	
 	void SetParameter(const char *name, const sm::Vec3 &val);
+	void SetParameter(const char *name, const sm::Vec4 &val);
 	void SetTextureParameter(const char *name, unsigned channel, unsigned texId);
 	void SetMatrixParameter(const char *name, const sm::Matrix &matrix);
 

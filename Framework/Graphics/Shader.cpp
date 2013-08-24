@@ -1,4 +1,5 @@
 #include "Shader.h"
+#include "../Utils/Log.h"
 #include <fstream>
 #include <assert.h>
 
@@ -83,6 +84,11 @@ void Shader::SetParameter(const char *name, const sm::Vec3 &val)
 	SetParameter(name, val.x, val.y, val.z);
 }
 
+void Shader::SetParameter(const char *name, const sm::Vec4 &val)
+{
+	SetParameter(name, val.x, val.y, val.z, val.w);
+}
+
 void Shader::SetTextureParameter(const char *name, unsigned channel, unsigned texId)
 {
 	glActiveTexture(GL_TEXTURE0 + channel);
@@ -136,7 +142,8 @@ GLuint Shader::CompileShader(GLenum shaderType, const char* file)
     if (logLength > 0) {
         GLchar *log = (GLchar *)malloc(logLength);
         glGetShaderInfoLog(shaderId, logLength, &logLength, log);
-		printf("%s", log);
+		OutputDebugStringA(log);
+		//Log::LogT("shader log: %s", log);
         free(log);
     }
 #endif

@@ -23,7 +23,7 @@ void Log::UpdateTime()
 	time(&rawTime);
 	timeInfo = localtime(&rawTime);
 	
-	strftime(timeBuff, 80, "%X", timeInfo);
+	strftime(timeBuff, 70, "%X", timeInfo);
 }
 
 void Log::UpdateLog()

@@ -66,7 +66,7 @@ void SpriteBatch::End()
 	if (!m_isBlend) glDisable(GL_BLEND);
 
 	glDisableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
+	glDisableVertexAttribArray(1);
 }
 
 void SpriteBatch::Draw(const Color &color, int x, int y, int width, int height)

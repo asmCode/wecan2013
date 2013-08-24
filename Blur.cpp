@@ -1,17 +1,27 @@
 #include "Blur.h"
-#include "GraphicsLibrary/Framebuffer.h"
+#include <Graphics/Framebuffer.h>
 #include <Graphics/Shader.h>
-#include "GraphicsLibrary/Texture.h"
+#include <Graphics/Texture.h>
 #include <Math/Matrix.h>
 
-Blur::Blur(int blurCount, Shader *blurEffect, int width, int height)
+#include <Graphics/SpriteBatch.h>
+
+Blur::Blur(int blurCount, Shader *horiBlurShader, Shader *vertBlurShader, int width, int height) :
+	m_horiBlurShader(horiBlurShader),
+	m_vertBlurShader(vertBlurShader)
 {
-	this ->blurEffect = blurEffect;
 	this ->blurCount = blurCount;
 
 	this ->width = width;
 	this ->height = height;
 	this ->bpp = 32;
+
+	CreateQuad(width, height);
+
+	glGenBuffers(1, &m_quadVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 4 * sizeof(float), m_quadVerts, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	framebuffer = new Framebuffer();
 	framebuffer ->Initialize(width, height, bpp);
@@ -38,62 +48,83 @@ Blur::~Blur(void)
 	delete framebuffer;
 }
 
-void Blur::BlurTexture(UINT srcTex, UINT dstTex, bool glow)
+void Blur::BlurTexture(uint32_t srcTex, uint32_t dstTex, bool glow)
 {
-	framebuffer ->BindFramebuffer();
-	framebuffer ->AttachColorTexture(dstTex);
-	framebuffer ->Validate();
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-	blurEffect ->SetTextureParameter("texToBlur", 0, srcTex);
-
-	//blurEffect ->BeginPass(0);
-
-	glBegin(GL_QUADS);
-	glTexCoord2i(0, 1); glVertex2i(0, 0);
-	glTexCoord2i(1, 1); glVertex2i(width, 0);
-	glTexCoord2i(1, 0); glVertex2i(width, height);
-	glTexCoord2i(0, 0); glVertex2i(0, height);
-	glEnd();
-
-	//blurEffect ->EndPass(0);
-
-	Framebuffer::RestoreDefaultFramebuffer();
 }
 
-void Blur::MakeBlur(UINT texIdToBlur, int sampleStep, bool glow)
+void Blur::MakeBlur(uint32_t texIdToBlur, Texture *tex)
 {
+	glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(0));
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(8));
+
+	framebuffer ->BindFramebuffer();
+
 	glDepthMask(false);
-
-	glPushAttrib(GL_ENABLE_BIT | GL_VIEWPORT_BIT | GL_CURRENT_BIT);
+	glColorMask(true, true, true, true);
 	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_LIGHTING);
-	glEnable(GL_TEXTURE_2D);
-
-	glColor4f(1, 1, 1, 1);
 
 	glViewport(0, 0, width, height);
 
-	sm::Matrix mvp = sm::Matrix::Ortho2DMatrix(0, (float)width, 0, (float)height);
-	//blurEffect ->SetParameter("mvp", mvp);
-
 	for (int i = 0; i < blurCount; i++)
 	{
-//		blurEffect ->SetParameter("scanStep", (float)sampleStep / width, 0);
-		BlurTexture(texIdToBlur, tmpTex ->GetId(), glow);
+		// horizontal blur
+		framebuffer ->AttachColorTexture(tmpTex->GetId());
+		framebuffer ->Validate();
 
-		//blurEffect ->SetParameter("scanStep", 0, (float)sampleStep / height);
-		BlurTexture(tmpTex ->GetId(), blurredTextures[i] ->GetId(), glow);
+		m_horiBlurShader->UseProgram();
+		m_horiBlurShader->SetMatrixParameter("u_mvp", sm::Matrix::Ortho2DMatrix(0, width, 0, height));
+		m_horiBlurShader->SetParameter("u_pixelSize", 1.0f / static_cast<float>(width));
+		m_horiBlurShader->SetTextureParameter("u_tex", 0, texIdToBlur);
+
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		//
+
+		// vertical blur
+		framebuffer ->AttachColorTexture(blurredTextures[i] ->GetId());
+		framebuffer ->Validate();
+
+		m_vertBlurShader->UseProgram();
+		m_vertBlurShader->SetMatrixParameter("u_mvp", sm::Matrix::Ortho2DMatrix(0, width, 0, height));
+		m_vertBlurShader->SetParameter("u_pixelSize", 1.0f / static_cast<float>(height));
+		m_vertBlurShader->SetTextureParameter("u_tex", 0, tmpTex ->GetId());
+
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		//
 
 		texIdToBlur = blurredTextures[i] ->GetId();
 	}
 
-	glPopAttrib();
+	Framebuffer::RestoreDefaultFramebuffer();
 
-	glDepthMask(true);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-UINT Blur::GetBlurredTexture(int index)
+Texture* Blur::GetBlurredTexture(int index)
 {
-	return blurredTextures[index] ->GetId();
+	return blurredTextures[index];
 }
+
+void Blur::CreateQuad(int width, int height)
+{
+	m_quadVerts[0] = static_cast<float>(0);
+	m_quadVerts[1] = static_cast<float>(height);
+	m_quadVerts[2] = 0.0f;
+	m_quadVerts[3] = 1.0f;
+
+	m_quadVerts[4] = static_cast<float>(width);
+	m_quadVerts[5] = static_cast<float>(height);
+	m_quadVerts[6] = 1.0f;
+	m_quadVerts[7] = 1.0f;
+
+	m_quadVerts[8] = static_cast<float>(0);
+	m_quadVerts[9] = static_cast<float>(0);
+	m_quadVerts[10] = 0.0f;
+	m_quadVerts[11] = 0.0f;
+
+	m_quadVerts[12] = static_cast<float>(width);
+	m_quadVerts[13] = static_cast<float>(0);
+	m_quadVerts[14] = 1.0f;
+	m_quadVerts[15] = 0.0f;
+}
+

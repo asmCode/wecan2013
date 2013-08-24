@@ -622,10 +622,12 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 		m_colorShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
 		m_colorShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_colorShader->SetParameter("u_eyePosition", m_eyePosition);
+		m_colorShader->SetParameter("u_diffuseColor", material->diffuseColor);
+		m_colorShader->SetParameter("u_specularColor", material->specularColor);
 		m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(1);///
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
@@ -669,8 +671,9 @@ void DrawingRoutines::DrawWithMaterial(Model *model)
 	std::vector<MeshPart*> meshParts;
 	model->GetMeshParts(meshParts);
 
-	glDepthMask(GL_TRUE);
-	
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glDepthMask(true);
 
 	for (uint32_t i = 0; i < meshParts.size(); i++)
 	{

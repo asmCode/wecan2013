@@ -2,7 +2,7 @@
 #include <Utils/Log.h>
 #include "BasicLightingEffect.h"
 #include "ShadowMappingTest.h"
-#include "GraphicsLibrary/Framebuffer.h"
+#include <Graphics/Framebuffer.h>
 #include <Graphics/Model.h>
 #include <Graphics/Mesh.h>
 #include <Graphics/MeshPart.h>
@@ -52,7 +52,6 @@ DemoController::DemoController() :
 	fade = 0.0f;
 	blurFbo = NULL;
 	dofBlur = NULL;
-	glowTex = NULL;
 	framebuffer = NULL;
 	isPlaying = false;
 	demoMode = DemoMode_Demo;
@@ -76,7 +75,7 @@ DemoController::DemoController() :
 	electroNoiseVal = 0.0f;
 	camShakeVal = 0.0f;
 
-	Log::StartLog(false, true, false);
+	Log::StartLog(true, true, false);
 }
 
 DemoController::~DemoController()
@@ -140,10 +139,10 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 
 	targetTex0 = new Texture(width, height, 32, NULL, Texture::Wrap_ClampToEdge, Texture::Filter_Nearest, Texture::Filter_Nearest, false);
 
-	glowTex = new Texture(width / 4, height / 4, 32, NULL, Texture::Wrap_ClampToEdge, Texture::Filter_Linear, Texture::Filter_Linear, false); 
+	m_glowTex = new Texture(width / 2, height / 2, 32, NULL, Texture::Wrap_ClampToEdge, Texture::Filter_Linear, Texture::Filter_Linear, false); 
 
 	blurFbo = new Framebuffer();
-	blurFbo ->Initialize(width / 4, height / 4 ,32);
+	blurFbo ->Initialize(width / 2, height / 2, 32);
 
 	depthTex = new DepthTexture(demo ->width, demo ->height);
 	depthTex->BindTexture();
@@ -178,6 +177,22 @@ bool DemoController::LoadContent(const char *basePath)
 
 	if (!AssignAssets())
 		return false;
+
+	m_horiBlurShader = m_content->Get<Shader>("HoriBlur");
+	assert(m_horiBlurShader != NULL);
+	m_horiBlurShader->BindVertexChannel(0, "a_position");
+	m_horiBlurShader->BindVertexChannel(1, "a_coords");
+	m_horiBlurShader->LinkProgram();
+
+	m_vertBlurShader = m_content->Get<Shader>("VertBlur");
+	assert(m_vertBlurShader != NULL);
+	m_vertBlurShader->BindVertexChannel(0, "a_position");
+	m_vertBlurShader->BindVertexChannel(1, "a_coords");
+	m_vertBlurShader->LinkProgram();
+
+	m_glowFramebuffer = new Framebuffer();
+	m_glowFramebuffer->Initialize(width / 2, height / 2, 32);
+	m_glowBlur = new Blur(1, m_horiBlurShader, m_vertBlurShader, width / 2, height / 2);
 
 	m_spriteShader = m_content->Get<Shader>("Sprite");
 	assert(m_spriteShader != NULL);
@@ -307,12 +322,6 @@ void DemoController::Release()
 		glWnd = NULL;
 	}
 
-	if (shadowPass != NULL)
-	{
-		delete shadowPass;
-		shadowPass = NULL;
-	}
-
 	if (blur != NULL)
 	{
 		delete blur;
@@ -326,7 +335,7 @@ void DemoController::Release()
 	}
 
 	DeleteObject(depthTex);
-	DeleteObject(glowTex);
+	DeleteObject(m_glowTex);
 	DeleteObject(blurFbo);
 	DeleteObject(m_envTexture);
 }
@@ -537,6 +546,8 @@ bool DemoController::Draw(float time, float ms)
 	float seconds = ms / 1000.0f;
 	time /= 1000.0f;
 
+	glDepthMask(true);
+	glViewport(0, 0, width, height);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	DrawingRoutines::SetViewProjMatrix(m_viewProj);
@@ -548,6 +559,8 @@ bool DemoController::Draw(float time, float ms)
 	//DrawingRoutines::DrawDiffLightLightMap(m_lightmapTest);
 
 	DrawingRoutines::DrawWithMaterial(m_teapots);
+
+	RenderGlowTexture();
 
 
 	//DrawingRoutines::DrawDiffLight(m_teapot, viewProj, sm::Vec3(0, 0, 100));
@@ -681,6 +694,7 @@ bool DemoController::Draw(float time, float ms)
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 #ifdef SHOW_FPS
+	glViewport(0, 0, width, height);
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
 	glColor4f(1, 0, 0, 1);
@@ -967,11 +981,36 @@ void DemoController::FilterOpacityObjects(const std::vector<Model*> &models,
 	}
 }
 
-void DemoController::DrawGlows(
-	float ms,
-	const sm::Vec3 &camPos,
-	unsigned int texId)
+void DemoController::RenderGlowTexture()
 {
+	glViewport(0, 0, width / 2, height / 2);
+
+	m_glowFramebuffer->BindFramebuffer();
+	m_glowFramebuffer->AttachColorTexture(m_glowTex->GetId());
+	m_glowFramebuffer->Validate();
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	DrawingRoutines::DrawWithMaterial(m_teapots);
+
+	Framebuffer::RestoreDefaultFramebuffer();
+
+	Texture *dd = m_content->Get<Texture>("4");
+
+	m_glowBlur->MakeBlur(m_glowTex->GetId(), dd);
+
+	glViewport(0, 0, width, height);
+	m_spriteBatch->Begin();
+	glDisable(GL_BLEND);
+	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0);
+	m_spriteBatch->End();
+}
+
+//void DemoController::DrawGlows(
+//	float ms,
+//	const sm::Vec3 &camPos,
+//	unsigned int texId)
+//{
 	//blurFbo->BindFramebuffer();
 	//blurFbo->AttachColorTexture(texId);
 	//blurFbo->Validate();
@@ -1020,7 +1059,7 @@ void DemoController::DrawGlows(
 	//glViewport(0, 0, width, height);
 
 	//blur->MakeBlur(texId, 1, true);
-}
+//}
 
 void DemoController::FrustumCulling(
 		const sm::Matrix &proj,

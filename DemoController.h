@@ -105,6 +105,12 @@ public:
 
 	SparksGenerator m_sparksGenerator;
 
+	Shader *m_horiBlurShader;
+	Shader *m_vertBlurShader;
+	Framebuffer *m_glowFramebuffer;
+	Blur *m_glowBlur;
+	Texture *m_glowTex;
+
 	SpriteBatch *m_spriteBatch;
 	FontRenderer *m_fontRenderer;
 	Shader *m_spriteShader;
@@ -159,7 +165,6 @@ public:
 	Framebuffer *framebuffer;
 	Framebuffer *blurFbo;
 	Texture *targetTex0;
-	Texture *glowTex;
 	DepthTexture *depthTex;
 
 	Blur *blur;
@@ -223,10 +228,7 @@ public:
 	BreakingWallScene *m_breakingWallScene;
 	AssemblingScene *m_assemblingScene;
 
-	void DrawGlows(
-		float ms,
-		const sm::Vec3 &camPos,
-		unsigned int texId);
+	void RenderGlowTexture();
 
 	void FrustumCulling(
 		const sm::Matrix &proj,

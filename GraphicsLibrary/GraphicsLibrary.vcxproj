@@ -78,22 +78,18 @@
     <ClInclude Include="ICamera.h" />
     <ClInclude Include="IKeyboardCallback.h" />
     <ClInclude Include="DepthTexture.h" />
-    <ClInclude Include="Framebuffer.h" />
     <ClInclude Include="IGlContextService.h" />
     <ClInclude Include="OpenglWindow.h" />
     <ClInclude Include="PosKey.h" />
     <ClInclude Include="SteerCamera.h" />
-    <ClInclude Include="Texture.h" />
     <ClInclude Include="TimeControl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AnimCamera.cpp" />
     <ClCompile Include="CubeTexture.cpp" />
     <ClCompile Include="DepthTexture.cpp" />
-    <ClCompile Include="Framebuffer.cpp" />
     <ClCompile Include="OpenglWindow.cpp" />
     <ClCompile Include="SteerCamera.cpp" />
-    <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TimeControl.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
