@@ -94,13 +94,13 @@ bool Robot::Initialize(Content *content)
 	//	subAnim->mesh = m_robotElements[i];
 	//}
 
-	m_robot = content->Get<Model>("robot");
+	/*m_robot = content->Get<Model>("robot");
 	assert(m_robot != NULL);
 
 	m_robotAnim = content->Get<Animation>("robot");
 	assert(m_robotAnim != NULL);
 
-	m_robotAnim->AssignModel(m_robot);
+	m_robotAnim->AssignModel(m_robot);*/
 
 	return true;
 }

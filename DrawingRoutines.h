@@ -37,6 +37,9 @@ private:
 	// diffuse texture, normal map
 	static Shader *m_diffNormShader;
 
+	// only black objects
+	static Shader *m_blackShader;
+
 	static bool SetupShader(Material *material, const sm::Matrix &worldatrix);
 	
 public:
@@ -46,9 +49,11 @@ public:
 	static void SetLightPosition(const sm::Vec3 &lightPosition);
 	static void SetEyePosition(const sm::Vec3 &eyePosition);
 
-	static void DrawWithMaterial(Model *model);
+	static void DrawWithMaterial(std::vector<MeshPart*> &meshParts);
 
 	static void DrawDiffLight(Model *model);
+
+	static void DrawBlack(std::vector<MeshPart*> &meshParts);
 
 	static void DrawDiffLightLightMap(Model *model);
 

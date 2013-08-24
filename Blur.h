@@ -33,7 +33,7 @@ public:
 	Blur(int blurCount, Shader *horiBlurShader, Shader *vertBlurShader, int width, int height);
 	~Blur(void);
 
-	void MakeBlur(uint32_t texIdToBlur, Texture *tex);
+	void MakeBlur(uint32_t texIdToBlur);
 
 	Texture* GetBlurredTexture(int index);
 };

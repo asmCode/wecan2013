@@ -223,14 +223,15 @@ bool DemoController::LoadContent(const char *basePath)
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
 
-	m_lightmapTest = m_content->Get<Model>("lightmap_test");
-	assert(m_lightmapTest != NULL);
-
 	m_teapots = m_content->Get<Model>("teapots");
 	assert(m_teapots != NULL);
 
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);
+
+	std::vector<Model*> allModels;
+	m_content->GetAll<Model>(allModels);
+	FilterGlowObjects(allModels, glowMeshParts, nonGlowMeshParts);
 
 	//demo ->activeCamera = demo ->manualCamera;
 
@@ -385,8 +386,8 @@ bool DemoController::Update(float time, float ms)
 
 	//anim->Update(time / 1000.0f, sm::Matrix::IdentityMatrix(), seconds);
 
-	m_robot->SetViewProjMatrix(m_viewProj);
-	m_robot->Update(time, seconds);
+	//m_robot->SetViewProjMatrix(m_viewProj);
+	//m_robot->Update(time, seconds);
 
 //	if (demoMode != DemoMode_Editor && !started)
 //	{
@@ -572,12 +573,16 @@ bool DemoController::Draw(float time, float ms)
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
 
 	//m_robot->Draw(time, seconds);
-	
-	//DrawingRoutines::DrawDiffLightLightMap(m_lightmapTest);
 
-	DrawingRoutines::DrawWithMaterial(m_teapots);
+	DrawingRoutines::DrawWithMaterial(m_teapots->m_meshParts);
 
 	RenderGlowTexture();
+
+	glViewport(0, 0, width, height);
+	m_spriteBatch->Begin();
+	glBlendFunc(GL_ONE, GL_ONE);
+	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0, width, height);
+	m_spriteBatch->End();
 
 
 	//DrawingRoutines::DrawDiffLight(m_teapot, viewProj, sm::Vec3(0, 0, 100));
@@ -808,7 +813,7 @@ void DemoController::SetOpenglParams()
 
 	glShadeModel(GL_SMOOTH);
 
-	glClearColor(0.5f, 0.5f, 0.9f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -913,8 +918,6 @@ void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYT
 {
 	//m_fontRenderer->DrawString("loda", 10, 10, Color::Blue);
 
-	// ustaw macierz na ortho
-
 	glUseProgram(0);
 
 	glMatrixMode(GL_PROJECTION);
@@ -1007,7 +1010,7 @@ void DemoController::FilterOpacityObjects(const std::vector<Model*> &models,
 
 void DemoController::RenderGlowTexture()
 {
-	glViewport(0, 0, width / 2, height / 2);
+	glViewport(0, 0, width * GlowBufferWidthRatio, height * GlowBufferHeightRatio);
 
 	m_glowFramebuffer->BindFramebuffer();
 	m_glowFramebuffer->AttachColorTexture(m_glowTex->GetId());
@@ -1015,19 +1018,18 @@ void DemoController::RenderGlowTexture()
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	DrawingRoutines::DrawWithMaterial(m_teapots);
+	DrawingRoutines::DrawWithMaterial(glowMeshParts);
+	DrawingRoutines::DrawBlack(nonGlowMeshParts);
 
 	Framebuffer::RestoreDefaultFramebuffer();
 
-	Texture *dd = m_content->Get<Texture>("4");
+	m_glowBlur->MakeBlur(m_glowTex->GetId());
 
-	m_glowBlur->MakeBlur(m_glowTex->GetId(), dd);
-
-	glViewport(0, 0, width, height);
+	/*glViewport(0, 0, width, height);
 	m_spriteBatch->Begin();
 	glDisable(GL_BLEND);
 	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0);
-	m_spriteBatch->End();
+	m_spriteBatch->End();*/
 }
 
 //void DemoController::DrawGlows(

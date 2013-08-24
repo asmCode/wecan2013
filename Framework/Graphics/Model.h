@@ -15,6 +15,8 @@ public:
 	Model();
 	~Model();
 
+	std::vector<MeshPart*> m_meshParts;
+
 	std::vector<Mesh*> &GetMeshes();
 	void GetMeshParts(std::vector<MeshPart*> &meshParts);
 	Mesh* FindMesh(const std::string &meshName);

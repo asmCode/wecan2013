@@ -62,6 +62,8 @@ Model* ModelLoader::LoadFromFile(const std::string &path)
 
 	delete [] buff;
 
+	model->GetMeshParts(model->m_meshParts);
+
 	return model;
 }
 

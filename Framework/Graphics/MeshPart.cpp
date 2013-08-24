@@ -47,11 +47,12 @@ MeshPart::~MeshPart()
 	delete bsphere;
 }
 
-void MeshPart::Draw()
+void MeshPart::Draw(bool setupVertexAttribs)
 {
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB, vboId);
 
-	SetupVertexPointers();
+	if (setupVertexAttribs)
+		SetupVertexPointers();
 
 	glDrawArrays(GL_TRIANGLES, 0, verticesCount);
 

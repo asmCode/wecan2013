@@ -25,4 +25,6 @@ void main()
     FragColor += texture2D(u_tex, v_blurCoords[11]) * 0.0215963866053;
     FragColor += texture2D(u_tex, v_blurCoords[12]) * 0.00895781211794;
     FragColor += texture2D(u_tex, v_blurCoords[13]) * 0.0044299121055113265;
+	
+	FragColor *= 3.0;
 }

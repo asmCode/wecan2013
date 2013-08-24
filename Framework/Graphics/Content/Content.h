@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <assert.h>
 
 class IGraphicsEngine;
@@ -43,6 +44,16 @@ public:
 			return NULL;
 
 		return it->second;
+	}
+
+	template <typename T>
+	void GetAll(std::vector<T*> &assets)
+	{
+		std::map<std::string, T*> &resourcesMap = GetContentMap<T>();
+		std::map<std::string, T*>::iterator it;
+
+		for (it = resourcesMap.begin(); it != resourcesMap.end(); it++)
+			assets.push_back(it->second);
 	}
 
 private:

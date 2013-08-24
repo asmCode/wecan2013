@@ -10,6 +10,7 @@
 #include <Graphics/MeshPart.h>
 #include <Graphics/Mesh.h>
 #include <Graphics/VertexType.h>
+#include <Graphics/VertexInformation.h>
 
 sm::Matrix DrawingRoutines::m_viewProjMatrix;
 sm::Vec3 DrawingRoutines::m_lightPosition;
@@ -21,6 +22,7 @@ Shader *DrawingRoutines::m_diffNormLightmapShader;
 Shader *DrawingRoutines::m_diffShader;
 Shader *DrawingRoutines::m_colorShader;
 Shader *DrawingRoutines::m_diffNormShader;
+Shader *DrawingRoutines::m_blackShader;
 
 
 //sm::Matrix DrawingRoutines::fixCoordsMatrix;
@@ -400,6 +402,11 @@ Shader *DrawingRoutines::m_diffNormShader;
 
 bool DrawingRoutines::Initialize(Content *content)
 {
+	m_blackShader = content->Get<Shader>("Black");
+	assert(m_blackShader != NULL);
+	m_blackShader->BindVertexChannel(0, "a_position");
+	m_blackShader->LinkProgram();
+
 	m_colorShader = content->Get<Shader>("Color");
 	assert(m_colorShader != NULL);
 	m_colorShader->BindVertexChannel(0, "a_position");
@@ -664,13 +671,8 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 	return false;
 }
 
-void DrawingRoutines::DrawWithMaterial(Model *model)
+void DrawingRoutines::DrawWithMaterial(std::vector<MeshPart*> &meshParts)
 {
-	assert(model != NULL);
-
-	std::vector<MeshPart*> meshParts;
-	model->GetMeshParts(meshParts);
-
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
 	glDepthMask(true);
@@ -690,6 +692,28 @@ void DrawingRoutines::DrawWithMaterial(Model *model)
 			m_diffLightLightMapShader->SetTextureParameter("u_diffTex", 0, meshParts[i]->GetMaterial()->diffuseTex->GetId());
 		if (meshParts[i]->GetMaterial() != NULL && meshParts[i]->GetMaterial()->lightmapTex != NULL)
 			m_diffLightLightMapShader->SetTextureParameter("u_lightmapTex", 1, meshParts[i]->GetMaterial()->lightmapTex->GetId());*/
+	}
+}
+
+void DrawingRoutines::DrawBlack(std::vector<MeshPart*> &meshParts)
+{
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glDepthMask(true);
+
+	m_blackShader->UseProgram();
+
+	for (uint32_t i = 0; i < meshParts.size(); i++)
+	{
+		m_blackShader->SetMatrixParameter("u_mvp", m_viewProjMatrix * meshParts[i]->mesh->Transform());
+
+		glEnableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
+		glDisableVertexAttribArray(2);
+		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
+
+		meshParts[i]->Draw();
 	}
 }
 

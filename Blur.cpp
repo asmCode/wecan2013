@@ -52,11 +52,16 @@ void Blur::BlurTexture(uint32_t srcTex, uint32_t dstTex, bool glow)
 {
 }
 
-void Blur::MakeBlur(uint32_t texIdToBlur, Texture *tex)
+void Blur::MakeBlur(uint32_t texIdToBlur)
 {
 	glBindBuffer(GL_ARRAY_BUFFER, m_quadVBO);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(0));
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), reinterpret_cast<void*>(8));
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(4);
 
 	framebuffer ->BindFramebuffer();
 
