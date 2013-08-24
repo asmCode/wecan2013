@@ -30,6 +30,9 @@
 #include <Graphics/SpriteBatch.h>
 #include <Graphics/FontRenderer.h>
 
+const float DemoController::GlowBufferWidthRatio = 0.5f;
+const float DemoController::GlowBufferHeightRatio = 0.5f;
+
 //#define DISABLE_MUSIC 1
 //#define DISABLE_FRUSTUM_CULLING 1
 #define MAN_CAM 1
@@ -98,6 +101,36 @@ void DemoController::InitializeProperties()
 	}
 }
 
+void DemoController::InitializeBlur()
+{
+	uint32_t glowWidth = static_cast<uint32_t>(width * GlowBufferWidthRatio);
+	uint32_t glowHeight = static_cast<uint32_t>(height * GlowBufferHeightRatio);
+
+	m_glowTex = new Texture(
+		glowWidth,
+		glowHeight,
+		32,
+		NULL,
+		Texture::Wrap_ClampToEdge, Texture::Filter_Linear,
+		Texture::Filter_Linear, false); 
+
+	m_horiBlurShader = m_content->Get<Shader>("HoriBlur");
+	assert(m_horiBlurShader != NULL);
+	m_horiBlurShader->BindVertexChannel(0, "a_position");
+	m_horiBlurShader->BindVertexChannel(1, "a_coords");
+	m_horiBlurShader->LinkProgram();
+
+	m_vertBlurShader = m_content->Get<Shader>("VertBlur");
+	assert(m_vertBlurShader != NULL);
+	m_vertBlurShader->BindVertexChannel(0, "a_position");
+	m_vertBlurShader->BindVertexChannel(1, "a_coords");
+	m_vertBlurShader->LinkProgram();
+
+	m_glowFramebuffer = new Framebuffer();
+	m_glowFramebuffer->Initialize(glowWidth, glowHeight, 32);
+	m_glowBlur = new Blur(1, m_horiBlurShader, m_vertBlurShader, glowWidth, glowHeight);
+}
+
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
@@ -139,8 +172,6 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 
 	targetTex0 = new Texture(width, height, 32, NULL, Texture::Wrap_ClampToEdge, Texture::Filter_Nearest, Texture::Filter_Nearest, false);
 
-	m_glowTex = new Texture(width / 2, height / 2, 32, NULL, Texture::Wrap_ClampToEdge, Texture::Filter_Linear, Texture::Filter_Linear, false); 
-
 	blurFbo = new Framebuffer();
 	blurFbo ->Initialize(width / 2, height / 2, 32);
 
@@ -178,21 +209,7 @@ bool DemoController::LoadContent(const char *basePath)
 	if (!AssignAssets())
 		return false;
 
-	m_horiBlurShader = m_content->Get<Shader>("HoriBlur");
-	assert(m_horiBlurShader != NULL);
-	m_horiBlurShader->BindVertexChannel(0, "a_position");
-	m_horiBlurShader->BindVertexChannel(1, "a_coords");
-	m_horiBlurShader->LinkProgram();
-
-	m_vertBlurShader = m_content->Get<Shader>("VertBlur");
-	assert(m_vertBlurShader != NULL);
-	m_vertBlurShader->BindVertexChannel(0, "a_position");
-	m_vertBlurShader->BindVertexChannel(1, "a_coords");
-	m_vertBlurShader->LinkProgram();
-
-	m_glowFramebuffer = new Framebuffer();
-	m_glowFramebuffer->Initialize(width / 2, height / 2, 32);
-	m_glowBlur = new Blur(1, m_horiBlurShader, m_vertBlurShader, width / 2, height / 2);
+	InitializeBlur();
 
 	m_spriteShader = m_content->Get<Shader>("Sprite");
 	assert(m_spriteShader != NULL);
@@ -703,6 +720,13 @@ bool DemoController::Draw(float time, float ms)
 	sprintf(fpsText, "fps: %.2f", fps);
 	DrawText(fpsText, 4, height - 20, 255, 0, 0);
 	DrawEngineStats();
+
+	sprintf(fpsText, "fade: %.2f", fade);
+	DrawText(fpsText, 4, 0, 255, 0, 0);
+
+	sm::Vec3 camPos = m_activeCamera->GetPosition();
+	sprintf(fpsText, "camera position: (%.4f, %.4f, %.4f)", camPos.x, camPos.y, camPos.z);
+	DrawText(fpsText, 4, 20, 255, 255, 255);
 
 	sprintf(fpsText, "fade: %.2f", fade);
 	DrawText(fpsText, 4, height - 140, 255, 0, 0);

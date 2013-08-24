@@ -70,6 +70,8 @@ class DemoController :
 	friend class MachineScreen;
 
 public:
+	static const float GlowBufferWidthRatio;
+	static const float GlowBufferHeightRatio;
 
 	Content *m_content;
 
@@ -239,6 +241,8 @@ public:
 public:
 	void OnLeftMouseDown();
 	void OnKeyDown(int keyCode);
+
+	void InitializeBlur();
 
 	bool demoEnded;
 

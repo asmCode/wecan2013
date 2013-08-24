@@ -126,5 +126,5 @@ sm::Matrix AnimCamera::GetViewMatrix()
 
 sm::Vec3 AnimCamera::GetPosition()
 {
-	return AnimTransform() * sm::Vec3(0, 0, 0);
+	return Transform().GetInversed() * sm::Vec3(0, 0, 0);
 }
