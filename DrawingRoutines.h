@@ -25,6 +25,9 @@ private:
 	// diffuse lighting, diff tex, shadowmap tex
 	static Shader *m_diffLightLightMapShader;
 
+	// diffuse, normal, lightmap
+	static Shader *m_diffNormLightmapShader;
+
 	// diffuse texture, lighting
 	static Shader *m_diffShader;
 

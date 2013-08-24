@@ -1,0 +1,28 @@
+#version 400
+
+layout( location = 0 ) out vec4 FragColor;
+
+uniform sampler2D u_diffTex;
+uniform sampler2D u_normalTex;
+uniform sampler2D u_lightmapTex;
+
+varying vec2 o_coordsDiff;
+varying vec2 o_coordsLightmap;
+varying vec3 o_lightDirection;
+varying vec3 o_halfVector;
+
+void main()
+{
+	vec3 bumpNormal = texture(u_normalTex, o_coordsDiff).xyz;
+	bumpNormal = (bumpNormal - 0.5) * 2.0;
+	bumpNormal = normalize(bumpNormal);
+	
+	float diffValue = max(dot(normalize(o_lightDirection), normalize(bumpNormal)), 0.2);
+	float specValue = pow(max(dot(normalize(o_halfVector), normalize(bumpNormal)), 0), 8.0);
+	
+    FragColor =
+		(texture(u_diffTex, o_coordsDiff) *
+		vec4(diffValue, diffValue, diffValue, 1.0) +
+		vec4(specValue, specValue, specValue, 1.0)) *
+		texture(u_lightmapTex, o_coordsLightmap);
+}

@@ -17,6 +17,7 @@ sm::Vec3 DrawingRoutines::m_eyePosition;
 
 Shader *DrawingRoutines::m_diffLightShader;
 Shader *DrawingRoutines::m_diffLightLightMapShader;
+Shader *DrawingRoutines::m_diffNormLightmapShader;
 Shader *DrawingRoutines::m_diffShader;
 Shader *DrawingRoutines::m_colorShader;
 Shader *DrawingRoutines::m_diffNormShader;
@@ -435,6 +436,15 @@ bool DrawingRoutines::Initialize(Content *content)
 	m_diffLightLightMapShader->BindVertexChannel(3, "a_normal");
 	m_diffLightLightMapShader->LinkProgram();
 
+	m_diffNormLightmapShader = content->Get<Shader>("DiffNormLightmap");
+	assert(m_diffNormLightmapShader != NULL);
+	m_diffNormLightmapShader->BindVertexChannel(0, "a_position");
+	m_diffNormLightmapShader->BindVertexChannel(1, "a_coordsDiff");
+	m_diffNormLightmapShader->BindVertexChannel(2, "a_coordsLightmap");
+	m_diffNormLightmapShader->BindVertexChannel(3, "a_normal");
+	m_diffNormLightmapShader->BindVertexChannel(4, "a_tangent");
+	m_diffNormLightmapShader->LinkProgram();
+
 	return true;
 }
 
@@ -558,6 +568,7 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
 
 		return true;
 	}
@@ -577,6 +588,7 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		glEnableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
 
 		return true;
 	}
@@ -597,6 +609,7 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 		glEnableVertexAttribArray(1);
 		glEnableVertexAttribArray(2);
 		glEnableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
 		
 		return true;
 	}
@@ -615,6 +628,29 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 		glEnableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(4);
+		
+		return true;
+	}
+	else if (material->diffuseTex != NULL &&
+		 	 material->normalTex != NULL &&
+	 	 	 material->lightmapTex != NULL &&
+			 material->opacityTex == NULL)
+	{
+		m_diffNormLightmapShader->UseProgram();
+		m_diffNormLightmapShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
+		m_diffNormLightmapShader->SetParameter("u_lightPosition", m_lightPosition);
+		m_diffNormLightmapShader->SetParameter("u_eyePosition", m_eyePosition);
+		m_diffNormLightmapShader->SetMatrixParameter("u_worldMatrix", worldatrix);
+		m_diffNormLightmapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
+		m_diffNormLightmapShader->SetTextureParameter("u_normalTex", 1, material->normalTex->GetId());
+		m_diffNormLightmapShader->SetTextureParameter("u_lightmapTex", 2, material->lightmapTex->GetId());
+		
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
+		glEnableVertexAttribArray(4);
 		
 		return true;
 	}
