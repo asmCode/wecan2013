@@ -241,6 +241,8 @@ public:
 	void OnLeftMouseDown();
 	void OnKeyDown(int keyCode);
 
+	void AssignLightmapsToModels();
+
 	void InitializeBlur();
 
 	bool demoEnded;

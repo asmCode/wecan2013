@@ -30,7 +30,7 @@ void main()
 	o_halfVector = normalize(o_lightDirection + eyeDirection);
 	
 	vec3 bitangent = cross(worldTangent, worldNormal);
-	mat3 worldToTex = mat3(worldTangent, bitangent, worldNormal);
+	mat3 worldToTex = inverse(mat3(worldTangent, bitangent, worldNormal));
 	
 	o_lightDirection = worldToTex * o_lightDirection;
 	eyeDirection = worldToTex * eyeDirection;

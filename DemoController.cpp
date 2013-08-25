@@ -101,6 +101,18 @@ void DemoController::InitializeProperties()
 	}
 }
 
+void DemoController::AssignLightmapsToModels()
+{
+	for (uint32_t i = 0; i < allMeshParts.size(); i++)
+	{
+		std::string lightmapName = allMeshParts[i]->mesh->name + "LightingMap";
+		Texture *lightmap = m_content->Get<Texture>(lightmapName);
+
+		if (lightmap != NULL)
+			allMeshParts[i]->m_lightmap = lightmap;
+	}
+}
+
 void DemoController::InitializeBlur()
 {
 	uint32_t glowWidth = static_cast<uint32_t>(width * GlowBufferWidthRatio);
@@ -202,6 +214,7 @@ bool DemoController::LoadContent(const char *basePath)
 	dc->LoadModels(m_strBasePath + "models\\");
 	dc->LoadModels(m_strBasePath + "models\\robot_elements\\");
 	dc->LoadTextures(m_strBasePath + "textures\\");
+	dc->LoadTextures(m_strBasePath + "textures\\lightmaps\\");
 	dc->LoadShaders(m_strBasePath + "effects\\");
 	dc->LoadAnimations(m_strBasePath + "animations\\");
 	dc->LoadMaterials(m_strBasePath + "materials\\");
@@ -226,12 +239,22 @@ bool DemoController::LoadContent(const char *basePath)
 	m_teapots = m_content->Get<Model>("teapots");
 	assert(m_teapots != NULL);
 
+	for (uint32_t i = 0; i < m_teapots->m_meshParts.size(); i++)
+	{
+		m_teapots->m_meshParts[i]->mesh->Transform() = sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f);
+	}
+
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);
-
+	
 	std::vector<Model*> allModels;
 	m_content->GetAll<Model>(allModels);
 	FilterGlowObjects(allModels, glowMeshParts, nonGlowMeshParts);
+
+	for (uint32_t i = 0; i < allModels.size(); i++)
+		allModels[i]->GetMeshParts(allMeshParts);
+
+	AssignLightmapsToModels();
 
 	//demo ->activeCamera = demo ->manualCamera;
 
@@ -381,7 +404,8 @@ bool DemoController::Update(float time, float ms)
 	
 
 	m_viewProj =
-		sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 200.0f) *
+		sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f) *
+		//sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f) * m_activeCamera->GetViewMatrix();
 		m_activeCamera->GetViewMatrix();
 
 	//anim->Update(time / 1000.0f, sm::Matrix::IdentityMatrix(), seconds);
@@ -561,6 +585,8 @@ float DemoController::CalcFlash(float time, float ms)
 
 bool DemoController::Draw(float time, float ms)
 {
+	glEnable(GL_NORMALIZE);
+
 	float seconds = ms / 1000.0f;
 	time /= 1000.0f;
 
@@ -571,6 +597,7 @@ bool DemoController::Draw(float time, float ms)
 	DrawingRoutines::SetViewProjMatrix(m_viewProj);
 	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
+	DrawingRoutines::SetLightPosition(m_activeCamera->GetPosition());
 
 	//m_robot->Draw(time, seconds);
 
@@ -588,7 +615,7 @@ bool DemoController::Draw(float time, float ms)
 	//DrawingRoutines::DrawDiffLight(m_teapot, viewProj, sm::Vec3(0, 0, 100));
 
 	//glUseProgram(0);
-
+	
 	/*glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	proj = sm::Matrix::PerspectiveMatrix(60.0f, (float)width / (float)height, 0.125f, 100.0f);
@@ -817,7 +844,7 @@ void DemoController::SetOpenglParams()
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-
+	
 	glEnable(GL_NORMALIZE);
 
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
@@ -829,7 +856,7 @@ bool DemoController::AssignAssets()
 	bool result = true;
 
 	m_content->CombineResources();
-
+	
 	return result;
 }
 

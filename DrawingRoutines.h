@@ -40,7 +40,7 @@ private:
 	// only black objects
 	static Shader *m_blackShader;
 
-	static bool SetupShader(Material *material, const sm::Matrix &worldatrix);
+	static bool SetupShader(Material *material, MeshPart *meshPart, const sm::Matrix &worldatrix);
 	
 public:
 	static bool Initialize(Content *content);

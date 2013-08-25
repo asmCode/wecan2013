@@ -76,7 +76,8 @@ void ManCam::Process(float ms)
 	}
 
 	float ratio;
-	keys[VK_LCONTROL] ? ratio = ms * 0.2f : ratio = ms * 0.01f;
+	keys[VK_LCONTROL] ? ratio = ms * 0.1f : ratio = ms * 0.01f;
+	//ratio *= 0.05f;
 
 	sm::Vec3 moveVec(0, 0, -1);
 	moveVec.RotateX(-rad(pitch));

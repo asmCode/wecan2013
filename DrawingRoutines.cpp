@@ -11,6 +11,7 @@
 #include <Graphics/Mesh.h>
 #include <Graphics/VertexType.h>
 #include <Graphics/VertexInformation.h>
+#include <assert.h>
 
 sm::Matrix DrawingRoutines::m_viewProjMatrix;
 sm::Vec3 DrawingRoutines::m_lightPosition;
@@ -556,13 +557,13 @@ void DrawingRoutines::DrawDiffLightLightMap(Model *model)
 	glDisableVertexAttribArray(3);
 }
 
-bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatrix)
+bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const sm::Matrix &worldatrix)
 {
 	assert(material != NULL);
 
 	if (material->diffuseTex != NULL &&
 		material->normalTex == NULL &&
-		material->lightmapTex == NULL &&
+		meshPart->m_lightmap == NULL &&
 		material->opacityTex == NULL)
 	{
 		m_diffShader->UseProgram();
@@ -581,15 +582,17 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 	}
 	else if (material->diffuseTex != NULL &&
 		 	 material->normalTex == NULL &&
-	 	 	 material->lightmapTex != NULL &&
+	 	 	 meshPart->m_lightmap != NULL &&
 			 material->opacityTex == NULL)
 	{
+		assert(VertexInformation::HasAttrib(meshPart->m_vertexType, VertexAttrib::Coords2));
+
 		m_diffLightLightMapShader->UseProgram();
 		m_diffLightLightMapShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
 		m_diffLightLightMapShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_diffLightLightMapShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_diffLightLightMapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
-		m_diffLightLightMapShader->SetTextureParameter("u_lightmapTex", 1, material->lightmapTex->GetId());
+		m_diffLightLightMapShader->SetTextureParameter("u_lightmapTex", 1, meshPart->m_lightmap->GetId());
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -601,7 +604,7 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 	}
 	else if (material->diffuseTex != NULL &&
 		 	 material->normalTex != NULL &&
-	 	 	 material->lightmapTex == NULL &&
+	 	 	 meshPart->m_lightmap == NULL &&
 			 material->opacityTex == NULL)
 	{
 		m_diffNormShader->UseProgram();
@@ -622,7 +625,7 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 	}
 	else if (material->diffuseTex == NULL &&
 		 	 material->normalTex == NULL &&
-	 	 	 material->lightmapTex == NULL &&
+	 	 	 meshPart->m_lightmap == NULL &&
 			 material->opacityTex == NULL)
 	{
 		m_colorShader->UseProgram();
@@ -634,7 +637,7 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 		m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);///
+		glEnableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
 		glDisableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
@@ -643,9 +646,11 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 	}
 	else if (material->diffuseTex != NULL &&
 		 	 material->normalTex != NULL &&
-	 	 	 material->lightmapTex != NULL &&
+	 	 	 meshPart->m_lightmap != NULL &&
 			 material->opacityTex == NULL)
 	{
+		assert(VertexInformation::HasAttrib(meshPart->m_vertexType, VertexAttrib::Coords2));
+
 		m_diffNormLightmapShader->UseProgram();
 		m_diffNormLightmapShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
 		m_diffNormLightmapShader->SetParameter("u_lightPosition", m_lightPosition);
@@ -653,7 +658,7 @@ bool DrawingRoutines::SetupShader(Material *material, const sm::Matrix &worldatr
 		m_diffNormLightmapShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_diffNormLightmapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
 		m_diffNormLightmapShader->SetTextureParameter("u_normalTex", 1, material->normalTex->GetId());
-		m_diffNormLightmapShader->SetTextureParameter("u_lightmapTex", 2, material->lightmapTex->GetId());
+		m_diffNormLightmapShader->SetTextureParameter("u_lightmapTex", 2, meshPart->m_lightmap->GetId());
 		
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -685,7 +690,7 @@ void DrawingRoutines::DrawWithMaterial(std::vector<MeshPart*> &meshParts)
 			meshParts[i]->material = new Material();
 		}
 
-		if (SetupShader(meshParts[i]->GetMaterial(), meshParts[i]->mesh->Transform()))
+		if (SetupShader(meshParts[i]->GetMaterial(), meshParts[i], meshParts[i]->mesh->Transform()))
 			meshParts[i]->Draw();
 
 		/*if (meshParts[i]->GetMaterial() != NULL && meshParts[i]->GetMaterial()->diffuseTex != NULL)

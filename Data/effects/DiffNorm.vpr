@@ -13,6 +13,7 @@ uniform vec3 u_eyePosition;
 varying vec2 o_coordsDiff;
 varying vec3 o_lightDirection;
 varying vec3 o_halfVector;
+varying vec3 o_normal;
 
 void main()
 {
@@ -22,15 +23,16 @@ void main()
 	vec3 worldNormal = normalize(mat3(u_worldMatrix) * a_normal);
 	vec3 worldTangent = normalize(mat3(u_worldMatrix) * a_tangent);
 	
-	o_lightDirection = normalize(u_lightPosition - worldPosition.xyz);
-	vec3 eyeDirection = normalize(u_eyePosition - worldPosition.xyz);
-	o_halfVector = normalize(o_lightDirection + eyeDirection);
+	o_normal = worldNormal;
 	
 	vec3 bitangent = cross(worldTangent, worldNormal);
-	mat3 worldToTex = mat3(worldTangent, bitangent, worldNormal);
+	mat3 worldToTex = inverse(mat3(worldTangent, bitangent, worldNormal));
 	
-	o_lightDirection = worldToTex * o_lightDirection;
-	eyeDirection = worldToTex * eyeDirection;
+	o_lightDirection = normalize(u_lightPosition - worldPosition.xyz);
+	vec3 eyeDirection = normalize(u_eyePosition - worldPosition.xyz);
+	
+	o_lightDirection = normalize(worldToTex * o_lightDirection);
+	eyeDirection = normalize(worldToTex * eyeDirection);
 	o_halfVector = normalize(o_lightDirection + eyeDirection);
 	
 	gl_Position = u_viewProjMatrix * worldPosition;

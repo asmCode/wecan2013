@@ -18,11 +18,11 @@ private:
 	POINT *lastMousePos;
 	POINT screenCentre;
 	POINT lastPos;
-
+	
 public:
 	ManCam();
 	~ManCam();
-
+	
 	sm::Vec3 position;
 
 	void Process(float ms);

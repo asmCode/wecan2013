@@ -21,8 +21,21 @@ void main()
 	float specValue = pow(max(dot(normalize(o_halfVector), normalize(bumpNormal)), 0), 8.0);
 	
     FragColor =
-		(texture(u_diffTex, o_coordsDiff) *
+		((texture(u_diffTex, o_coordsDiff) *
 		vec4(diffValue, diffValue, diffValue, 1.0) +
-		vec4(specValue, specValue, specValue, 1.0)) *
+		vec4(specValue, specValue, specValue, 1.0)) * 0.3) *
 		texture(u_lightmapTex, o_coordsLightmap);
+		
+	vec4 lightmapColor = texture(u_lightmapTex, o_coordsLightmap);
+	lightmapColor.xyz *= lightmapColor.w;
+		
+	FragColor =
+		texture(u_diffTex, o_coordsDiff) *
+		lightmapColor + 
+		(lightmapColor * lightmapColor * lightmapColor * lightmapColor);
+		
+		
+	FragColor =
+		texture(u_diffTex, o_coordsDiff) *
+		lightmapColor;
 }

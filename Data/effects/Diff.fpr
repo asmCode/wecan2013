@@ -11,9 +11,11 @@ varying vec3 o_lightDirection;
 void main()
 {
 	float diffValue = max(dot(normalize(o_lightDirection), normalize(o_normal)), 0.2);
-		
+	
+	vec4 diffColor = texture(u_diffTex, o_coordsDiff);
+	
 	FragColor =
-		texture(u_diffTex, o_coordsDiff) *
+		diffColor *
 		vec4(diffValue, diffValue, diffValue, 1.0);
 		
 	//FragColor = vec4(1, 0, 1, 1);

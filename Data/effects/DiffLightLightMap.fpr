@@ -19,6 +19,9 @@ void main()
 		texture(u_lightmapTex, o_coordsLightmap) *
 		vec4(diffValue, diffValue, diffValue, 1.0);
 		
+		FragColor =
+		texture(u_lightmapTex, o_coordsLightmap);
+		
 	//FragColor = vec4(1, 0, 1, 1);
 }
 

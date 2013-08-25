@@ -14,6 +14,7 @@ class MeshPart
 public:
 	uint32_t vboId;
 	Material *material;
+	Texture *m_lightmap;
 
 	uint8_t m_vertexType;
 
