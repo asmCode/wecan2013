@@ -947,7 +947,7 @@ int DemoController::GetNextId()
 
 void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYTE g, BYTE b)
 {
-	//m_fontRenderer->DrawString("loda", 10, 10, Color::Blue);
+	//m_fontRenderer->DrawString("abcdefgh", 10, 10, Color::Blue);
 
 	glUseProgram(0);
 
@@ -1066,67 +1066,14 @@ void DemoController::RenderGlowTexture()
 
 	m_glowBlur->MakeBlur(m_glowTex->GetId());
 
-	/*glViewport(0, 0, width, height);
+#if 0
+	glViewport(0, 0, width, height);
 	m_spriteBatch->Begin();
 	glDisable(GL_BLEND);
 	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0);
-	m_spriteBatch->End();*/
+	m_spriteBatch->End();
+#endif
 }
-
-//void DemoController::DrawGlows(
-//	float ms,
-//	const sm::Vec3 &camPos,
-//	unsigned int texId)
-//{
-	//blurFbo->BindFramebuffer();
-	//blurFbo->AttachColorTexture(texId);
-	//blurFbo->Validate();
-
-	//glViewport(0, 0, width / 4, height / 4);
-
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//for (uint32_t i = 0; i < GeometryBatches_Count; i++)
-	//{
-	//	if (m_geoBatch[i].IsVisible())
-	//		drawingRoutines->DrawStandardLighting(m_geoBatch[i].glowMeshParts, proj, view, sm::Matrix::IdentityMatrix(), camPos, camPos);
-	//}
-
-	//drawingRoutines->DrawStandardLighting(glowMeshParts, proj, view, sm::Matrix::IdentityMatrix(), camPos, camPos);
-	////m_sparksGenerator.Draw(ms / 1000.0f, proj, view);
-	////m_mechArm1->DrawSparks(ms / 1000.0f, proj, view);
-
-	//glEnable(GL_DEPTH_TEST);
-	//glDepthMask(GL_TRUE);
-	//m_activeScene->DrawGlows(0.0f, ms / 1000.0f);
-
-	//for (uint32_t i = 0; i < GeometryBatches_Count; i++)
-	//{
-	//	if (m_geoBatch[i].IsVisible())
-	//		drawingRoutines->DrawGlowMask(m_geoBatch[i].nonGlowMeshParts, proj, view, sm::Matrix::IdentityMatrix());
-	//}
-
-	//drawingRoutines->DrawGlowMask(nonGlowMeshParts, proj, view, sm::Matrix::IdentityMatrix());
-
-	//if (m_boardOpacity > 0.0f)
-	//{
-	//	glEnable(GL_BLEND);
-	//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//	glColor4f(1, 1, 1, m_boardOpacity);
-	//	Utils::DrawSprite(
-	//		m_boardTexs[m_boardIndex]->GetId(),
-	//		0,
-	//		0,
-	//		width / 4,
-	//		height / 4);
-	//}
-
-	//Framebuffer::RestoreDefaultFramebuffer();
-
-	//glViewport(0, 0, width, height);
-
-	//blur->MakeBlur(texId, 1, true);
-//}
 
 void DemoController::FrustumCulling(
 		const sm::Matrix &proj,

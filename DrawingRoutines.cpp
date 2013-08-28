@@ -349,14 +349,32 @@ void DrawingRoutines::DrawWithMaterial(std::vector<MeshPart*> &meshParts)
 
 void DrawingRoutines::DrawBlack(std::vector<MeshPart*> &meshParts)
 {
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-	glDepthMask(true);
-
 	m_blackShader->UseProgram();
 
 	for (uint32_t i = 0; i < meshParts.size(); i++)
 	{
+		float opacity = 1.0f;
+		if (meshParts[i]->GetMaterial() != NULL)
+			opacity = meshParts[i]->GetMaterial()->opacity;
+
+		if (opacity == 1.0f)
+		{
+			glEnable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
+			glDepthMask(true);
+		}
+		else
+		{
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+			glEnable(GL_DEPTH_TEST);
+			glDepthMask(false);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			m_blackShader->SetParameter("u_opacity", opacity);
+		}
+
 		m_blackShader->SetMatrixParameter("u_mvp", m_viewProjMatrix * meshParts[i]->mesh->Transform());
 
 		glEnableVertexAttribArray(0);

@@ -2,8 +2,10 @@
 
 layout( location = 0 ) out vec4 FragColor;
 
+uniform float u_opacity;
+
 void main()
 {		
-	FragColor = vec4(0, 0, 0, 1);
+	FragColor = vec4(0, 0, 0, u_opacity);
 }
 

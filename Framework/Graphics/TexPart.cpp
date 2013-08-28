@@ -34,14 +34,14 @@ TexPart::TexPart(Texture *tex, const sm::Rect<int> &texRect) : ImageRect(texRect
 	float y2 = ((float)(texRect.Y  + texRect.Height) / (float)tex ->GetHeight());
 	
 	TexCoords[0] = x1;
-	TexCoords[1] = y1;
+	TexCoords[1] = y2;
 	
-	TexCoords[2] = x2;
+	TexCoords[2] = x1;
 	TexCoords[3] = y1;
 	
-	TexCoords[4] = x1;
+	TexCoords[4] = x2;
 	TexCoords[5] = y2;
 	
 	TexCoords[6] = x2;
-	TexCoords[7] = y2;
+	TexCoords[7] = y1;
 }
