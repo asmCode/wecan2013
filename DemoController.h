@@ -179,6 +179,8 @@ public:
 	std::vector<MeshPart*> opacityMeshParts;
 	std::vector<MeshPart*> solidMeshParts;
 
+	void SortByOpacity(std::vector<MeshPart*> &meshParts);
+
 	ShadowMappingTest *shadowPass;
 	IScene *scene;
 	LoadingScreen *loadingScreen;
@@ -261,7 +263,7 @@ public:
 	void LoadProperties(const std::string &filename);
 
 	void FilterGlowObjects(
-		const std::vector<Model*> &models,
+		const std::vector<MeshPart*> &meshParts,
 		std::vector<MeshPart*> &glowMeshParts,
 		std::vector<MeshPart*> &nonGlowMeshParts);
 

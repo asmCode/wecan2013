@@ -67,7 +67,9 @@ void Blur::MakeBlur(uint32_t texIdToBlur)
 
 	glDepthMask(false);
 	glColorMask(true, true, true, true);
+	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
+	//glDisable(GL_CULL_FACE);
 
 	glViewport(0, 0, width, height);
 
@@ -112,21 +114,29 @@ Texture* Blur::GetBlurredTexture(int index)
 
 void Blur::CreateQuad(int width, int height)
 {
+	//  1 0
+	//  0 0
 	m_quadVerts[0] = static_cast<float>(0);
 	m_quadVerts[1] = static_cast<float>(height);
 	m_quadVerts[2] = 0.0f;
 	m_quadVerts[3] = 1.0f;
 
-	m_quadVerts[4] = static_cast<float>(width);
-	m_quadVerts[5] = static_cast<float>(height);
-	m_quadVerts[6] = 1.0f;
-	m_quadVerts[7] = 1.0f;
+	//  0 0
+	//  1 0
+	m_quadVerts[4] = static_cast<float>(0);
+	m_quadVerts[5] = static_cast<float>(0);
+	m_quadVerts[6] = 0.0f;
+	m_quadVerts[7] = 0.0f;
 
-	m_quadVerts[8] = static_cast<float>(0);
-	m_quadVerts[9] = static_cast<float>(0);
-	m_quadVerts[10] = 0.0f;
-	m_quadVerts[11] = 0.0f;
+	//  0 1
+	//  0 0
+	m_quadVerts[8] = static_cast<float>(width);
+	m_quadVerts[9] = static_cast<float>(height);
+	m_quadVerts[10] = 1.0f;
+	m_quadVerts[11] = 1.0f;
 
+	//  0 0
+	//  0 1
 	m_quadVerts[12] = static_cast<float>(width);
 	m_quadVerts[13] = static_cast<float>(0);
 	m_quadVerts[14] = 1.0f;

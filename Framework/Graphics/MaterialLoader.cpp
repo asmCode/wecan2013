@@ -125,7 +125,8 @@ bool MaterialLoader::LoadTexture(Material *material, XMLNode &node)
 sm::Vec4 MaterialLoader::ParseVec4(const std::string &value)
 {
 	sm::Vec4 color;
-	sscanf(value.c_str(), "%f;%f;%f;%f", &color.x, &color.y, &color.z, &color.w);
+	sscanf(value.c_str(), "%f;%f;%f", &color.x, &color.y, &color.z);
+	color.w = 1.0f;
 	return color;
 }
 

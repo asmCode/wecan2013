@@ -41,8 +41,7 @@ private:
 
 	bool m_isDepth;
 	bool m_isBlend;
-	
-	static const float Verts[8];
+
 	static const float Coords[8];
 	static const unsigned char ColorMask[16];
 

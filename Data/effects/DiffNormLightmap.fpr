@@ -17,8 +17,8 @@ void main()
 	bumpNormal = (bumpNormal - 0.5) * 2.0;
 	bumpNormal = normalize(bumpNormal);
 	
-	float diffValue = max(dot(normalize(o_lightDirection), normalize(bumpNormal)), 0.2);
-	float specValue = pow(max(dot(normalize(o_halfVector), normalize(bumpNormal)), 0), 8.0);
+	float diffValue = max(dot(normalize(o_lightDirection), normalize(bumpNormal)), 0.5);
+	float specValue = pow(max(dot(normalize(o_halfVector), normalize(bumpNormal)), 0), 8.0) * 0.9f;
 	
     FragColor =
 		((texture(u_diffTex, o_coordsDiff) *
@@ -27,7 +27,6 @@ void main()
 		texture(u_lightmapTex, o_coordsLightmap);
 		
 	vec4 lightmapColor = texture(u_lightmapTex, o_coordsLightmap);
-	lightmapColor.xyz *= lightmapColor.w;
 		
 	FragColor =
 		texture(u_diffTex, o_coordsDiff) *
@@ -36,6 +35,6 @@ void main()
 		
 		
 	FragColor =
-		texture(u_diffTex, o_coordsDiff) *
+		(texture(u_diffTex, o_coordsDiff) * diffValue + specValue) *
 		lightmapColor;
 }

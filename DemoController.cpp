@@ -30,6 +30,8 @@
 #include <Graphics/SpriteBatch.h>
 #include <Graphics/FontRenderer.h>
 
+#include <algorithm>
+
 const float DemoController::GlowBufferWidthRatio = 0.5f;
 const float DemoController::GlowBufferHeightRatio = 0.5f;
 
@@ -230,7 +232,7 @@ bool DemoController::LoadContent(const char *basePath)
 	m_spriteShader->BindVertexChannel(0, "a_coords");
 	m_spriteShader->LinkProgram();
 
-	m_spriteBatch = new SpriteBatch(m_spriteShader, sm::Matrix::Ortho2DMatrix(0, width, height, 0));
+	m_spriteBatch = new SpriteBatch(m_spriteShader, sm::Matrix::Ortho2DMatrix(0, width, 0, height));
 	m_fontRenderer = FontRenderer::LoadFromFile((m_strBasePath + std::string("fonts\\komika_title_32.xml")).c_str(), m_spriteBatch);
 
 	anim = dc->Get<Animation>("animacja");
@@ -246,13 +248,15 @@ bool DemoController::LoadContent(const char *basePath)
 
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);
-	
+
 	std::vector<Model*> allModels;
 	m_content->GetAll<Model>(allModels);
-	FilterGlowObjects(allModels, glowMeshParts, nonGlowMeshParts);
-
 	for (uint32_t i = 0; i < allModels.size(); i++)
 		allModels[i]->GetMeshParts(allMeshParts);
+
+	SortByOpacity(allMeshParts);
+
+	FilterGlowObjects(allMeshParts, glowMeshParts, nonGlowMeshParts);
 
 	AssignLightmapsToModels();
 
@@ -601,7 +605,7 @@ bool DemoController::Draw(float time, float ms)
 
 	//m_robot->Draw(time, seconds);
 
-	DrawingRoutines::DrawWithMaterial(m_teapots->m_meshParts);
+	DrawingRoutines::DrawWithMaterial(allMeshParts);
 
 	RenderGlowTexture();
 
@@ -948,7 +952,7 @@ void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYT
 	glUseProgram(0);
 
 	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(sm::Matrix::Ortho2DMatrix(0, width, height, 0));
+	glLoadMatrixf(sm::Matrix::Ortho2DMatrix(0, width, 0, height));
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
@@ -981,30 +985,39 @@ float DemoController::CalcFps(float ms)
 	return fps;
 }
 
-void DemoController::FilterGlowObjects(const std::vector<Model*> &models,
+bool MeshPartComp(MeshPart *&a, MeshPart *&b)
+{
+	float aOpacity = 1.0f;
+	float bOpacity = 1.0f;
+
+	if (a->material != NULL)
+		aOpacity = a->material->opacity;
+
+	if (b->material != NULL)
+		bOpacity = b->material->opacity;
+
+	return a > b;
+}
+
+void DemoController::SortByOpacity(std::vector<MeshPart*> &meshParts)
+{
+	std::sort(meshParts.begin(), meshParts.end(),  MeshPartComp);
+}
+
+void DemoController::FilterGlowObjects(const std::vector<MeshPart*> &meshParts,
 									   std::vector<MeshPart*> &glowMeshParts,
 									   std::vector<MeshPart*> &nonGlowMeshParts)
 {
-	for (unsigned i = 0; i < models.size(); i++)
+	for (unsigned k = 0; k < meshParts.size(); k++)
 	{
-		std::vector<Mesh*> &meshes = models[i] ->GetMeshes();
+		Material *mat = meshParts[k] ->GetMaterial();
 
-		for (unsigned j = 0; j < meshes.size(); j++)
-		{
-			std::vector<MeshPart*> &meshParts = meshes[j] ->GetMeshParts();
-
-			for (unsigned k = 0; k < meshParts.size(); k++)
-			{
-				Material *mat = meshParts[k] ->GetMaterial();
-
-				if (mat != NULL &&
-					mat ->name.size() >= 4 &&
-					mat ->name.substr(0, 4) == "glow")
-					glowMeshParts.push_back(meshParts[k]);
-				else
-					nonGlowMeshParts.push_back(meshParts[k]);
-			}
-		}
+		if (mat != NULL &&
+			mat ->name.size() >= 4 &&
+			mat ->name.substr(0, 4) == "glow")
+			glowMeshParts.push_back(meshParts[k]);
+		else
+			nonGlowMeshParts.push_back(meshParts[k]);
 	}
 }
 
@@ -1043,6 +1056,7 @@ void DemoController::RenderGlowTexture()
 	m_glowFramebuffer->AttachColorTexture(m_glowTex->GetId());
 	m_glowFramebuffer->Validate();
 
+	glDepthMask(true);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	DrawingRoutines::DrawWithMaterial(glowMeshParts);

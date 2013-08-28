@@ -8,18 +8,11 @@
 #include <memory.h>
 #include <assert.h>
 
-const float SpriteBatch::Verts[8] = {
-	-0.5f, -0.5f,	
-	 0.5f, -0.5f,
-	-0.5f,  0.5f,
-	 0.5f,  0.5f
-};
-
 const float SpriteBatch::Coords[8] = {
-	0, 0,	
-	1, 0,
-	0, 1,
-	1, 1
+	0, 1,	
+	0, 0,
+	1, 1,
+	1, 0
 };
 
 const unsigned char SpriteBatch::ColorMask[16] = {
@@ -58,6 +51,10 @@ void SpriteBatch::Begin()
 
 	glEnableVertexAttribArray(0); // position
 	glEnableVertexAttribArray(1); // coords
+	glDisableVertexAttribArray(2);
+	glDisableVertexAttribArray(3);
+	glDisableVertexAttribArray(4);
+	glDisableVertexAttribArray(5);
 }
 
 void SpriteBatch::End()
@@ -220,10 +217,13 @@ void SpriteBatch::CreateQuad(float *vertices, int x, int y, int width, int heigh
 {
 	vertices[0] = static_cast<float>(x);
 	vertices[1] = static_cast<float>(y + height);
-	vertices[2] = static_cast<float>(x + width);
-	vertices[3] = static_cast<float>(y + height);
-	vertices[4] = static_cast<float>(x);
-	vertices[5] = static_cast<float>(y);
+
+	vertices[2] = static_cast<float>(x);
+	vertices[3] = static_cast<float>(y);
+
+	vertices[4] = static_cast<float>(x + width);
+	vertices[5] = static_cast<float>(y + height);
+
 	vertices[6] = static_cast<float>(x + width);
 	vertices[7] = static_cast<float>(y);
 }
