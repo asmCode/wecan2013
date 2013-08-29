@@ -13,7 +13,7 @@ MeshPart::MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertex
 	m_lightmap(NULL)
 {
 	bbox = new BoundingBox();
-	(*bbox) = BoundingBox::FromVertices(vertices, verticesCount, vertexType);
+	(*bbox) = BoundingBox::FromVertices(vertices, verticesCount, vertexType, 0.01f);
 	bsphere = new BoundingSphere();
 	(*bsphere) = BoundingSphere::FromBBox(*bbox);
 

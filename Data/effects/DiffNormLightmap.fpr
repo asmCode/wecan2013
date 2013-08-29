@@ -30,4 +30,7 @@ void main()
 	diffColor.w *= u_opacity;
 	
     FragColor = diffColor + specColor;
+	
+	
+	//FragColor.xyz = lightmapColor;
 }

@@ -36,7 +36,7 @@ const float DemoController::GlowBufferWidthRatio = 0.5f;
 const float DemoController::GlowBufferHeightRatio = 0.5f;
 
 //#define DISABLE_MUSIC 1
-//#define DISABLE_FRUSTUM_CULLING 1
+#define DISABLE_FRUSTUM_CULLING 1
 #define MAN_CAM 1
 #define SHOW_FPS 1
 
@@ -535,16 +535,10 @@ bool DemoController::Update(float time, float ms)
 //	//scene ->Update(time, ms);
 //	//shadowPass->Update(time, ms);
 //
-//#ifndef DISABLE_FRUSTUM_CULLING
-//	frustum->SetFrustum(view, NEAR_PLANE, FAR_PLANE * 100.0f, fov, (float)width / (float)height);
-//	FrustumCulling(proj, view, sm::Matrix::IdentityMatrix(), allMeshParts);
-//
-//	for (uint32_t i = 0; i < GeometryBatches_Count; i++)
-//	{
-//		if (m_geoBatch[i].IsVisible())
-//			FrustumCulling(proj, view, sm::Matrix::IdentityMatrix(), m_geoBatch[i].allMeshParts);
-//	}
-//#endif
+#ifndef DISABLE_FRUSTUM_CULLING
+	frustum->SetFrustum(m_activeCamera->GetViewMatrix(), 0.1f, 100.0f, m_activeCamera->GetFov(time), (float)width / (float)height);
+	FrustumCulling(allMeshParts);
+#endif
 
 	return true;
 }
@@ -848,7 +842,7 @@ void DemoController::SetOpenglParams()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	proj = sm::Matrix::PerspectiveMatrix(fov, (float)width / (float)height, NEAR_PLANE, FAR_PLANE);
+	proj = sm::Matrix::PerspectiveMatrix(fov, (float)width / (float)height, 0.1f, 100.0f);
 	//glowProj = sm::Matrix::PerspectiveMatrix(fov, (float)(width / 4) / (float)(height / 4), NEAR_PLANE, FAR_PLANE);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -1123,11 +1117,7 @@ void DemoController::RenderGlowTexture()
 #endif
 }
 
-void DemoController::FrustumCulling(
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world,
-		std::vector<MeshPart*> &meshParts)
+void DemoController::FrustumCulling(std::vector<MeshPart*> &meshParts)
 {
 	for (unsigned i = 0; i < meshParts.size(); i++)
 	{

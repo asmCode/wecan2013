@@ -4,7 +4,7 @@
 #include <Math/Vec3.h>
 #include <assert.h>
 
-BoundingBox BoundingBox::FromVertices(const void *vertices, unsigned count, uint8_t vertexType)
+BoundingBox BoundingBox::FromVertices(const void *vertices, unsigned count, uint8_t vertexType, float scale)
 {
 	BoundingBox bbox;
 
@@ -44,6 +44,13 @@ BoundingBox BoundingBox::FromVertices(const void *vertices, unsigned count, uint
 
 		vertices = reinterpret_cast<const uint8_t*>(vertices) + VertexInformation::GetStride(vertexType);
 	}
+
+	bbox.maxX *= scale;
+	bbox.minX *= scale;
+	bbox.maxY *= scale;
+	bbox.minY *= scale;
+	bbox.maxZ *= scale;
+	bbox.minZ *= scale;
 
 	bbox.center.Set(
 		(bbox.maxX + bbox.minX) / 2.0f,

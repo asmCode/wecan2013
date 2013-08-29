@@ -235,11 +235,7 @@ public:
 
 	void RenderGlowTexture();
 
-	void FrustumCulling(
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world,
-		std::vector<MeshPart*> &meshParts);
+	void FrustumCulling(std::vector<MeshPart*> &meshParts);
 
 public:
 	void OnLeftMouseDown();

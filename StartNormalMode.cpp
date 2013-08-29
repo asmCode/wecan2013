@@ -24,8 +24,8 @@ std::string baseDataPath;
 //#define TIME_SHIFT (180.0f + 14.7f) * 1000.0f // dance
 #define TIME_SHIFT 0.0f
 
-#define START_IN_WINDOW 1
-#define SKIP_SETUP_DIALOG 1
+//#define START_IN_WINDOW 1
+//#define SKIP_SETUP_DIALOG 1
 #define DONT_USE_ARCHIVE 1
 
 //int UnzipData(const std::string &zipFile, const std::string &dstDir)

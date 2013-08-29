@@ -20,7 +20,7 @@ void Frustum::SetFrustum(
 	this->camUp = sm::Vec3(viewInv.a[4], viewInv.a[5], viewInv.a[6]).GetNormalized();
 	this->nearPlane = nearPlane;
 	this->farPlane = farPlane;
-	this->verticalFov = rad(verticalFov);
+	this->verticalFov = verticalFov;
 	this->aspect = aspect;
 
 	this->tanOfHalfVertFov = tanf(this->verticalFov / 2);

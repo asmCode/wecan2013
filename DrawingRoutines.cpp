@@ -246,6 +246,9 @@ void DrawingRoutines::DrawWithMaterial(std::vector<MeshPart*> &meshParts)
 {
 	for (uint32_t i = 0; i < meshParts.size(); i++)
 	{
+		if (!meshParts[i]->IsVisible())
+			continue;
+
 		if (meshParts[i]->GetMaterial() == NULL)
 		{
 			//assert(false);
