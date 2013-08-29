@@ -10,7 +10,6 @@ class MeshPart;
 class Content;
 class RobotElement;
 class Material;
-//class BasicLightingEffect;
 
 class DrawingRoutines
 {
@@ -18,9 +17,6 @@ private:
 	static sm::Matrix m_viewProjMatrix;
 	static sm::Vec3 m_lightPosition;
 	static sm::Vec3 m_eyePosition;
-
-	// diffuse lighting
-	static Shader *m_diffLightShader;
 
 	// diffuse lighting, diff tex, shadowmap tex
 	static Shader *m_diffLightLightMapShader;
@@ -51,13 +47,9 @@ public:
 
 	static void DrawWithMaterial(std::vector<MeshPart*> &meshParts);
 
-	static void DrawDiffLight(Model *model);
-
 	static void DrawBlack(std::vector<MeshPart*> &meshParts);
 
 	static void DrawDiffLightLightMap(Model *model);
-
-	static void DrawRobotElement(RobotElement *robotElement);
 
 	/*void Initialize(
 		Effect *stdLightingFx,

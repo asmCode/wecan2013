@@ -5,6 +5,7 @@ layout( location = 0 ) out vec4 FragColor;
 uniform sampler2D u_diffTex;
 uniform sampler2D u_normalTex;
 uniform sampler2D u_lightmapTex;
+uniform float u_opacity;
 
 varying vec2 o_coordsDiff;
 varying vec2 o_coordsLightmap;
@@ -18,23 +19,15 @@ void main()
 	bumpNormal = normalize(bumpNormal);
 	
 	float diffValue = max(dot(normalize(o_lightDirection), normalize(bumpNormal)), 0.5);
-	float specValue = pow(max(dot(normalize(o_halfVector), normalize(bumpNormal)), 0), 8.0) * 0.9f;
+	float specValue = pow(max(dot(normalize(o_halfVector), normalize(bumpNormal)), 0), 256.0) * 0.5f;
+
+	vec4 diffColor = texture(u_diffTex, o_coordsDiff);
+	vec3 lightmapColor = texture(u_lightmapTex, o_coordsLightmap).xyz;
+	vec3 specColor = vec3(specValue, specValue, specValue);
 	
-    FragColor =
-		((texture(u_diffTex, o_coordsDiff) *
-		vec4(diffValue, diffValue, diffValue, 1.0) +
-		vec4(specValue, specValue, specValue, 1.0)) * 0.3) *
-		texture(u_lightmapTex, o_coordsLightmap);
-		
-	vec4 lightmapColor = texture(u_lightmapTex, o_coordsLightmap);
-		
-	FragColor =
-		texture(u_diffTex, o_coordsDiff) *
-		lightmapColor + 
-		(lightmapColor * lightmapColor * lightmapColor * lightmapColor);
-		
-		
-	FragColor =
-		(texture(u_diffTex, o_coordsDiff) * diffValue + specValue) *
-		lightmapColor;
+	diffColor.xyz *= lightmapColor;
+	diffColor.xyz *= diffValue;
+	diffColor.w *= u_opacity;
+	
+    FragColor = diffColor + specColor;
 }

@@ -107,11 +107,23 @@ void DemoController::AssignLightmapsToModels()
 {
 	for (uint32_t i = 0; i < allMeshParts.size(); i++)
 	{
+		MeshPart *meshPart = allMeshParts[i];
+
 		std::string lightmapName = allMeshParts[i]->mesh->name + "LightingMap";
 		Texture *lightmap = m_content->Get<Texture>(lightmapName);
 
-		if (lightmap != NULL)
-			allMeshParts[i]->m_lightmap = lightmap;
+		if (lightmap != NULL &&
+			!(allMeshParts[i]->material != NULL &&
+			  allMeshParts[i]->material->name.size() >= 4 &&
+			  allMeshParts[i]->material->name.substr(0, 4) == "glow"))
+			  allMeshParts[i]->m_lightmap = lightmap;
+
+		if (allMeshParts[i]->material != NULL &&
+			  allMeshParts[i]->material->name.size() >= 4 &&
+			  allMeshParts[i]->material->name.substr(0, 4) == "glow")
+		{
+			int a = 9;
+		}
 	}
 }
 
@@ -256,7 +268,7 @@ bool DemoController::LoadContent(const char *basePath)
 
 	SortByOpacity(allMeshParts);
 
-	FilterGlowObjects(allMeshParts, glowMeshParts, nonGlowMeshParts);
+	FilterGlowObjects();
 
 	AssignLightmapsToModels();
 
@@ -945,6 +957,25 @@ int DemoController::GetNextId()
 	return nextId;
 }
 
+bool DemoController::HasGlowMaterial(MeshPart *meshPart)
+{
+	assert(meshPart != NULL);
+
+	return
+		meshPart->material != NULL &&
+		meshPart->material->name.size() >= 4 &&
+		meshPart->material->name.substr(0, 4) == "glow";
+}
+
+bool DemoController::HasOpacityMaterial(MeshPart *meshPart)
+{
+	assert(meshPart != NULL);
+
+	return
+		meshPart->material != NULL &&
+		meshPart->material->opacity < 1.0f;
+}
+
 void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYTE g, BYTE b)
 {
 	//m_fontRenderer->DrawString("abcdefgh", 10, 10, Color::Blue);
@@ -996,7 +1027,7 @@ bool MeshPartComp(MeshPart *&a, MeshPart *&b)
 	if (b->material != NULL)
 		bOpacity = b->material->opacity;
 
-	return a > b;
+	return aOpacity > bOpacity;
 }
 
 void DemoController::SortByOpacity(std::vector<MeshPart*> &meshParts)
@@ -1004,20 +1035,34 @@ void DemoController::SortByOpacity(std::vector<MeshPart*> &meshParts)
 	std::sort(meshParts.begin(), meshParts.end(),  MeshPartComp);
 }
 
-void DemoController::FilterGlowObjects(const std::vector<MeshPart*> &meshParts,
-									   std::vector<MeshPart*> &glowMeshParts,
-									   std::vector<MeshPart*> &nonGlowMeshParts)
+void DemoController::FilterGlowObjects()
 {
-	for (unsigned k = 0; k < meshParts.size(); k++)
+	for (unsigned i = 0; i < allMeshParts.size(); i++)
 	{
-		Material *mat = meshParts[k] ->GetMaterial();
+		MeshPart *mp = allMeshParts[i];
 
-		if (mat != NULL &&
-			mat ->name.size() >= 4 &&
-			mat ->name.substr(0, 4) == "glow")
-			glowMeshParts.push_back(meshParts[k]);
+		if (HasGlowMaterial(mp))
+		{
+			if (HasOpacityMaterial(mp))
+			{
+				m_opacityGlowObjects.push_back(mp);
+			}
+			else
+			{
+				m_solidGlowObjects.push_back(mp);
+			}
+		}
 		else
-			nonGlowMeshParts.push_back(meshParts[k]);
+		{
+			if (HasOpacityMaterial(mp))
+			{
+				m_opacityNonGlowObjects.push_back(mp);
+			}
+			else
+			{
+				m_solidNonGlowObjects.push_back(mp);
+			}
+		}
 	}
 }
 
@@ -1059,13 +1104,16 @@ void DemoController::RenderGlowTexture()
 	glDepthMask(true);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	DrawingRoutines::DrawWithMaterial(glowMeshParts);
-	DrawingRoutines::DrawBlack(nonGlowMeshParts);
+	DrawingRoutines::DrawWithMaterial(m_solidGlowObjects);
+	DrawingRoutines::DrawBlack(m_solidNonGlowObjects);
+
+	DrawingRoutines::DrawWithMaterial(m_opacityGlowObjects);
+	DrawingRoutines::DrawBlack(m_opacityNonGlowObjects);
 
 	Framebuffer::RestoreDefaultFramebuffer();
 
 	m_glowBlur->MakeBlur(m_glowTex->GetId());
-
+	
 #if 0
 	glViewport(0, 0, width, height);
 	m_spriteBatch->Begin();

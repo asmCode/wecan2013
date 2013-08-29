@@ -14,7 +14,7 @@ varying vec3 o_halfVector;
 void main()
 {
 	float diffValue = max(dot(normalize(o_lightDirection), normalize(o_normal)), 0.2);
-	float specValue = pow(max(dot(normalize(o_halfVector), normalize(o_normal)), 0), 16.0);
+	float specValue = pow(max(dot(normalize(o_halfVector), normalize(o_normal)), 0), 256.0);
 	
 	vec4 diffuseColor = u_diffuseColor;
 	diffuseColor.xyz *= diffValue;
@@ -22,9 +22,9 @@ void main()
 	
 	vec4 specularColor = u_specularColor;
 	specularColor.xyz *= specValue;
-		
+	specularColor.w = 0;
+	
 	FragColor =
-		diffuseColor;// +
-		//specularColor;
+		diffuseColor + specularColor;
 }
 

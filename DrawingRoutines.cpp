@@ -17,7 +17,6 @@ sm::Matrix DrawingRoutines::m_viewProjMatrix;
 sm::Vec3 DrawingRoutines::m_lightPosition;
 sm::Vec3 DrawingRoutines::m_eyePosition;
 
-Shader *DrawingRoutines::m_diffLightShader;
 Shader *DrawingRoutines::m_diffLightLightMapShader;
 Shader *DrawingRoutines::m_diffNormLightmapShader;
 Shader *DrawingRoutines::m_diffShader;
@@ -68,13 +67,6 @@ bool DrawingRoutines::Initialize(Content *content)
 	m_diffNormShader->BindVertexChannel(3, "a_tangent");
 	m_diffNormShader->LinkProgram();
 
-	m_diffLightShader = content->Get<Shader>("DiffLight");
-	assert(m_diffLightShader != NULL);
-	m_diffLightShader->BindVertexChannel(0, "a_position");
-	m_diffLightShader->BindVertexChannel(1, "a_coords");
-	m_diffLightShader->BindVertexChannel(2, "a_normal");
-	m_diffLightShader->LinkProgram();
-
 	m_diffLightLightMapShader = content->Get<Shader>("DiffLightLightMap");
 	assert(m_diffLightLightMapShader != NULL);
 	m_diffLightLightMapShader->BindVertexChannel(0, "a_position");
@@ -110,92 +102,6 @@ void DrawingRoutines::SetEyePosition(const sm::Vec3 &eyePosition)
 	m_eyePosition = eyePosition;
 }
 
-void DrawingRoutines::DrawDiffLight(Model *model)
-{
-	assert(model != NULL);
-
-	std::vector<MeshPart*> meshParts;
-	model->GetMeshParts(meshParts);
-
-	glDepthMask(GL_TRUE);
-	glEnableVertexAttribArray(0); 
-	//glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	m_diffLightShader->UseProgram();
-	m_diffLightShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
-	m_diffLightShader->SetParameter("u_lightPosition", m_lightPosition);
-
-	for (uint32_t i = 0; i < meshParts.size(); i++)
-	{
-		m_diffLightShader->SetMatrixParameter("u_worldMatrix", meshParts[i]->mesh->Transform());
-
-		meshParts[i]->Draw();
-	}
-	
-	glDisableVertexAttribArray(0);
-//	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-}
-
-void DrawingRoutines::DrawRobotElement(RobotElement *robotElement)
-{
-	glEnableVertexAttribArray(0); 
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	m_diffLightShader->UseProgram();
-	m_diffLightShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
-	m_diffLightShader->SetMatrixParameter("u_worldMatrix", robotElement->m_animTransform * sm::Matrix::RotateAxisMatrix(-3.1415f / 2.0f, 1, 0, 0));
-	//m_diffLightShader->SetMatrixParameter("u_worldMatrix", robotElement->m_animTransform);
-	m_diffLightShader->SetParameter("u_lightPosition", m_lightPosition);
-
-	for (uint32_t i = 0; i < robotElement->m_meshParts.size(); i++)
-	{
-		robotElement->m_meshParts[i]->Draw();
-	}
-
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(3);
-}
-
-void DrawingRoutines::DrawDiffLightLightMap(Model *model)
-{
-	assert(model != NULL);
-
-	std::vector<MeshPart*> meshParts;
-	model->GetMeshParts(meshParts);
-
-	glDepthMask(GL_TRUE);
-	glEnableVertexAttribArray(0); 
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	glEnableVertexAttribArray(3);
-
-	m_diffLightLightMapShader->UseProgram();
-	m_diffLightLightMapShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
-	m_diffLightLightMapShader->SetParameter("u_lightPosition", m_lightPosition);
-
-	for (uint32_t i = 0; i < meshParts.size(); i++)
-	{
-		m_diffLightLightMapShader->SetMatrixParameter("u_worldMatrix", meshParts[i]->mesh->Transform());
-
-		if (meshParts[i]->GetMaterial() != NULL && meshParts[i]->GetMaterial()->diffuseTex != NULL)
-			m_diffLightLightMapShader->SetTextureParameter("u_diffTex", 0, meshParts[i]->GetMaterial()->diffuseTex->GetId());
-		if (meshParts[i]->GetMaterial() != NULL && meshParts[i]->GetMaterial()->lightmapTex != NULL)
-			m_diffLightLightMapShader->SetTextureParameter("u_lightmapTex", 1, meshParts[i]->GetMaterial()->lightmapTex->GetId());
-
-		//assert(meshParts[i]->m_vertexType == VertexType::PC2N);
-		meshParts[i]->Draw();
-	}
-	
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
-	glDisableVertexAttribArray(2);
-	glDisableVertexAttribArray(3);
-}
-
 bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const sm::Matrix &worldatrix)
 {
 	if (material->opacity == 1.0f)
@@ -226,6 +132,7 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_diffShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_diffShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
+		m_diffShader->SetParameter("u_opacity", material->opacity);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -248,6 +155,7 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffLightLightMapShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_diffLightLightMapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
 		m_diffLightLightMapShader->SetTextureParameter("u_lightmapTex", 1, meshPart->m_lightmap->GetId());
+		m_diffLightLightMapShader->SetParameter("u_opacity", material->opacity);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -269,6 +177,7 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffNormShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_diffNormShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
 		m_diffNormShader->SetTextureParameter("u_normalTex", 1, material->normalTex->GetId());
+		m_diffNormShader->SetParameter("u_opacity", material->opacity);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -315,6 +224,7 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffNormLightmapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
 		m_diffNormLightmapShader->SetTextureParameter("u_normalTex", 1, material->normalTex->GetId());
 		m_diffNormLightmapShader->SetTextureParameter("u_lightmapTex", 2, meshPart->m_lightmap->GetId());
+		m_diffNormLightmapShader->SetParameter("u_opacity", material->opacity);
 		
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);

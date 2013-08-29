@@ -126,8 +126,22 @@ bool read_JPEG_file (const char * filename, uint32_t &width, uint32_t &height, u
   height = cinfo.output_height;
 
   data = new unsigned char[width * height * bpp];
-  unsigned data_shift = (width * bpp) * (height - 1);
+  unsigned data_shift = 0; //(width * bpp) * (height - 1);
 
+ // while (cinfo.output_scanline < cinfo.output_height) {
+ //   /* jpeg_read_scanlines expects an array of pointers to scanlines.
+ //    * Here the array is only one element long, but you could ask for
+ //    * more than one scanline at a time if that's more convenient.
+ //    */
+ //   (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+ //   /* Assume put_scanline_someplace wants a pointer and sample count. */
+
+	//memcpy(data + data_shift, buffer[0], row_stride);
+	////put_scanline_someplace(buffer[0], row_stride);
+	//data_shift -= row_stride;
+ // }
+
+  data_shift = 0;
   while (cinfo.output_scanline < cinfo.output_height) {
     /* jpeg_read_scanlines expects an array of pointers to scanlines.
      * Here the array is only one element long, but you could ask for
@@ -138,7 +152,7 @@ bool read_JPEG_file (const char * filename, uint32_t &width, uint32_t &height, u
 
 	memcpy(data + data_shift, buffer[0], row_stride);
 	//put_scanline_someplace(buffer[0], row_stride);
-	data_shift -= row_stride;
+	data_shift += row_stride;
   }
 
   /* Step 7: Finish decompression */

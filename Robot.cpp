@@ -132,7 +132,7 @@ void Robot::Draw(float time, float seconds)
 		DrawingRoutines::DrawRobotElement(m_robotElements[i], m_viewProj, sm::Vec3(0, 0, 100));
 	}*/
 
-	DrawingRoutines::DrawDiffLight(m_robot);
+	DrawingRoutines::DrawWithMaterial(m_robot->m_meshParts);
 }
 
 std::vector<Model*>& Robot::GetModels()

@@ -174,12 +174,14 @@ public:
 	CubeTexture *m_envTexture;
 
 	std::vector<MeshPart*> allMeshParts;
-	std::vector<MeshPart*> glowMeshParts;
-	std::vector<MeshPart*> nonGlowMeshParts;
-	std::vector<MeshPart*> opacityMeshParts;
-	std::vector<MeshPart*> solidMeshParts;
+
+	std::vector<MeshPart*> m_opacityGlowObjects;
+	std::vector<MeshPart*> m_solidGlowObjects;
+	std::vector<MeshPart*> m_opacityNonGlowObjects;
+	std::vector<MeshPart*> m_solidNonGlowObjects;
 
 	void SortByOpacity(std::vector<MeshPart*> &meshParts);
+	void FilterGlowObjects();
 
 	ShadowMappingTest *shadowPass;
 	IScene *scene;
@@ -260,12 +262,10 @@ public:
 
 	int GetNextId();
 
-	void LoadProperties(const std::string &filename);
+	bool HasGlowMaterial(MeshPart *meshPart);
+	bool HasOpacityMaterial(MeshPart *meshPart);
 
-	void FilterGlowObjects(
-		const std::vector<MeshPart*> &meshParts,
-		std::vector<MeshPart*> &glowMeshParts,
-		std::vector<MeshPart*> &nonGlowMeshParts);
+	void LoadProperties(const std::string &filename);
 
 	void SetAlwaysVisibility(
 		const std::vector<Model*> &models);

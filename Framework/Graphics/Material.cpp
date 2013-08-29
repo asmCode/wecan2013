@@ -7,7 +7,7 @@ Material::Material()
 	specularColor.Set(1.0f, 1.0f, 1.0f, 1.0f);
 	emissiveColor.Set(0.0f, 0.0f, 0.0, 1.0f);
 
-	opacity = 0.0f;
+	opacity = 1.0f;
 	glossiness = 0.3f;
 	specularLevel = 1.0f;
 	emissiveAmount = 0.0f;
