@@ -21,6 +21,10 @@
 #include "GraphicsLibrary\Property.h"
 #include "PropertySignal.h"
 #include "DrawingRoutines.h"
+#include "Billboard.h"
+#include "DistortParticleHandler.h"
+#include "Particles/ParticleEmmiter.h"
+#include "Particles/IParticleHandler.h"
 
 #include <Graphics/TextureLoader.h>
 #include <Graphics/ModelLoader.h>
@@ -52,7 +56,9 @@ DemoController::DemoController() :
 	m_doors(NULL),
 	m_doorsAnim(NULL),
 	m_fovSignal(NULL),
-	m_fovPower(0.0f)
+	m_fovPower(0.0f),
+	m_particleEmmiter(NULL),
+	m_distortParticleHandler(NULL)
 {
 	fade = 0.0f;
 	blurFbo = NULL;
@@ -210,6 +216,8 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
 	framebuffer ->AttachDepthTexture(depthTex ->GetId());
 
+	Billboard::Initialize();
+
 	return true;
 }
 
@@ -246,6 +254,19 @@ bool DemoController::LoadContent(const char *basePath)
 
 	m_spriteBatch = new SpriteBatch(m_spriteShader, sm::Matrix::Ortho2DMatrix(0, width, 0, height));
 	m_fontRenderer = FontRenderer::LoadFromFile((m_strBasePath + std::string("fonts\\komika_title_32.xml")).c_str(), m_spriteBatch);
+
+	Shader *distortShader = m_content->Get<Shader>("DistortParticle");
+	assert(distortShader != NULL);
+	distortShader->BindVertexChannel(0, "a_position");
+	distortShader->LinkProgram();
+
+	m_particleTex = m_content->Get<Texture>("smoke");
+	assert(m_particleTex != NULL);
+	m_distortParticleTex = m_content->Get<Texture>("smoke_distort");
+	assert(m_distortParticleTex != NULL);
+
+	m_distortParticleHandler = new DistortParticleHandler(distortShader, m_particleTex, m_distortParticleTex);
+	m_particleEmmiter = new ParticleEmmiter(10, m_distortParticleHandler);
 
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
@@ -391,6 +412,8 @@ void DemoController::Release()
 		dofBlur = NULL;
 	}
 
+	Billboard::Release();
+
 	DeleteObject(depthTex);
 	DeleteObject(m_glowTex);
 	DeleteObject(blurFbo);
@@ -415,14 +438,11 @@ bool DemoController::Update(float time, float ms)
 #else
 	camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
 	m_activeCamera = animCamsMng.GetActiveCamera(time);
-#endif
+#endif	
 
-	
-
-	m_viewProj =
-		sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f) *
-		//sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f) * m_activeCamera->GetViewMatrix();
-		m_activeCamera->GetViewMatrix();
+	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f);
+	m_view = m_activeCamera->GetViewMatrix();
+	m_viewProj = m_proj * m_view;
 
 	//anim->Update(time / 1000.0f, sm::Matrix::IdentityMatrix(), seconds);
 
@@ -593,10 +613,10 @@ float DemoController::CalcFlash(float time, float ms)
 	return fade;
 }
 
+Particle *ddd = NULL;
+
 bool DemoController::Draw(float time, float ms)
 {
-	glEnable(GL_NORMALIZE);
-
 	float seconds = ms / 1000.0f;
 	time /= 1000.0f;
 
@@ -613,6 +633,18 @@ bool DemoController::Draw(float time, float ms)
 
 	DrawingRoutines::DrawWithMaterial(allMeshParts);
 
+	if (ddd == NULL)
+		ddd = m_distortParticleHandler->CreateParticle();
+
+	ddd->m_position = sm::Vec3(0, 0, 0);
+	ddd->m_size = 4.0f;
+	ddd->m_color = sm::Vec4(1, 1, 1, 1);
+
+	m_distortParticleHandler->SetMetrices(m_view, m_proj);
+	m_distortParticleHandler->Setup();
+	m_distortParticleHandler->Draw(ddd);
+	m_distortParticleHandler->Clean();
+
 	RenderGlowTexture();
 
 	glViewport(0, 0, width, height);
@@ -620,137 +652,6 @@ bool DemoController::Draw(float time, float ms)
 	glBlendFunc(GL_ONE, GL_ONE);
 	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0, width, height);
 	m_spriteBatch->End();
-
-
-	//DrawingRoutines::DrawDiffLight(m_teapot, viewProj, sm::Vec3(0, 0, 100));
-
-	//glUseProgram(0);
-	
-	/*glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	proj = sm::Matrix::PerspectiveMatrix(60.0f, (float)width / (float)height, 0.125f, 100.0f);
-	glLoadMatrixf(proj);
-
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef(0, 0, -10);
-
-
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glColorMask(1, 1, 1, 1);
-	glColor4f(1, 1, 1, 1);
-	glBegin(GL_TRIANGLES);
-	
-	glVertex3f(-10, -10, 0);
-	glVertex3f(0, 10, 0);
-	glVertex3f(10, -10, 0);
-	glEnd();*/
-
-	//********************
-
-//	//return true;
-//
-//	time = lastTime;
-//
-//	sm::Matrix viewInv = view.GetInversed();
-//	sm::Vec3 camPos(viewInv.a[12], viewInv.a[13], viewInv.a[14]);
-//	sm::Vec3 camRight = sm::Vec3(viewInv.a[0], viewInv.a[1], viewInv.a[2]);
-//	sm::Vec3 camTrg(-viewInv.a[8], -viewInv.a[9], -viewInv.a[10]);
-//
-//	//DrawGlows(ms, camPos, glowTex->GetId());
-//
-//	sm::Matrix lightTransform;
-//
-//	lightTransform.a[0] = -0.9239f;
-//lightTransform.a[1] = 0.1557f;
-//lightTransform.a[2] = -0.3496f;
-//lightTransform.a[3] = 0.0000f;
-//lightTransform.a[4] = 0.0000f;
-//lightTransform.a[5] = 0.9135f;
-//lightTransform.a[6] = 0.4067f;
-//lightTransform.a[7] = 0.0000f;
-//lightTransform.a[8] = 0.3827f;
-//lightTransform.a[9] = 0.3758f;
-//lightTransform.a[10] = -0.8440f;
-//lightTransform.a[11] = 0.0000f;
-//lightTransform.a[12] = -703.3286f;
-//lightTransform.a[13] = -780.8308f;
-//lightTransform.a[14] = -193.7107f;
-//lightTransform.a[15] = 1.0000f;
-//
-//m_activeScene->GetLightTransform(lightTransform);
-//
-//
-//	//sm::Vec3 lightPos = endPivot->AnimTransform() * sm::Vec3(0, 0, 0);
-//	sm::Vec3 lightPos = camPos;
-//
-//	shadowPass->DrawLight(time, ms, lightTransform, proj);
-//
-//	framebuffer ->BindFramebuffer();
-//	framebuffer ->AttachColorTexture(targetTex0 ->GetId());
-//	framebuffer ->AttachDepthTexture(depthTex ->GetId());
-//	framebuffer ->Validate();
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//	for (uint32_t i = 0; i < GeometryBatches_Count; i++)
-//	{
-//		if (m_geoBatch[i].IsVisible())
-//			drawingRoutines->DrawStandardLighting_GlowShadow(
-//				m_geoBatch[i].solidMeshParts,
-//				proj,
-//				view,
-//				sm::Matrix::IdentityMatrix(),
-//				lightPos,
-//				camPos,
-//				lightTransform,
-//				proj,
-//				shadowPass->GetShadowMap());
-//	}
-//
-//	//drawingRoutines ->DrawStandardLighting_GlowShadow(solidMeshParts, proj, view, sm::Matrix::IdentityMatrix(), lightPos, camPos, lightTransform, proj, shadowPass->GetShadowMap());
-//
-//	//m_activeScene->Draw(time / 1000.0f, ms / 1000.0f);
-//	//m_robot->Draw(time / 1000.0f, ms / 1000.0f);
-//	//electro->SetParameter("minIntensity", 0.1f, 0.1f, 0.1f, 1.0f);
-//	//electro->SetParameter("minIntensity", 0.0f, 0.0f, 0.0f, 0.0f);
-//
-//	/*for (uint32_t i = 0; i < GeometryBatches_Count; i++)
-//	{
-//		if (m_geoBatch[i].IsVisible())
-//			drawingRoutines->DrawStandardLighting_GlowShadow(
-//				m_geoBatch[i].opacityMeshParts,
-//				proj,
-//				view,
-//				sm::Matrix::IdentityMatrix(),
-//				lightPos,
-//				camPos,
-//				lightTransform,
-//				proj,
-//				shadowPass->GetShadowMap());
-//	}*/
-//
-//	//drawingRoutines ->DrawStandardLighting_GlowShadow(opacityMeshParts, proj, view, sm::Matrix::IdentityMatrix(), lightPos, camPos, lightTransform, proj, shadowPass->GetShadowMap());
-//	//m_activeScene->DrawOpacities(time / 1000.0f, ms / 1000.0f);
-//
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_ONE, GL_ONE);
-//	//Utils::DrawSprite(blur->GetBlurredTexture(2), 0, 0, width, height);
-//	glDisable(GL_BLEND);
-//	Framebuffer::RestoreDefaultFramebuffer();
-//
-//	//dofBlur->MakeBlur(targetTex0->GetId(), 1, false);
-//
-//	//DrawPostProcess(targetTex0->GetId(), dofBlur->GetBlurredTexture(2), 0, 0, m_fovPower);
-//
-//	glEnable(GL_BLEND);
-//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//	glColor4f(1, 1, 1, 1);
-//	//Utils::DrawSprite(mask->GetId(), 0, 0, width, height);
-//	glDisable(GL_BLEND);
-//
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 #ifdef SHOW_FPS
 	glViewport(0, 0, width, height);
@@ -794,41 +695,6 @@ bool DemoController::Draw(float time, float ms)
 	return true;
 }
 
-void DemoController::DrawPostProcess(
-	int sharpTexId,
-	int blurTexId,
-	int glowTex,
-	unsigned int shadowTex,
-	float fade)
-{
-	//Effect *pp = DemoContent::GetInstance() ->Get<Effect*>("post_process");
-	//sm::Matrix mvp = sm::Matrix::Ortho2DMatrix(0, (float)width, 0, (float)height);
-
-	//glBindTexture(GL_TEXTURE_2D, 0);
-	//pp ->SetCurrentTechnique("DofGlowTech");
-
-	//pp ->SetParameter("focal", 100.0f);
-	//pp ->SetParameter("fade", fade);
-	//pp ->SetParameter("focalFalloff", 0.00000007f);
-	//pp->SetParameter("noiseStrength", electroNoiseVal);
-
-	//pp ->SetTextureParameter("depthTex", depthTex ->GetId());
-	//pp ->SetTextureParameter("sharpTex", sharpTexId);
-	//pp ->SetTextureParameter("blurTex", blurTexId);
-	//pp ->SetTextureParameter("noiseTex", noiseTex);
-	//pp ->SetParameter("mvp", mvp);
-	//pp ->BeginPass(0);
-	
-	//glBegin(GL_QUADS);
-	//glTexCoord2i(0, 0); glVertex2i(0, 0);
-	//glTexCoord2i(0, 1); glVertex2i(0, height);
-	//glTexCoord2i(1, 1); glVertex2i(width, height);
-	//glTexCoord2i(1, 0); glVertex2i(width, 0);
-	//glEnd();
-
-	//pp ->EndPass(0);
-}
-
 void DemoController::SetOpenglParams()
 {
 	int width = glWnd ->GetWindowWidth();
@@ -839,14 +705,7 @@ void DemoController::SetOpenglParams()
 
 	glViewport(0, 0, width, height);
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	proj = sm::Matrix::PerspectiveMatrix(fov, (float)width / (float)height, 0.1f, 100.0f);
 	//glowProj = sm::Matrix::PerspectiveMatrix(fov, (float)(width / 4) / (float)(height / 4), NEAR_PLANE, FAR_PLANE);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
 	glShadeModel(GL_SMOOTH);
 
@@ -854,8 +713,6 @@ void DemoController::SetOpenglParams()
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
-	
-	glEnable(GL_NORMALIZE);
 
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
@@ -879,7 +736,7 @@ void DemoController::OnLoadingContentStarted(int stepsCount)
 {
 	loadingScreen ->SetStepsCount(stepsCount);
 	loadingScreen ->Update(0, 0);
-	loadingScreen ->Draw(0, 0, view, proj, sm::Vec3(0, 0, 0));
+	//loadingScreen ->Draw(0, 0, view, proj, sm::Vec3(0, 0, 0));
 }
 
 void DemoController::OnProgressStep()
@@ -887,7 +744,7 @@ void DemoController::OnProgressStep()
 	loadingScreen ->ProgressStep();
 
 	loadingScreen ->Update(0, 0);
-	loadingScreen ->Draw(0, 0, view, proj, sm::Vec3(0, 0, 0));
+	//loadingScreen ->Draw(0, 0, view, proj, sm::Vec3(0, 0, 0));
 }
 
 void DemoController::OnLoadingFinished()
@@ -1227,7 +1084,7 @@ void DemoController::OnKeyDown(int keyCode)
 		Log::LogT("Light");
 		for (uint32_t i = 0; i < 16; i++)
 		{
-			Log::LogT("lightTransform.a[%d] = %.4ff;", i, view.a[i]);
+			Log::LogT("lightTransform.a[%d] = %.4ff;", i, m_view.a[i]);
 		}
 		Log::LogT("");
 		break;

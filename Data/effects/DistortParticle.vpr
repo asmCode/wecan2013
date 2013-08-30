@@ -1,0 +1,19 @@
+#version 400
+
+layout (location = 0) in vec2 a_position;
+
+uniform mat4 u_modelViewMatrix;
+uniform mat4 u_projMatrix;
+uniform vec4 u_particlePosition;
+
+varying vec2 v_coords;
+
+void main()
+{
+	v_coords = a_position + 0.5;
+	
+	vec4 worldViewParticlePosition = u_modelViewMatrix * vec4(u_particlePosition.xyz, 1.0);
+	
+	gl_Position = u_projMatrix * vec4((vec3(a_position * u_particlePosition.w, 0.0) + worldViewParticlePosition.xyz), 1.0);
+}
+

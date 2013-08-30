@@ -72,7 +72,7 @@ void Blur::MakeBlur(uint32_t texIdToBlur)
 	//glDisable(GL_CULL_FACE);
 
 	glViewport(0, 0, width, height);
-
+	
 	for (int i = 0; i < blurCount; i++)
 	{
 		// horizontal blur

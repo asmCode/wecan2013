@@ -19,7 +19,7 @@ MechArm::MechArm() :
 	m_ctrlMesh(NULL),
 	m_sparksGenerator(NULL)
 {
-	m_sparksGenerator = new SparksGenerator();
+	//m_sparksGenerator = new SparksGenerator();
 }
 
 MechArm::~MechArm()
@@ -86,7 +86,7 @@ void MechArm::Draw(float time, float seconds)
 
 void MechArm::DrawSparks(float seconds, sm::Matrix &proj, sm::Matrix &view)
 {
-	m_sparksGenerator->Draw(seconds, proj, view);
+	//m_sparksGenerator->Draw(seconds, proj, view);
 }
 
 void MechArm::Update(float time, float seconds)
@@ -108,14 +108,14 @@ void MechArm::Update(float time, float seconds)
 	m_joint2->SetTransformForMeshes(arm2Transform);
 
 	sm::Vec3 sparksSourcePosition = (m_endMesh->AnimTransform() * sm::Matrix::TranslateMatrix(0, 100.0f, 0)) * sm::Vec3(0, 0, 0);
-	m_sparksGenerator->SetSourcePosition(sparksSourcePosition);
+	/*m_sparksGenerator->SetSourcePosition(sparksSourcePosition);
 
 	if (m_sparksProp->GetIntValue(time) == 1)
 		m_sparksGenerator->EnableSparksSource();
 	else
 		m_sparksGenerator->DisableSparksSource();
 
-	m_sparksGenerator->Update(seconds);
+	m_sparksGenerator->Update(seconds);*/
 }
 
 sm::Matrix MechArm::CalcBoneMatrix(const sm::Vec3 &jointStart, const sm::Vec3 &jointEnd)

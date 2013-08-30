@@ -26,6 +26,7 @@ void main()
 	vec3 specColor = vec3(specValue, specValue, specValue);
 	
 	diffColor.xyz *= lightmapColor;
+	diffColor.xyz += 2*lightmapColor * diffColor.xyz;
 	diffColor.xyz *= diffValue;
 	diffColor.w *= u_opacity;
 	

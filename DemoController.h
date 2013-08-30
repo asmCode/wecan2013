@@ -18,7 +18,7 @@
 #include "GraphicsLibrary\SteerCamera.h"
 #include "GraphicsLibrary\IKeyboardCallback.h"
 
-#include "SparksGenerator.h"
+#include "Particles/ParticleEmmiter.h"
 #include "GeometryBatch.h"
 
 #include "IScene.h"
@@ -54,6 +54,7 @@ class PropertySignal;
 class Content;
 class SpriteBatch;
 class FontRenderer;
+class DistortParticleHandler;
 
 #define demo DemoController::GetInstance()
 
@@ -104,7 +105,11 @@ public:
 
 	ICamera *m_activeCamera;
 
-	SparksGenerator m_sparksGenerator;
+	ParticleEmmiter *m_particleEmmiter;
+	DistortParticleHandler *m_distortParticleHandler;
+
+	Texture *m_particleTex;
+	Texture *m_distortParticleTex;
 
 	Shader *m_horiBlurShader;
 	Shader *m_vertBlurShader;
@@ -154,8 +159,8 @@ public:
 	Animation *camerasAnimation;
 
 	Frustum *frustum;
-	sm::Matrix view;
-	sm::Matrix proj;
+	sm::Matrix m_view;
+	sm::Matrix m_proj;
 	sm::Matrix m_viewProj;
 	sm::Matrix glowProj;
 	Music music;
