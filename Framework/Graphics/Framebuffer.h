@@ -1,6 +1,7 @@
 #pragma once
 
-#include <Windows.h>
+#include <stdint.h>
+
 
 class Framebuffer
 {
@@ -29,8 +30,9 @@ public:
 	void BindFramebuffer();
 	void Validate();
 
-	void AttachColorTexture(unsigned textureId);
+	void AttachColorTexture(unsigned textureId, uint32_t index = 0);
 	void AttachDepthTexture(unsigned textureId);
+	void DettachColorTexture(uint32_t index);
 
 	int GetWidth();
 	int GetHeight();

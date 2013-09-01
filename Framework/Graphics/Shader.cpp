@@ -98,11 +98,17 @@ void Shader::SetTextureParameter(const char *name, unsigned channel, unsigned te
 	assert(uniformParam != -1);
 	
 	glUniform1i(uniformParam, channel);
-
+	
 }
 
 void Shader::SetMatrixParameter(const char *name, const sm::Matrix &matrix)
 {
+	char dddd[100];
+	int l;
+	int s;
+	GLenum e;
+	glGetActiveUniform (m_programId, 0, 100, &l, &s, &e, dddd);
+
 	int uniformParam = glGetUniformLocation(m_programId, name);
 	assert(uniformParam != -1);
 	

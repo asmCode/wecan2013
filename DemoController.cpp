@@ -118,18 +118,8 @@ void DemoController::AssignLightmapsToModels()
 		std::string lightmapName = allMeshParts[i]->mesh->name + "LightingMap";
 		Texture *lightmap = m_content->Get<Texture>(lightmapName);
 
-		if (lightmap != NULL &&
-			!(allMeshParts[i]->material != NULL &&
-			  allMeshParts[i]->material->name.size() >= 4 &&
-			  allMeshParts[i]->material->name.substr(0, 4) == "glow"))
-			  allMeshParts[i]->m_lightmap = lightmap;
-
-		if (allMeshParts[i]->material != NULL &&
-			  allMeshParts[i]->material->name.size() >= 4 &&
-			  allMeshParts[i]->material->name.substr(0, 4) == "glow")
-		{
-			int a = 9;
-		}
+		if (lightmap != NULL &&	!HasGlowMaterial(allMeshParts[i]))
+			allMeshParts[i]->m_lightmap = lightmap;
 	}
 }
 
@@ -161,6 +151,33 @@ void DemoController::InitializeBlur()
 	m_glowFramebuffer = new Framebuffer();
 	m_glowFramebuffer->Initialize(glowWidth, glowHeight, 32);
 	m_glowBlur = new Blur(1, m_horiBlurShader, m_vertBlurShader, glowWidth, glowHeight);
+
+	m_distortionTexture = new Texture(
+		width,
+		height,
+		32,
+		NULL,
+		Texture::Wrap_ClampToEdge,
+		Texture::Filter_Nearest,
+		Texture::Filter_Nearest,
+		false);
+
+	m_mainFrameTexture = new Texture(
+		width,
+		height,
+		32,
+		NULL,
+		Texture::Wrap_ClampToEdge,
+		Texture::Filter_Nearest,
+		Texture::Filter_Nearest,
+		false);
+
+	m_distortionFramebuffer = new Framebuffer();
+	m_distortionFramebuffer->Initialize(width, height, 32);
+	m_distortionFramebuffer->BindFramebuffer();
+	m_distortionFramebuffer->AttachColorTexture(m_mainFrameTexture->GetId(), 0);
+	m_distortionFramebuffer->AttachColorTexture(m_distortionTexture->GetId(), 1);
+	m_distortionFramebuffer->Validate();
 }
 
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
@@ -249,7 +266,7 @@ bool DemoController::LoadContent(const char *basePath)
 	m_spriteShader = m_content->Get<Shader>("Sprite");
 	assert(m_spriteShader != NULL);
 	m_spriteShader->BindVertexChannel(0, "a_position");
-	m_spriteShader->BindVertexChannel(0, "a_coords");
+	m_spriteShader->BindVertexChannel(1, "a_coords");
 	m_spriteShader->LinkProgram();
 
 	m_spriteBatch = new SpriteBatch(m_spriteShader, sm::Matrix::Ortho2DMatrix(0, width, 0, height));
@@ -260,10 +277,18 @@ bool DemoController::LoadContent(const char *basePath)
 	distortShader->BindVertexChannel(0, "a_position");
 	distortShader->LinkProgram();
 
+	m_bgTex = m_content->Get<Texture>("bg");
+	assert(m_bgTex != NULL);
+
 	m_particleTex = m_content->Get<Texture>("smoke2");
 	assert(m_particleTex != NULL);
 	m_distortParticleTex = m_content->Get<Texture>("smoke2_distort");
 	assert(m_distortParticleTex != NULL);
+
+	m_distortShader = m_content->Get<Shader>("Distortion");
+	assert(m_distortShader != NULL);
+	m_distortShader->BindVertexChannel(0, "a_position");
+	m_distortShader->LinkProgram();
 
 	m_distortParticleHandler = new DistortParticleHandler(distortShader, m_particleTex, m_distortParticleTex);
 	m_particleEmmiter = new ParticleEmmiter(1000, m_distortParticleHandler);
@@ -449,6 +474,26 @@ bool DemoController::Update(float time, float ms)
 
 	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f);
 	m_view = m_activeCamera->GetViewMatrix();
+
+#if 1
+	m_view.a[0] = 0.9890f;
+	m_view.a[1] = -0.0625f;
+	m_view.a[2] = -0.1340f;
+	m_view.a[3] = 0.0000f;
+	m_view.a[4] = 0.0000f;
+	m_view.a[5] = 0.9063f;
+	m_view.a[6] = -0.4226f;
+	m_view.a[7] = 0.0000f;
+	m_view.a[8] = 0.1478f;
+	m_view.a[9] = 0.4180f;
+	m_view.a[10] = 0.8964f;
+	m_view.a[11] = 0.0000f;
+	m_view.a[12] = -6.1468f;
+	m_view.a[13] = -4.0603f;
+	m_view.a[14] = -10.1110f;
+	m_view.a[15] = 1.0000f;
+#endif
+
 	m_viewProj = m_proj * m_view;
 
 	//anim->Update(time / 1000.0f, sm::Matrix::IdentityMatrix(), seconds);
@@ -655,16 +700,51 @@ bool DemoController::Draw(float time, float ms)
 	m_particleEmmiter->SetViewMatrix(m_view);
 	m_particleEmmiter->SetProjMatrix(m_proj);
 
+	m_distortionFramebuffer->BindFramebuffer();
+
+	GLenum enabledBuffers[2];
+	enabledBuffers[0] = GL_COLOR_ATTACHMENT0;
+	enabledBuffers[1] = GL_COLOR_ATTACHMENT1;
+	glDrawBuffers(2, enabledBuffers);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	m_spriteBatch->Begin();
+	glDisable(GL_BLEND);
+	m_spriteBatch->Draw(m_bgTex, 0, 0);
+	m_spriteBatch->End();
+
+	glDisablei(GL_DEPTH_TEST, 0);
+	glDisablei(GL_DEPTH_TEST, 1);
+	glDepthMask(false);
+
 	m_particleEmmiter->Update(seconds);
 	m_particleEmmiter->Draw(seconds);
+	Framebuffer::RestoreDefaultFramebuffer();
+	glDrawBuffer(GL_FRONT);
 
-	RenderGlowTexture();
+	glDisable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	sm::Matrix mvp =
+		sm::Matrix::Ortho2DMatrix(0, width, 0, height) *
+		sm::Matrix::ScaleMatrix(width, height, 1.0f) *
+		sm::Matrix::TranslateMatrix(0.5f, 0.5f, 0.0f);
 
-	glViewport(0, 0, width, height);
+	m_distortShader->UseProgram();
+	m_distortShader->SetMatrixParameter("u_mvp", mvp);
+	m_distortShader->SetTextureParameter("u_diffTex", 0, m_mainFrameTexture->GetId());
+	m_distortShader->SetTextureParameter("u_distortTex", 1, m_distortionTexture->GetId());
+	Billboard::Setup();
+	Billboard::Draw();
+	Billboard::Clean();
+		
+	//RenderGlowTexture();
+
+	/*glViewport(0, 0, width, height);
 	m_spriteBatch->Begin();
 	glBlendFunc(GL_ONE, GL_ONE);
 	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0, width, height);
-	m_spriteBatch->End();
+	m_spriteBatch->Draw(m_distortionTexture, 0, 0, width, height);
+	m_spriteBatch->End();*/
 
 #ifdef SHOW_FPS
 	glViewport(0, 0, width, height);
@@ -1093,6 +1173,15 @@ void DemoController::OnKeyDown(int keyCode)
 {
 	switch (keyCode)
 	{
+	case 'C':
+		Log::LogT("Camera");
+		for (uint32_t i = 0; i < 16; i++)
+		{
+			Log::LogT("m_view.a[%d] = %.4ff;", i, m_view.a[i]);
+		}
+		Log::LogT("");
+		break;
+
 	case 'L':
 		Log::LogT("Light");
 		for (uint32_t i = 0; i < 16; i++)

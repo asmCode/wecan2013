@@ -33,7 +33,7 @@ public:
 
 	void LinkProgram();
 	
-private:
+public:
 	GLuint m_programId;
 	GLuint m_vertShaderId;
 	GLuint m_fragShaderId;

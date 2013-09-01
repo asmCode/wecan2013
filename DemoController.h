@@ -98,6 +98,9 @@ public:
 
 	Model *m_mdl_teapot;
 
+	Texture *m_bgTex;
+	Shader *m_distortShader;
+
 	Model *m_doors;
 	Animation *m_doorsAnim;
 
@@ -175,6 +178,11 @@ public:
 
 	Blur *blur;
 	Blur *dofBlur;
+
+	Texture *m_mainFrameTexture;
+
+	Framebuffer *m_distortionFramebuffer;
+	Texture *m_distortionTexture;
 
 	CubeTexture *m_envTexture;
 

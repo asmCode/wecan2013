@@ -70,12 +70,19 @@ unsigned Framebuffer::GetTextureId()
 	return textureId;
 }
 
-void Framebuffer::AttachColorTexture(unsigned textureId)
+void Framebuffer::AttachColorTexture(unsigned textureId, uint32_t index)
 {
-	this ->textureId = textureId;
+	if (index == 0)
+		this ->textureId = textureId;
 
 	glFramebufferTexture2D(
-		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, textureId, 0);
+}
+
+void Framebuffer::DettachColorTexture(uint32_t index)
+{
+	glFramebufferTexture2D(
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + index, GL_TEXTURE_2D, 0, 0);
 }
 
 void Framebuffer::AttachDepthTexture(unsigned textureId)
