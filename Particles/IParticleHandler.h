@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Math/Matrix.h>
 #include <stdint.h>
 
 class Particle;
@@ -18,5 +19,7 @@ public:
 
 	// call after drawing all particles
 	virtual void Clean() {};
+
+	virtual void SetMetrices(const sm::Matrix &modelViewMatrix, const sm::Matrix &projMatrix) = 0;
 };
 

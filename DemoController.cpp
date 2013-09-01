@@ -260,13 +260,20 @@ bool DemoController::LoadContent(const char *basePath)
 	distortShader->BindVertexChannel(0, "a_position");
 	distortShader->LinkProgram();
 
-	m_particleTex = m_content->Get<Texture>("smoke");
+	m_particleTex = m_content->Get<Texture>("smoke2");
 	assert(m_particleTex != NULL);
-	m_distortParticleTex = m_content->Get<Texture>("smoke_distort");
+	m_distortParticleTex = m_content->Get<Texture>("smoke2_distort");
 	assert(m_distortParticleTex != NULL);
 
 	m_distortParticleHandler = new DistortParticleHandler(distortShader, m_particleTex, m_distortParticleTex);
-	m_particleEmmiter = new ParticleEmmiter(10, m_distortParticleHandler);
+	m_particleEmmiter = new ParticleEmmiter(1000, m_distortParticleHandler);
+	m_particleEmmiter->SetSparksPerSecond(10);
+	m_particleEmmiter->SetLifeTime(3.0f, 8.0f);
+	m_particleEmmiter->SetSizeOverLifetime(1.0f, 10.0f);
+	m_particleEmmiter->SetGravityVelocity(sm::Vec3(0, 3, 0));
+	m_particleEmmiter->SetColorOverLifetime(sm::Vec4(1, 1, 1, 0.5), sm::Vec4(1, 1, 1, 0));
+	m_particleEmmiter->SetSpeedOverLifetime(4.0f, 0.0f);
+	m_particleEmmiter->SetSourceDirection(sm::Vec3(5, 0, 0), 2);
 
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
@@ -633,7 +640,7 @@ bool DemoController::Draw(float time, float ms)
 
 	DrawingRoutines::DrawWithMaterial(allMeshParts);
 
-	if (ddd == NULL)
+	/*if (ddd == NULL)
 		ddd = m_distortParticleHandler->CreateParticle();
 
 	ddd->m_position = sm::Vec3(0, 0, 0);
@@ -643,7 +650,13 @@ bool DemoController::Draw(float time, float ms)
 	m_distortParticleHandler->SetMetrices(m_view, m_proj);
 	m_distortParticleHandler->Setup();
 	m_distortParticleHandler->Draw(ddd);
-	m_distortParticleHandler->Clean();
+	m_distortParticleHandler->Clean();*/
+
+	m_particleEmmiter->SetViewMatrix(m_view);
+	m_particleEmmiter->SetProjMatrix(m_proj);
+
+	m_particleEmmiter->Update(seconds);
+	m_particleEmmiter->Draw(seconds);
 
 	RenderGlowTexture();
 

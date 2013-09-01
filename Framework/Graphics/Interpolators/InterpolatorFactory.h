@@ -5,6 +5,7 @@
 
 #include "StateInterpolator.h"
 #include "TCBInterpolator.h"
+#include "LinearInterpolator.h"
 #include <assert.h>
 
 class InterpolatorFactory
@@ -23,8 +24,7 @@ public:
 		switch (func)
 		{
 		case InterpolationMethod_Linear:
-			assert(0);
-			return NULL; // you lazy noob!!
+			return new LinearInterpolator<Type>();
 
 		case InterpolationMethod_State:
 			return new StateInterpolator<Type>();

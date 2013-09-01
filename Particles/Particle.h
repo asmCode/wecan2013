@@ -14,7 +14,8 @@ public:
 	float m_size;
 	sm::Vec3 m_position;
 	sm::Vec4 m_color;
-	sm::Vec3 m_velocity;
+	sm::Vec3 m_moveDirection;
+
 	
 	float m_liteTimeLimit;
 	float m_liteTime;

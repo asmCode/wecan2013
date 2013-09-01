@@ -1,6 +1,8 @@
 #include "ParticleEmmiter.h"
 #include "IParticleHandler.h"
 #include "Particle.h"
+#include <Graphics/Interpolators/InterpolatorFactory.h>
+#include <Math/Vec4.h>
 #include <Utils/Randomizer.h>
 #include <memory>
 #include <assert.h>
@@ -25,6 +27,10 @@ ParticleEmmiter::ParticleEmmiter(uint32_t maxSpritesCount,
 	m_initialMaxSpeed(DefaultInitialMaxSpeed)
 {
 	assert(m_particleHandler != NULL);
+
+	m_speedOverLifeTime = InterpolatorFactory::CreateInterpolator<float>(InterpolatorFactory::InterpolationMethod_Linear);
+	m_sizeOverLifeTime = InterpolatorFactory::CreateInterpolator<float>(InterpolatorFactory::InterpolationMethod_Linear);
+	m_colorOverLifeTime = InterpolatorFactory::CreateInterpolator<sm::Vec4>(InterpolatorFactory::InterpolationMethod_Linear);
 
 	m_particles= new Particle*[m_maxParticesCount];
 	
@@ -51,13 +57,12 @@ void ParticleEmmiter::Update(float seconds)
 	for (uint32_t i = 0; i < m_maxParticesCount; i++)
 	{
 		// spark is living
-		if (m_particles[i]->m_isUsed && m_particles[i]->m_liteTime >= 0.0f)
+		if (m_particles[i]->m_isUsed && m_particles[i]->m_liteTime < m_particles[i]->m_liteTimeLimit)
 		{
-			m_particles[i]->m_liteTime -= seconds;
-			//m_particles[i]->m_throw.Update(seconds);
+			UpdateParticle(m_particles[i], seconds);
 		}
 		// spark just died
-		else if (m_particles[i]->m_isUsed && m_particles[i]->m_liteTime < 0.0f)
+		else if (m_particles[i]->m_isUsed && m_particles[i]->m_liteTime >= m_particles[i]->m_liteTimeLimit)
 		{
 			m_activeParticles--;
 			m_particles[i]->m_isUsed = false;
@@ -67,9 +72,12 @@ void ParticleEmmiter::Update(float seconds)
 		{
 			m_activeParticles++;
 			StartParticle(m_particles[i]);
+			UpdateParticle(m_particles[i], seconds);
 			m_sparksToStart -= 1.0f;
 		}
 	}
+
+	m_particleHandler->SetMetrices(m_viewMatrix, m_projMatrix);
 }
 
 void ParticleEmmiter::Draw(float seconds)
@@ -83,15 +91,6 @@ void ParticleEmmiter::Draw(float seconds)
 	{
 		if (m_particles[i]->m_isUsed)
 		{
-			float power = 1.0f;
-			if (m_particles[i]->m_liteTime < 0.5f && m_particles[i]->m_liteTime >= 0.0f)
-			{
-				power = m_particles[i]->m_liteTime / 0.5f;
-				assert(power >= 0.0f && power <= 1.0f);
-			}
-			if (m_particles[i]->m_liteTime <= 0.0f)
-				power = 0.0f;
-
 			m_particleHandler->Draw(m_particles[i]);
 		}
 	}
@@ -121,6 +120,12 @@ void ParticleEmmiter::SetSparksPerSecond(float sparksPerSecond)
 	m_sparksPerSeconds = sparksPerSecond;
 }
 
+void ParticleEmmiter::SetLifeTime(float minLifetime, float maxLifetime)
+{
+	m_minLifetime = minLifetime;
+	m_maxLifetime = maxLifetime;
+}
+
 void ParticleEmmiter::EnableSparksSource()
 {
 	m_sparksSourceEnabled = true;
@@ -143,8 +148,65 @@ void ParticleEmmiter::StartParticle(Particle *particle)
 
 	float speed = random.GetFloat(m_initialMinSpeed, m_initialMaxSpeed);
 
-	//particle->m_throw.Throw(m_sourcePosition, m_direction + spreadVector, speed, 30.0f);
-	particle->m_liteTime = random.GetFloat(0.4f, 1.2f);
+	particle->m_position = sm::Vec3(0, 0, 0);
+	particle->m_moveDirection = (m_direction + spreadVector).GetNormalized();
+	particle->m_size = 4.0f;
+	particle->m_color = sm::Vec4(1, 1, 1, 1);
+	particle->m_liteTime = 0.0f;
+	particle->m_liteTimeLimit = random.GetFloat(m_minLifetime, m_maxLifetime);
 	particle->m_isUsed = true;
+}
+
+void ParticleEmmiter::SetViewMatrix(const sm::Matrix &viewMatrix)
+{
+	m_viewMatrix = viewMatrix;
+}
+
+void ParticleEmmiter::SetProjMatrix(const sm::Matrix &projMatrix)
+{
+	m_projMatrix = projMatrix;
+}
+
+void ParticleEmmiter::SetGravityVelocity(const sm::Vec3 &gravityVelocity)
+{
+	m_gravityVelocity = gravityVelocity;
+}
+
+void ParticleEmmiter::SetSpeedOverLifetime(float begin, float end)
+{
+	m_speedOverLifeTime->AddKeyframe(0.0f, begin, false);
+	m_speedOverLifeTime->AddKeyframe(1.0f, end, false);
+}
+
+void ParticleEmmiter::SetSizeOverLifetime(float begin, float end)
+{
+	m_sizeOverLifeTime->AddKeyframe(0.0f, begin, false);
+	m_sizeOverLifeTime->AddKeyframe(1.0f, end, false);
+}
+
+void ParticleEmmiter::SetColorOverLifetime(const sm::Vec4 &begin, const sm::Vec4 &end)
+{
+	m_colorOverLifeTime->AddKeyframe(0.0f, begin, false);
+	m_colorOverLifeTime->AddKeyframe(1.0f, end, false);
+}
+
+void ParticleEmmiter::UpdateParticle(Particle *particle, float seconds)
+{
+	if (particle->m_liteTime < 0.0f)
+		particle->m_liteTime = 0.0f;
+
+	if (particle->m_liteTime > particle->m_liteTimeLimit)
+		particle->m_liteTime = particle->m_liteTimeLimit;
+
+	float timeNormalized = particle->m_liteTime / particle->m_liteTimeLimit;
+
+	float speed;
+	m_speedOverLifeTime->GetValue(timeNormalized, speed);
+	
+	particle->m_position += ((particle->m_moveDirection * speed) + m_gravityVelocity) * seconds;
+	m_colorOverLifeTime->GetValue(timeNormalized, particle->m_color);
+	m_sizeOverLifeTime->GetValue(timeNormalized, particle->m_size);
+
+	particle->m_liteTime += seconds;
 }
 

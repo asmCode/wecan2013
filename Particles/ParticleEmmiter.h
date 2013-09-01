@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Particle.h"
+#include <Graphics/Interpolators/IInterpolator.h>
 #include <Math\Vec3.h>
 #include <Math\Matrix.h>
 #include <stdint.h>
@@ -24,6 +25,15 @@ public:
 	void SetSourceDirection(const sm::Vec3 &direction, float spreadAngle); // spreadAngle is a fake, should be cone angle
 	void SetInitialSpeed(float minSpeed, float maxSpeed);
 	void SetSparksPerSecond(float sparksPerSecond);
+	void SetLifeTime(float maxLifetime, float minLifetime);
+	void SetViewMatrix(const sm::Matrix &viewMatrix);
+	void SetProjMatrix(const sm::Matrix &projMatrix);
+
+	void SetGravityVelocity(const sm::Vec3 &gravityVelocity);
+
+	void SetSpeedOverLifetime(float begin, float end);
+	void SetSizeOverLifetime(float begin, float end);
+	void SetColorOverLifetime(const sm::Vec4 &begin, const sm::Vec4 &end);
 
 	void EnableSparksSource();
 	void DisableSparksSource();
@@ -33,6 +43,9 @@ private:
 	static const float DefaultInitialMinSpeed;
 	static const float DefaultInitialMaxSpeed;
 	static const float DefaultSpreadAngle;
+
+	sm::Matrix	m_viewMatrix;
+	sm::Matrix	m_projMatrix;
 
 	uint32_t m_maxParticesCount;
 	uint32_t m_activeParticles; // performance purpose
@@ -48,11 +61,21 @@ private:
 	float m_initialMinSpeed;
 	float m_initialMaxSpeed;
 
+	float m_minLifetime;
+	float m_maxLifetime;
+
+	IInterpolator<float> *m_speedOverLifeTime;
+	IInterpolator<sm::Vec4> *m_colorOverLifeTime;
+	IInterpolator<float> *m_sizeOverLifeTime;
+
 	uint32_t m_liveSparksCount;
 	float m_sparksToStart;
+
+	sm::Vec3 m_gravityVelocity;
 
 	Particle **m_particles;
 
 	void StartParticle(Particle *particle);
+	void UpdateParticle(Particle *particle, float seconds);
 };
 
