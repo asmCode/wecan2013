@@ -91,6 +91,16 @@ sm::Vec3 VertexInformation::GetPosition(const void *vertex, uint8_t vertexType)
 	return *reinterpret_cast<const sm::Vec3*>(vertex);
 }
 
+sm::Vec3 VertexInformation::GetPosition(const void *vertices, uint32_t index, uint8_t vertexType)
+{
+	vertices =
+		reinterpret_cast<const uint8_t*>(vertices) +
+		(GetStride(vertexType) * index) +
+		GetOffset(vertexType, VertexAttrib::Position);
+
+	return *reinterpret_cast<const sm::Vec3*>(vertices);
+}
+
 bool VertexInformation::HasAttrib(uint8_t vertexType, uint8_t vertexAttrib)
 {
 	return GetOffset(vertexType, vertexAttrib) != -1;

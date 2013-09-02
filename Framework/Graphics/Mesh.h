@@ -37,7 +37,7 @@ public:
 
 	Mesh *CreateReference();
 
-private:
+public:
 	std::vector<MeshPart*> meshParts;
 	sm::Matrix transform;
 	sm::Matrix animTransform;

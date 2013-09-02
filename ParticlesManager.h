@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <stdint.h>
 
 class DemoController;
 class ParticleEmmiter;
@@ -33,6 +34,17 @@ private:
 	public:
 		sm::Vec3 m_position;
 		sm::Vec3 m_direction;
+		sm::Vec3 m_planeBase1;
+		sm::Vec3 m_planeBase2;
+		float m_speedStart;
+		float m_speedEnd;
+		float m_sizeStart;
+		float m_sizeEnd;
+		float m_opacityStart;
+		float m_opacityEnd;
+		uint32_t m_particlesPersSecond;
+		float m_lifeTimeMin;
+		float m_lifeTimeMax;
 	};
 
 	sm::Matrix m_viewMatrix;

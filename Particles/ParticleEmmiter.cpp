@@ -24,7 +24,8 @@ ParticleEmmiter::ParticleEmmiter(uint32_t maxSpritesCount,
 	m_spreadAngle(DefaultSpreadAngle),
 	m_sparksPerSeconds(DefaultSparksPerSecond),
 	m_initialMinSpeed(DefaultInitialMinSpeed),
-	m_initialMaxSpeed(DefaultInitialMaxSpeed)
+	m_initialMaxSpeed(DefaultInitialMaxSpeed),
+	m_sourceType(SourceType_Cone)
 {
 	assert(m_particleHandler != NULL);
 
@@ -141,15 +142,32 @@ void ParticleEmmiter::StartParticle(Particle *particle)
 {
 	static Randomizer random;
 
-	sm::Vec3 spreadVector = sm::Vec3(
-		random.GetFloat(-m_spreadAngle, m_spreadAngle),
-		random.GetFloat(-m_spreadAngle, m_spreadAngle),
-		random.GetFloat(-m_spreadAngle, m_spreadAngle));
+	sm::Vec3 position;
+	sm::Vec3 direction;
+
+	if (m_sourceType == SourceType_Plane)
+	{
+		float base1Scale = random.GetFloat();
+		float base2Scale = random.GetFloat();
+
+		position = m_sourcePosition + (m_planeSourceBase1 * base1Scale + m_planeSourceBase2 * base2Scale);
+		direction = m_direction;
+	}
+	else if (m_sourceType == SourceType_Cone)
+	{
+		sm::Vec3 spreadVector = sm::Vec3(
+			random.GetFloat(-m_spreadAngle, m_spreadAngle),
+			random.GetFloat(-m_spreadAngle, m_spreadAngle),
+			random.GetFloat(-m_spreadAngle, m_spreadAngle));
+
+		position = m_sourcePosition;
+		direction = (m_direction + spreadVector).GetNormalized();
+	}
 
 	float speed = random.GetFloat(m_initialMinSpeed, m_initialMaxSpeed);
 
-	particle->m_position = m_sourcePosition;
-	particle->m_moveDirection = (m_direction + spreadVector).GetNormalized();
+	particle->m_position = position;
+	particle->m_moveDirection = direction;
 	particle->m_size = 4.0f;
 	particle->m_color = sm::Vec4(1, 1, 1, 1);
 	particle->m_liteTime = 0.0f;
@@ -202,12 +220,29 @@ void ParticleEmmiter::UpdateParticle(Particle *particle, float seconds)
 
 	float speed;
 	m_speedOverLifeTime->GetValue(timeNormalized, speed);
-	speed *= 10;
 	
 	particle->m_position += ((particle->m_moveDirection * speed) + m_gravityVelocity) * seconds;
 	m_colorOverLifeTime->GetValue(timeNormalized, particle->m_color);
 	m_sizeOverLifeTime->GetValue(timeNormalized, particle->m_size);
 
 	particle->m_liteTime += seconds;
+}
+
+void ParticleEmmiter::SetSourceAsCone(const sm::Vec3 &position, const sm::Vec3 &direction, float spreadAngle)
+{
+	m_sourceType = SourceType_Cone;
+
+	m_sourcePosition = position;
+	m_direction = direction;
+	m_spreadAngle = spreadAngle;
+}
+
+void ParticleEmmiter::SetSourceAsPlane(const sm::Vec3 &cornerPosition, const sm::Vec3 &base1, const sm::Vec3 &base2)
+{
+	m_sourceType = SourceType_Plane;
+
+	m_sourcePosition = cornerPosition;
+	m_planeSourceBase1 = base1;
+	m_planeSourceBase2 = base2;
 }
 

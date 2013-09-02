@@ -12,6 +12,12 @@ class Particle;
 class ParticleEmmiter
 {
 public:
+	enum SourceType
+	{
+		SourceType_Cone,
+		SourceType_Plane
+	};
+
 	ParticleEmmiter(
 		uint32_t maxParticlesCount,
 		IParticleHandler *particleHandler);
@@ -21,6 +27,8 @@ public:
 	void Update(float seconds);
 	void Draw(float seconds);
 
+	void SetSourceAsCone(const sm::Vec3 &position, const sm::Vec3 &direction, float spreadAngle);
+	void SetSourceAsPlane(const sm::Vec3 &cornerPosition, const sm::Vec3 &base1, const sm::Vec3 &base2);
 	void SetSourcePosition(const sm::Vec3 &position);
 	void SetSourceDirection(const sm::Vec3 &direction, float spreadAngle); // spreadAngle is a fake, should be cone angle
 	void SetInitialSpeed(float minSpeed, float maxSpeed);
@@ -44,6 +52,8 @@ private:
 	static const float DefaultInitialMaxSpeed;
 	static const float DefaultSpreadAngle;
 
+	SourceType m_sourceType;
+
 	sm::Matrix	m_viewMatrix;
 	sm::Matrix	m_projMatrix;
 
@@ -60,6 +70,9 @@ private:
 	uint32_t m_sparksPerSeconds;
 	float m_initialMinSpeed;
 	float m_initialMaxSpeed;
+
+	sm::Vec3 m_planeSourceBase1;
+	sm::Vec3 m_planeSourceBase2;
 
 	float m_minLifetime;
 	float m_maxLifetime;
