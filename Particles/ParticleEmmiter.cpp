@@ -55,12 +55,19 @@ void ParticleEmmiter::Update(float seconds)
 	if (m_activeParticles == 0 && m_sparksToStart < 1.0f)
 		return;
 
+	uint32_t particlesProcessed = 0;
+
 	for (uint32_t i = 0; i < m_maxParticesCount; i++)
 	{
+		if (particlesProcessed >= m_activeParticles && m_sparksToStart < 1.0)
+			break;
+
 		// spark is living
 		if (m_particles[i]->m_isUsed && m_particles[i]->m_liteTime < m_particles[i]->m_liteTimeLimit)
 		{
 			UpdateParticle(m_particles[i], seconds);
+
+			particlesProcessed++;
 		}
 		// spark just died
 		else if (m_particles[i]->m_isUsed && m_particles[i]->m_liteTime >= m_particles[i]->m_liteTimeLimit)
@@ -88,11 +95,18 @@ void ParticleEmmiter::Draw(float seconds)
 
 	m_particleHandler->Setup();
 
+	uint32_t particlesProcessed = 0;
+
 	for (uint32_t i = 0; i < m_maxParticesCount; i++)
 	{
+		if (particlesProcessed >= m_activeParticles)
+			break;
+
 		if (m_particles[i]->m_isUsed)
 		{
 			m_particleHandler->Draw(m_particles[i]);
+
+			particlesProcessed++;
 		}
 	}
 
