@@ -16,7 +16,7 @@ DistortParticleHandler::DistortParticleHandler(Shader *distortParticleShader,
 {
 	assert(m_distortParticleShader != NULL);
 	assert(m_particleTex != NULL);
-	assert(m_distortTex != NULL);
+	//assert(m_distortTex != NULL);
 }
 
 
@@ -29,7 +29,6 @@ void DistortParticleHandler::Setup()
 {
 	m_distortParticleShader->UseProgram();
 	m_distortParticleShader->SetTextureParameter("u_particleTex", 0, m_particleTex->GetId());
-	m_distortParticleShader->SetTextureParameter("u_distortTex", 1, m_distortTex->GetId());
 	m_distortParticleShader->SetMatrixParameter("u_modelViewMatrix", m_modelViewMatrix);
 	m_distortParticleShader->SetMatrixParameter("u_projMatrix", m_projMatrix);
 

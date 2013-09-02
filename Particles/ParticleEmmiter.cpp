@@ -148,7 +148,7 @@ void ParticleEmmiter::StartParticle(Particle *particle)
 
 	float speed = random.GetFloat(m_initialMinSpeed, m_initialMaxSpeed);
 
-	particle->m_position = sm::Vec3(0, 0, 0);
+	particle->m_position = m_sourcePosition;
 	particle->m_moveDirection = (m_direction + spreadVector).GetNormalized();
 	particle->m_size = 4.0f;
 	particle->m_color = sm::Vec4(1, 1, 1, 1);
@@ -202,6 +202,7 @@ void ParticleEmmiter::UpdateParticle(Particle *particle, float seconds)
 
 	float speed;
 	m_speedOverLifeTime->GetValue(timeNormalized, speed);
+	speed *= 10;
 	
 	particle->m_position += ((particle->m_moveDirection * speed) + m_gravityVelocity) * seconds;
 	m_colorOverLifeTime->GetValue(timeNormalized, particle->m_color);

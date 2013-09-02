@@ -28,3 +28,23 @@ std::string StringUtils::ToNarrow(const std::wstring &str)
 	return std::string(str.begin(), str.end());
 }
 
+void StringUtils::Split(const std::string src, const std::string &separator, std::vector<std::string> &result)
+{
+	result.clear();
+
+    std::string _src = src;
+    int offset = 0;
+
+    while (offset != -1)
+    {
+        offset = _src.find_first_of(separator);
+        if (offset != -1)
+        {
+            result.push_back(_src.substr(0, offset));
+            _src = _src.substr(offset + separator.length());
+        }
+    }
+
+	result.push_back(_src);
+}
+

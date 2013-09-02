@@ -12,5 +12,7 @@ void main()
 	vec4 distortValue = texture(u_distortTex, v_coords);
 	
 	FragColor = texture(u_diffTex, v_coords + (distortValue.xy * 0.4 * distortValue.w));
+	//FragColor = texture(u_diffTex, v_coords);
+	//FragColor = texture(u_distortTex, v_coords);
 }
 

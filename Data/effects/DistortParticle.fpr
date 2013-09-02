@@ -4,14 +4,14 @@ layout( location = 0 ) out vec4 FragColor;
 layout( location = 1 ) out vec4 DistortColor;
 
 uniform sampler2D u_particleTex;
-uniform sampler2D u_distortTex;
 uniform vec4 u_color;
 
 varying vec2 v_coords;
 
 void main()
 {
-   FragColor = texture2D(u_particleTex, v_coords) * u_color;
-   DistortColor = texture2D(u_distortTex, v_coords) * u_color;
+	vec4 diffColor = texture(u_particleTex, v_coords) * u_color;
+	FragColor = diffColor;
+	DistortColor = diffColor;
 }
 

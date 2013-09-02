@@ -41,6 +41,7 @@ class EditableCamera;
 class ManCam;
 class ShadowMappingTest;
 class LoadingScreen;
+class ParticlesManager;
 class Framebuffer;
 class DepthTexture;
 class Blur;
@@ -108,11 +109,11 @@ public:
 
 	ICamera *m_activeCamera;
 
-	ParticleEmmiter *m_particleEmmiter;
-	DistortParticleHandler *m_distortParticleHandler;
+	/*ParticleEmmiter *m_particleEmmiter;
+	DistortParticleHandler *m_distortParticleHandler;*/
 
-	Texture *m_particleTex;
-	Texture *m_distortParticleTex;
+	//Texture *m_particleTex;
+	//Texture *m_distortParticleTex;
 
 	Shader *m_horiBlurShader;
 	Shader *m_vertBlurShader;
@@ -168,6 +169,8 @@ public:
 	sm::Matrix glowProj;
 	Music music;
 	bool isStereo;
+
+	ParticlesManager *m_particlesManager;
 
 	PostProcessing *postProcessing;
 

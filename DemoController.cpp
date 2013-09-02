@@ -1,6 +1,7 @@
 #include "DemoController.h"
 #include <Utils/Log.h>
 #include "BasicLightingEffect.h"
+#include "ParticlesManager.h"
 #include "ShadowMappingTest.h"
 #include <Graphics/Framebuffer.h>
 #include <Graphics/Model.h>
@@ -56,9 +57,7 @@ DemoController::DemoController() :
 	m_doors(NULL),
 	m_doorsAnim(NULL),
 	m_fovSignal(NULL),
-	m_fovPower(0.0f),
-	m_particleEmmiter(NULL),
-	m_distortParticleHandler(NULL)
+	m_fovPower(0.0f)
 {
 	fade = 0.0f;
 	blurFbo = NULL;
@@ -280,36 +279,27 @@ bool DemoController::LoadContent(const char *basePath)
 	m_bgTex = m_content->Get<Texture>("bg");
 	assert(m_bgTex != NULL);
 
-	m_particleTex = m_content->Get<Texture>("smoke2");
-	assert(m_particleTex != NULL);
-	m_distortParticleTex = m_content->Get<Texture>("smoke2_distort");
-	assert(m_distortParticleTex != NULL);
-
 	m_distortShader = m_content->Get<Shader>("Distortion");
 	assert(m_distortShader != NULL);
 	m_distortShader->BindVertexChannel(0, "a_position");
 	m_distortShader->LinkProgram();
 
-	m_distortParticleHandler = new DistortParticleHandler(distortShader, m_particleTex, m_distortParticleTex);
-	m_particleEmmiter = new ParticleEmmiter(1000, m_distortParticleHandler);
-	m_particleEmmiter->SetSparksPerSecond(10);
-	m_particleEmmiter->SetLifeTime(3.0f, 8.0f);
-	m_particleEmmiter->SetSizeOverLifetime(1.0f, 10.0f);
-	m_particleEmmiter->SetGravityVelocity(sm::Vec3(0, 3, 0));
-	m_particleEmmiter->SetColorOverLifetime(sm::Vec4(1, 1, 1, 0.5), sm::Vec4(1, 1, 1, 0));
-	m_particleEmmiter->SetSpeedOverLifetime(4.0f, 0.0f);
-	m_particleEmmiter->SetSourceDirection(sm::Vec3(5, 0, 0), 2);
+	Model *particlesModel = m_content->Get<Model>("particles");
+	assert(particlesModel != NULL);
+
+	m_particlesManager = new ParticlesManager();
+	m_particlesManager->Initialize(particlesModel);
 
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
 
 	m_teapots = m_content->Get<Model>("teapots");
-	assert(m_teapots != NULL);
+	//assert(m_teapots != NULL);
 
-	for (uint32_t i = 0; i < m_teapots->m_meshParts.size(); i++)
+	/*for (uint32_t i = 0; i < m_teapots->m_meshParts.size(); i++)
 	{
 		m_teapots->m_meshParts[i]->mesh->Transform() = sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f);
-	}
+	}*/
 
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);
@@ -475,7 +465,7 @@ bool DemoController::Update(float time, float ms)
 	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f);
 	m_view = m_activeCamera->GetViewMatrix();
 
-#if 1
+#if 0
 	m_view.a[0] = 0.9890f;
 	m_view.a[1] = -0.0625f;
 	m_view.a[2] = -0.1340f;
@@ -495,6 +485,10 @@ bool DemoController::Update(float time, float ms)
 #endif
 
 	m_viewProj = m_proj * m_view;
+
+	m_particlesManager->SetViewMatrix(m_view);
+	m_particlesManager->SetProjMatrix(m_proj);
+	m_particlesManager->Update(seconds);
 
 	//anim->Update(time / 1000.0f, sm::Matrix::IdentityMatrix(), seconds);
 
@@ -672,10 +666,16 @@ bool DemoController::Draw(float time, float ms)
 	float seconds = ms / 1000.0f;
 	time /= 1000.0f;
 
-	glDepthMask(true);
+	m_distortionFramebuffer->BindFramebuffer();
 	glViewport(0, 0, width, height);
+	glDepthMask(true);
+	
+	GLenum enabledBuffers[2];
+	enabledBuffers[0] = GL_COLOR_ATTACHMENT0;
+	enabledBuffers[1] = GL_COLOR_ATTACHMENT1;
+	glDrawBuffers(2, enabledBuffers);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	DrawingRoutines::SetViewProjMatrix(m_viewProj);
 	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
@@ -683,50 +683,34 @@ bool DemoController::Draw(float time, float ms)
 
 	//m_robot->Draw(time, seconds);
 
+	glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
 	DrawingRoutines::DrawWithMaterial(allMeshParts);
 
-	/*if (ddd == NULL)
-		ddd = m_distortParticleHandler->CreateParticle();
-
-	ddd->m_position = sm::Vec3(0, 0, 0);
-	ddd->m_size = 4.0f;
-	ddd->m_color = sm::Vec4(1, 1, 1, 1);
-
-	m_distortParticleHandler->SetMetrices(m_view, m_proj);
-	m_distortParticleHandler->Setup();
-	m_distortParticleHandler->Draw(ddd);
-	m_distortParticleHandler->Clean();*/
-
-	m_particleEmmiter->SetViewMatrix(m_view);
-	m_particleEmmiter->SetProjMatrix(m_proj);
-
-	m_distortionFramebuffer->BindFramebuffer();
-
-	GLenum enabledBuffers[2];
-	enabledBuffers[0] = GL_COLOR_ATTACHMENT0;
-	enabledBuffers[1] = GL_COLOR_ATTACHMENT1;
 	glDrawBuffers(2, enabledBuffers);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	m_spriteBatch->Begin();
+
+	/*m_spriteBatch->Begin();
 	glDisable(GL_BLEND);
 	m_spriteBatch->Draw(m_bgTex, 0, 0);
-	m_spriteBatch->End();
+	m_spriteBatch->End();*/
 
 	glDisablei(GL_DEPTH_TEST, 0);
 	glDisablei(GL_DEPTH_TEST, 1);
 	glDepthMask(false);
 
-	m_particleEmmiter->Update(seconds);
-	m_particleEmmiter->Draw(seconds);
+	m_particlesManager->Draw();
 	Framebuffer::RestoreDefaultFramebuffer();
-	glDrawBuffer(GL_FRONT);
 
+	glDrawBuffer(GL_BACK);
+
+	glViewport(0, 0, width, height);
+	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	
 	sm::Matrix mvp =
 		sm::Matrix::Ortho2DMatrix(0, width, 0, height) *
-		sm::Matrix::ScaleMatrix(width, height, 1.0f) *
+		sm::Matrix::ScaleMatrix(static_cast<float>(width), static_cast<float>(height), 1.0f) *
 		sm::Matrix::TranslateMatrix(0.5f, 0.5f, 0.0f);
 
 	m_distortShader->UseProgram();
@@ -739,12 +723,16 @@ bool DemoController::Draw(float time, float ms)
 		
 	//RenderGlowTexture();
 
-	/*glViewport(0, 0, width, height);
+#if 0
+	glViewport(0, 0, width, height);
 	m_spriteBatch->Begin();
 	glBlendFunc(GL_ONE, GL_ONE);
+	glDisable(GL_BLEND);
 	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0, width, height);
 	m_spriteBatch->Draw(m_distortionTexture, 0, 0, width, height);
-	m_spriteBatch->End();*/
+	m_spriteBatch->Draw(m_mainFrameTexture, 0, 0, width, height);
+	m_spriteBatch->End();
+#endif
 
 #ifdef SHOW_FPS
 	glViewport(0, 0, width, height);
@@ -757,31 +745,13 @@ bool DemoController::Draw(float time, float ms)
 	DrawText(fpsText, 4, height - 20, 255, 0, 0);
 	DrawEngineStats();
 
-	sprintf(fpsText, "fade: %.2f", fade);
-	DrawText(fpsText, 4, 0, 255, 0, 0);
-
 	sm::Vec3 camPos = m_activeCamera->GetPosition();
 	sprintf(fpsText, "camera position: (%.4f, %.4f, %.4f)", camPos.x, camPos.y, camPos.z);
 	DrawText(fpsText, 4, 20, 255, 255, 255);
 
-	sprintf(fpsText, "fade: %.2f", fade);
-	DrawText(fpsText, 4, height - 140, 255, 0, 0);
 	sprintf(fpsText, "time: %.2f", time / 1000.0f);
 	DrawText(fpsText, 4, height - 160, 255, 0, 0);
 #endif
-
-	/*if (m_boardOpacity > 0.0f)
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);	
-		glColor4f(1, 1, 1, m_boardOpacity);
-		Utils::DrawSprite(
-			m_boardTexs[m_boardIndex]->GetId(),
-			0,
-			0,
-			width,
-			height);
-	}*/
 
 	glWnd ->SwapBuffers();
 
