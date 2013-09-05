@@ -294,12 +294,13 @@ bool DemoController::LoadContent(const char *basePath)
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
 
 	m_teapots = m_content->Get<Model>("teapots");
-	//assert(m_teapots != NULL);
+	assert(m_teapots != NULL);
 
-	/*for (uint32_t i = 0; i < m_teapots->m_meshParts.size(); i++)
+
+	for (uint32_t i = 0; i < m_teapots->m_meshParts.size(); i++)
 	{
 		m_teapots->m_meshParts[i]->mesh->Transform() = sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f);
-	}*/
+	}
 
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);
@@ -312,7 +313,7 @@ bool DemoController::LoadContent(const char *basePath)
 	SortByOpacity(allMeshParts);
 
 	FilterGlowObjects();
-
+	
 	AssignLightmapsToModels();
 
 	//demo ->activeCamera = demo ->manualCamera;
@@ -694,8 +695,8 @@ bool DemoController::Draw(float time, float ms)
 	m_spriteBatch->Draw(m_bgTex, 0, 0);
 	m_spriteBatch->End();*/
 
-	glDisablei(GL_DEPTH_TEST, 0);
-	glDisablei(GL_DEPTH_TEST, 1);
+	glEnablei(GL_DEPTH_TEST, 0);
+	glEnablei(GL_DEPTH_TEST, 1);
 	glDepthMask(false);
 
 	m_particlesManager->Draw();
@@ -887,7 +888,7 @@ bool DemoController::HasOpacityMaterial(MeshPart *meshPart)
 
 	return
 		meshPart->material != NULL &&
-		meshPart->material->opacity < 1.0f;
+		meshPart->material->IsOpacity();
 }
 
 void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYTE g, BYTE b)
@@ -936,10 +937,10 @@ bool MeshPartComp(MeshPart *&a, MeshPart *&b)
 	float bOpacity = 1.0f;
 
 	if (a->material != NULL)
-		aOpacity = a->material->opacity;
+		aOpacity = a->material->Opacity();
 
 	if (b->material != NULL)
-		bOpacity = b->material->opacity;
+		bOpacity = b->material->Opacity();
 
 	return aOpacity > bOpacity;
 }
@@ -998,7 +999,7 @@ void DemoController::FilterOpacityObjects(const std::vector<Model*> &models,
 				Material *mat = meshParts[k] ->GetMaterial();
 
 				if (mat != NULL &&
-					mat ->opacity < 1.0)
+					mat->IsOpacity())
 					opacityMeshParts.push_back(meshParts[k]);
 				else
 					solidGlowMeshParts.push_back(meshParts[k]);
@@ -1143,6 +1144,13 @@ void DemoController::OnKeyDown(int keyCode)
 {
 	switch (keyCode)
 	{
+	case 'X':
+		for (uint32_t i = 0; i < allMeshParts.size(); i++)
+		{
+			allMeshParts[i]->m_lightmap = NULL;
+		}
+		break;
+
 	case 'C':
 		Log::LogT("Camera");
 		for (uint32_t i = 0; i < 16; i++)

@@ -18,7 +18,7 @@ private:
 	static bool LoadTextures(Material *material, XMLNode &node);
 	static bool LoadTexture(Material *material, XMLNode &node);
 
-	static sm::Vec4 ParseVec4(const std::string &value);
+	static sm::Vec3 ParseVec3(const std::string &value);
 };
 
 #endif // MATERIAL_LOADER

@@ -1,6 +1,7 @@
 #ifndef MATERIAL
 #define MATERIAL
 
+#include <Math\Vec3.h>
 #include <Math\Vec4.h>
 #include <string>
 
@@ -14,15 +15,11 @@ private:
 public:
 	std::string name;
 	
-	sm::Vec4 ambientColor;
 	sm::Vec4 diffuseColor;
-	sm::Vec4 specularColor;
-	sm::Vec4 emissiveColor;
+	sm::Vec3 specularColor;
 
-	float opacity;
 	float glossiness;
 	float specularLevel;
-	float emissiveAmount;
 	float reflectionValue; // for evironment mapping
 
 	std::string diffuseTexName;
@@ -42,6 +39,10 @@ public:
 
 	Material(void);
 	~Material(void);
+
+	float& Opacity();
+
+	bool IsOpacity() const;
 };
 
 #endif // MATERIAL

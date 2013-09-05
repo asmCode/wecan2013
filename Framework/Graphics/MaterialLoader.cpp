@@ -44,25 +44,20 @@ bool MaterialLoader::LoadMaterialParam(Material *mat, XMLNode &node)
 {
 	std::string type = node.GetAttribAsString("Type");
 	
-	if (type == "Ambient")
+	if (type == "Diffuse")
 	{
-		mat->ambientColor = ParseVec4(node.GetAttribAsString("Value"));
-	}
-	else if (type == "Diffuse")
-	{
-		mat ->diffuseColor = ParseVec4(node.GetAttribAsString("Value"));
+		sm::Vec3 color = ParseVec3(node.GetAttribAsString("Value"));
+		mat ->diffuseColor.x = color.x;
+		mat ->diffuseColor.y = color.y;
+		mat ->diffuseColor.z = color.z;
 	}
 	else if (type == "Specular")
 	{
-		mat ->specularColor = ParseVec4(node.GetAttribAsString("Value"));
-	}
-	else if (type == "Emissive")
-	{
-		mat ->emissiveColor = ParseVec4(node.GetAttribAsString("Value"));
+		mat ->specularColor = ParseVec3(node.GetAttribAsString("Value"));
 	}
 	else if (type == "Opacity")
 	{
-		mat ->opacity = node.GetAttribAsFloat("Value");
+		mat ->diffuseColor.w = node.GetAttribAsFloat("Value");
 	}
 	else if (type == "Glossiness")
 	{
@@ -71,10 +66,6 @@ bool MaterialLoader::LoadMaterialParam(Material *mat, XMLNode &node)
 	else if (type == "SpecularLevel")
 	{
 		mat ->specularLevel = node.GetAttribAsFloat("Value");
-	}
-	else if (type == "EmissiveAmount")
-	{
-		mat ->emissiveAmount = node.GetAttribAsFloat("Value");
 	}
 
 	return true;
@@ -122,11 +113,10 @@ bool MaterialLoader::LoadTexture(Material *material, XMLNode &node)
 	return true;
 }
 
-sm::Vec4 MaterialLoader::ParseVec4(const std::string &value)
+sm::Vec3 MaterialLoader::ParseVec3(const std::string &value)
 {
-	sm::Vec4 color;
+	sm::Vec3 color;
 	sscanf(value.c_str(), "%f;%f;%f", &color.x, &color.y, &color.z);
-	color.w = 1.0f;
 	return color;
 }
 

@@ -19,7 +19,7 @@ private:
 	static sm::Vec3 m_eyePosition;
 
 	// diffuse lighting, diff tex, shadowmap tex
-	static Shader *m_diffLightLightMapShader;
+	static Shader *m_diffLightMapShader;
 
 	// diffuse, normal, lightmap
 	static Shader *m_diffNormLightmapShader;

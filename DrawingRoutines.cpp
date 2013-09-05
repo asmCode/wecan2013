@@ -17,7 +17,7 @@ sm::Matrix DrawingRoutines::m_viewProjMatrix;
 sm::Vec3 DrawingRoutines::m_lightPosition;
 sm::Vec3 DrawingRoutines::m_eyePosition;
 
-Shader *DrawingRoutines::m_diffLightLightMapShader;
+Shader *DrawingRoutines::m_diffLightMapShader;
 Shader *DrawingRoutines::m_diffNormLightmapShader;
 Shader *DrawingRoutines::m_diffShader;
 Shader *DrawingRoutines::m_colorShader;
@@ -67,13 +67,13 @@ bool DrawingRoutines::Initialize(Content *content)
 	m_diffNormShader->BindVertexChannel(3, "a_tangent");
 	m_diffNormShader->LinkProgram();
 
-	m_diffLightLightMapShader = content->Get<Shader>("DiffLightLightMap");
-	assert(m_diffLightLightMapShader != NULL);
-	m_diffLightLightMapShader->BindVertexChannel(0, "a_position");
-	m_diffLightLightMapShader->BindVertexChannel(1, "a_coordsDiff");
-	m_diffLightLightMapShader->BindVertexChannel(2, "a_coordsLightmap");
-	m_diffLightLightMapShader->BindVertexChannel(3, "a_normal");
-	m_diffLightLightMapShader->LinkProgram();
+	m_diffLightMapShader = content->Get<Shader>("DiffLightMap");
+	assert(m_diffLightMapShader != NULL);
+	m_diffLightMapShader->BindVertexChannel(0, "a_position");
+	m_diffLightMapShader->BindVertexChannel(1, "a_coordsDiff");
+	m_diffLightMapShader->BindVertexChannel(2, "a_coordsLightmap");
+	m_diffLightMapShader->BindVertexChannel(3, "a_normal");
+	m_diffLightMapShader->LinkProgram();
 
 	m_diffNormLightmapShader = content->Get<Shader>("DiffNormLightmap");
 	assert(m_diffNormLightmapShader != NULL);
@@ -104,7 +104,7 @@ void DrawingRoutines::SetEyePosition(const sm::Vec3 &eyePosition)
 
 bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const sm::Matrix &worldatrix)
 {
-	if (material->opacity == 1.0f)
+	if (!material->IsOpacity())
 	{
 		glEnable(GL_DEPTH_TEST);
 		glDepthMask(true);
@@ -130,16 +130,20 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffShader->UseProgram();
 		m_diffShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
 		m_diffShader->SetParameter("u_lightPosition", m_lightPosition);
+		m_diffShader->SetParameter("u_eyePosition", m_eyePosition);
 		m_diffShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_diffShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
-		m_diffShader->SetParameter("u_opacity", material->opacity);
+		m_diffShader->SetParameter("u_specularColor", material->specularColor);
+		m_diffShader->SetParameter("u_opacity", material->Opacity());
+		m_diffShader->SetParameter("u_glossiness", material->glossiness * 256.0f);
+		m_diffShader->SetParameter("u_specularLevel", material->specularLevel);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
-		glDisableVertexAttribArray(3);
+		glDisableVertexAttribArray(2);
+		glEnableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
-
+		
 		return true;
 	}
 	else if (material->diffuseTex != NULL &&
@@ -149,13 +153,17 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 	{
 		assert(VertexInformation::HasAttrib(meshPart->m_vertexType, VertexAttrib::Coords2));
 
-		m_diffLightLightMapShader->UseProgram();
-		m_diffLightLightMapShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
-		m_diffLightLightMapShader->SetParameter("u_lightPosition", m_lightPosition);
-		m_diffLightLightMapShader->SetMatrixParameter("u_worldMatrix", worldatrix);
-		m_diffLightLightMapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
-		m_diffLightLightMapShader->SetTextureParameter("u_lightmapTex", 1, meshPart->m_lightmap->GetId());
-		m_diffLightLightMapShader->SetParameter("u_opacity", material->opacity);
+		m_diffLightMapShader->UseProgram();
+		m_diffLightMapShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
+		m_diffLightMapShader->SetParameter("u_lightPosition", m_lightPosition);
+		m_diffLightMapShader->SetParameter("u_eyePosition", m_eyePosition);
+		m_diffLightMapShader->SetMatrixParameter("u_worldMatrix", worldatrix);
+		m_diffLightMapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
+		m_diffLightMapShader->SetTextureParameter("u_lightmapTex", 1, meshPart->m_lightmap->GetId());
+		m_diffLightMapShader->SetParameter("u_specularColor", material->specularColor);
+		m_diffLightMapShader->SetParameter("u_opacity", material->Opacity());
+		m_diffLightMapShader->SetParameter("u_glossiness", material->glossiness * 256.0f);
+		m_diffLightMapShader->SetParameter("u_specularLevel", material->specularLevel);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -177,13 +185,16 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffNormShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_diffNormShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
 		m_diffNormShader->SetTextureParameter("u_normalTex", 1, material->normalTex->GetId());
-		m_diffNormShader->SetParameter("u_opacity", material->opacity);
+		m_diffNormShader->SetParameter("u_specularColor", material->specularColor);
+		m_diffNormShader->SetParameter("u_opacity", material->Opacity());
+		m_diffNormShader->SetParameter("u_glossiness", material->glossiness * 256.0f);
+		m_diffNormShader->SetParameter("u_specularLevel", material->specularLevel);
 
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
-		glEnableVertexAttribArray(2);
+		glDisableVertexAttribArray(2);
 		glEnableVertexAttribArray(3);
-		glDisableVertexAttribArray(4);
+		glEnableVertexAttribArray(4);
 		
 		return true;
 	}
@@ -194,17 +205,18 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 	{
 		m_colorShader->UseProgram();
 		m_colorShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
+		m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
 		m_colorShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_colorShader->SetParameter("u_eyePosition", m_eyePosition);
 		m_colorShader->SetParameter("u_diffuseColor", material->diffuseColor);
 		m_colorShader->SetParameter("u_specularColor", material->specularColor);
-		m_colorShader->SetParameter("u_opacity", material->opacity);
-		m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
-
+		m_colorShader->SetParameter("u_glossiness", material->glossiness * 256.0f);
+		m_colorShader->SetParameter("u_specularLevel", material->specularLevel);
+		
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+		glDisableVertexAttribArray(1);
 		glDisableVertexAttribArray(2);
-		glDisableVertexAttribArray(3);
+		glEnableVertexAttribArray(3);
 		glDisableVertexAttribArray(4);
 		
 		return true;
@@ -224,7 +236,10 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffNormLightmapShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
 		m_diffNormLightmapShader->SetTextureParameter("u_normalTex", 1, material->normalTex->GetId());
 		m_diffNormLightmapShader->SetTextureParameter("u_lightmapTex", 2, meshPart->m_lightmap->GetId());
-		m_diffNormLightmapShader->SetParameter("u_opacity", material->opacity);
+		m_diffNormLightmapShader->SetParameter("u_specularColor", material->specularColor);
+		m_diffNormLightmapShader->SetParameter("u_opacity", material->Opacity());
+		m_diffNormLightmapShader->SetParameter("u_glossiness", material->glossiness * 256.0f);
+		m_diffNormLightmapShader->SetParameter("u_specularLevel", material->specularLevel);
 		
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
@@ -268,7 +283,7 @@ void DrawingRoutines::DrawBlack(std::vector<MeshPart*> &meshParts)
 	{
 		float opacity = 1.0f;
 		if (meshParts[i]->GetMaterial() != NULL)
-			opacity = meshParts[i]->GetMaterial()->opacity;
+			opacity = meshParts[i]->GetMaterial()->Opacity();
 
 		if (opacity == 1.0f)
 		{

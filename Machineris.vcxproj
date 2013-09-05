@@ -1,0 +1,318 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{500791BB-7682-45E4-9A11-319AC9963C9C}</ProjectGuid>
+    <RootNamespace>Machineris</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Output\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)Output\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>D:\stuff\we-can_2013-demo\code\Framework;D:\stuff\we-can_2013-demo\code\Ext;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;libpng15.lib;zlib.lib;jpeg.lib;bass.lib;$(OutDir)GraphicsLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>D:\stuff\we-can_2013-demo\code\Ext\zlib;D:\stuff\we-can_2013-demo\code\Ext\jpeglib;D:\stuff\we-can_2013-demo\code\Ext\bass;D:\stuff\we-can_2013-demo\code\Ext\libpng;D:\stuff\we-can_2013-demo\code\Ext\tinyxml;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PostBuildEvent>
+      <Command>rem if exist "$(OutDir)Data" goto DontNeedToCopyData
+rem echo === Data doesnt exist, creating and copying ===
+robocopy "$(ProjectDir)\Data" "$(OutDir)Data" /E /XD ".svn" /NJH /NJS /NP
+copy "$(ProjectDir)setup.png" "$(OutDir)"
+goto End
+
+:Dupa
+echo =================== chuaj= ====================
+goto End
+
+:DontNeedToCopyData
+echo === Data exists, dont need to copy ===
+goto End
+
+:End
+exit /B 0
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>C:\Users\majak\code\mac\libs\Utils;C:\Program Files\NVIDIA Corporation\Cg\include;C:\Users\majak\code\Machineris\Code\headers;c:\Users\majak\code\Machineris\pen_na_party\libs\zlib-1.2.5\contrib\minizip;c:\Users\majak\code\Machineris\pen_na_party\libs\zlib-1.2.5;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;Libs\cg.lib;Libs\cgGL.lib;Libs\PngLoader.lib;Libs\Bass.lib;Shlwapi.lib;XmlLite.lib;$(OutDir)GraphicsLibrary.lib;c:\Users\majak\code\Machineris\Code\branches\camera_anim\jpeg\Release\jpeg.lib;c:\Users\majak\code\Machineris\Enliver\code\Release\EnliverAccess.lib;c:\Users\majak\code\Machineris\pen_na_party\libs\minizip_release.lib;c:\Users\majak\code\Machineris\pen_na_party\libs\zlib_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>rem if exist "$(OutDir)Data" goto DontNeedToCopyData
+rem echo === Data doesn%27t exist, creating and copying ===
+robocopy "$(ProjectDir)\Data" "$(OutDir)Data" /E /XD ".svn" /NJH /NJS /NP
+copy "$(ProjectDir)setup.png" "$(OutDir)"
+goto End
+
+:Dupa
+echo =================== chuaj= ====================
+goto End
+
+:DontNeedToCopyData
+echo === Data exists, dont need to copy ===
+goto End
+
+:End
+exit /B 0
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AnimCameraManager.cpp" />
+    <ClCompile Include="AssemblingScene.cpp" />
+    <ClCompile Include="BasicLightingEffect.cpp" />
+    <ClCompile Include="Billboard.cpp" />
+    <ClCompile Include="DistortParticleHandler.cpp" />
+    <ClCompile Include="Ext\tinyxml\tinyxml2.cpp" />
+    <ClCompile Include="Framework\Graphics\Animation.cpp" />
+    <ClCompile Include="Framework\Graphics\AnimationLoader.cpp" />
+    <ClCompile Include="Framework\Graphics\BoundingBox.cpp" />
+    <ClCompile Include="Framework\Graphics\BoundingSphere.cpp" />
+    <ClCompile Include="Framework\Graphics\Color.cpp" />
+    <ClCompile Include="Framework\Graphics\Content\Content.cpp" />
+    <ClCompile Include="Framework\Graphics\FontLetter.cpp" />
+    <ClCompile Include="Framework\Graphics\FontRenderer.cpp" />
+    <ClCompile Include="Framework\Graphics\Framebuffer.cpp" />
+    <ClCompile Include="Framework\Graphics\ImageLoader.cpp" />
+    <ClCompile Include="Framework\Graphics\ImageUtils.cpp" />
+    <ClCompile Include="Framework\Graphics\Material.cpp" />
+    <ClCompile Include="Framework\Graphics\MaterialLoader.cpp" />
+    <ClCompile Include="Framework\Graphics\Mesh.cpp" />
+    <ClCompile Include="Framework\Graphics\MeshPart.cpp" />
+    <ClCompile Include="Framework\Graphics\Model.cpp" />
+    <ClCompile Include="Framework\Graphics\ModelLoader.cpp" />
+    <ClCompile Include="Framework\Graphics\Shader.cpp" />
+    <ClCompile Include="Framework\Graphics\SpriteBatch.cpp" />
+    <ClCompile Include="Framework\Graphics\TexPart.cpp" />
+    <ClCompile Include="Framework\Graphics\Texture.cpp" />
+    <ClCompile Include="Framework\Graphics\TextureLoader.cpp" />
+    <ClCompile Include="Framework\Graphics\Vertex.cpp" />
+    <ClCompile Include="Framework\Graphics\VertexInformation.cpp" />
+    <ClCompile Include="Framework\IO\BinaryReader.cpp" />
+    <ClCompile Include="Framework\IO\BinaryWriter.cpp" />
+    <ClCompile Include="Framework\IO\Win32\Path.cpp" />
+    <ClCompile Include="Framework\Utils\Log.cpp" />
+    <ClCompile Include="Framework\Utils\Randomizer.cpp" />
+    <ClCompile Include="Framework\Utils\StringUtils.cpp" />
+    <ClCompile Include="Framework\XML\XMLLoader.cpp" />
+    <ClCompile Include="Framework\XML\XMLNode.cpp" />
+    <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="ParticlesManager.cpp" />
+    <ClCompile Include="Particles\Particle.cpp" />
+    <ClCompile Include="Particles\ParticleEmmiter.cpp" />
+    <ClCompile Include="RobotElement.cpp" />
+    <ClCompile Include="GeometryBatch.cpp" />
+    <ClCompile Include="LoadingScreen.cpp" />
+    <ClCompile Include="MechArm.cpp" />
+    <ClCompile Include="PropertySignal.cpp" />
+    <ClCompile Include="Robot.cpp" />
+    <ClCompile Include="ShadowMappingTest.cpp" />
+    <ClCompile Include="Blur.cpp" />
+    <ClCompile Include="DemoController.cpp" />
+    <ClCompile Include="DrawingRoutines.cpp" />
+    <ClCompile Include="ManCam.cpp" />
+    <ClCompile Include="Music.cpp" />
+    <ClCompile Include="PropertyManager.cpp" />
+    <ClCompile Include="StartDialog.cpp" />
+    <ClCompile Include="StartNormalMode.cpp" />
+    <ClCompile Include="WinMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AnimCameraManager.h" />
+    <ClInclude Include="AssemblingScene.h" />
+    <ClInclude Include="BasicLightingEffect.h" />
+    <ClInclude Include="Billboard.h" />
+    <ClInclude Include="CameraMode.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="DistortParticleHandler.h" />
+    <ClInclude Include="Ext\tinyxml\tinyxml2.h" />
+    <ClInclude Include="Framework\Graphics\Animation.h" />
+    <ClInclude Include="Framework\Graphics\AnimationLoader.h" />
+    <ClInclude Include="Framework\Graphics\BoundingBox.h" />
+    <ClInclude Include="Framework\Graphics\BoundingSphere.h" />
+    <ClInclude Include="Framework\Graphics\Content\Content.h" />
+    <ClInclude Include="Framework\Graphics\Content\IContentObserver.h" />
+    <ClInclude Include="Framework\Graphics\FontLetter.h" />
+    <ClInclude Include="Framework\Graphics\FontRenderer.h" />
+    <ClInclude Include="Framework\Graphics\Framebuffer.h" />
+    <ClInclude Include="Framework\Graphics\IGraphicsEngine.h" />
+    <ClInclude Include="Framework\Graphics\ImageLoader.h" />
+    <ClInclude Include="Framework\Graphics\ImageUtils.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\IInterpolator.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\IKeysContainer.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\Interpolator.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\InterpolatorFactory.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\KeyFrame.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\LinearInterpolator.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\StateInterpolator.h" />
+    <ClInclude Include="Framework\Graphics\Interpolators\TCBInterpolator.h" />
+    <ClInclude Include="Framework\Graphics\Material.h" />
+    <ClInclude Include="Framework\Graphics\MaterialLoader.h" />
+    <ClInclude Include="Framework\Graphics\Mesh.h" />
+    <ClInclude Include="Framework\Graphics\MeshPart.h" />
+    <ClInclude Include="Framework\Graphics\Model.h" />
+    <ClInclude Include="Framework\Graphics\ModelLoader.h" />
+    <ClInclude Include="Framework\Graphics\Shader.h" />
+    <ClInclude Include="Framework\Graphics\SpriteBatch.h" />
+    <ClInclude Include="Framework\Graphics\Texture.h" />
+    <ClInclude Include="Framework\Graphics\TextureLoader.h" />
+    <ClInclude Include="Framework\Graphics\VertexAttrib.h" />
+    <ClInclude Include="Framework\Graphics\VertexAttribBit.h" />
+    <ClInclude Include="Framework\Graphics\VertexInformation.h" />
+    <ClInclude Include="Framework\Graphics\VertexPC2NT.h" />
+    <ClInclude Include="Framework\Graphics\VertexPCNT.h" />
+    <ClInclude Include="Framework\Graphics\VertexPC2N.h" />
+    <ClInclude Include="Framework\Graphics\VertexPCN.h" />
+    <ClInclude Include="Framework\Graphics\Vertex.h" />
+    <ClInclude Include="Framework\Graphics\VertexPN.h" />
+    <ClInclude Include="Framework\Graphics\VertexP.h" />
+    <ClInclude Include="Framework\Graphics\VertexType.h" />
+    <ClInclude Include="Framework\IO\BinaryReader.h" />
+    <ClInclude Include="Framework\IO\BinaryWriter.h" />
+    <ClInclude Include="Framework\IO\Path.h" />
+    <ClInclude Include="Framework\Math\MathUtils.h" />
+    <ClInclude Include="Framework\Math\Matrix.h" />
+    <ClInclude Include="Framework\Math\Plane.h" />
+    <ClInclude Include="Framework\Math\Quat.h" />
+    <ClInclude Include="Framework\Math\Vec2.h" />
+    <ClInclude Include="Framework\Math\Vec3.h" />
+    <ClInclude Include="Framework\Math\Vec4.h" />
+    <ClInclude Include="Framework\Utils\Log.h" />
+    <ClInclude Include="Framework\Utils\Randomizer.h" />
+    <ClInclude Include="Framework\Utils\StringUtils.h" />
+    <ClInclude Include="Framework\XML\XMLLoader.h" />
+    <ClInclude Include="Framework\XML\XMLNode.h" />
+    <ClInclude Include="Frustum.h" />
+    <ClInclude Include="ParticlesManager.h" />
+    <ClInclude Include="Particles\IParticleHandler.h" />
+    <ClInclude Include="Particles\Particle.h" />
+    <ClInclude Include="Particles\ParticleEmmiter.h" />
+    <ClInclude Include="RobotElement.h" />
+    <ClInclude Include="GeometryBatch.h" />
+    <ClInclude Include="GlassPart.h" />
+    <ClInclude Include="IScene.h" />
+    <ClInclude Include="LoadingScreen.h" />
+    <ClInclude Include="MechArm.h" />
+    <ClInclude Include="PropertySignal.h" />
+    <ClInclude Include="Robot.h" />
+    <ClInclude Include="ShadowMappingTest.h" />
+    <ClInclude Include="bass.h" />
+    <ClInclude Include="Blur.h" />
+    <ClInclude Include="DemoController.h" />
+    <ClInclude Include="DemoMode.h" />
+    <ClInclude Include="DrawingRoutines.h" />
+    <ClInclude Include="ManCam.h" />
+    <ClInclude Include="MemoryLeak.h" />
+    <ClInclude Include="Music.h" />
+    <ClInclude Include="PropertyManager.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="StartDialog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="rw09.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="GraphicsLibrary\GraphicsLibrary.vcxproj">
+      <Project>{b092ac37-5eb9-48f2-a147-22db1ae36357}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Data\effects\Black.fpr" />
+    <None Include="Data\effects\Black.vpr" />
+    <None Include="Data\effects\Color.fpr" />
+    <None Include="Data\effects\Color.vpr" />
+    <None Include="Data\effects\Diff.fpr" />
+    <None Include="Data\effects\Diff.vpr" />
+    <None Include="Data\effects\DiffLightMap.fpr" />
+    <None Include="Data\effects\DiffLightMap.vpr" />
+    <None Include="Data\effects\DiffNorm.fpr" />
+    <None Include="Data\effects\DiffNorm.vpr" />
+    <None Include="Data\effects\DiffNormLightmap.fpr" />
+    <None Include="Data\effects\DiffNormLightmap.vpr" />
+    <None Include="Data\effects\Distortion.fpr" />
+    <None Include="Data\effects\Distortion.vpr" />
+    <None Include="Data\effects\DistortParticle.fpr" />
+    <None Include="Data\effects\DistortParticle.vpr" />
+    <None Include="Data\effects\HoriBlur.fpr" />
+    <None Include="Data\effects\HoriBlur.vpr" />
+    <None Include="Data\effects\Sprite.fpr" />
+    <None Include="Data\effects\Sprite.vpr" />
+    <None Include="Data\effects\VertBlur.fpr" />
+    <None Include="Data\effects\VertBlur.vpr" />
+    <None Include="machineris_icon.ico" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
