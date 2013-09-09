@@ -56,6 +56,7 @@ class Content;
 class SpriteBatch;
 class FontRenderer;
 class DistortParticleHandler;
+class GameObject;
 
 #define demo DemoController::GetInstance()
 
@@ -74,6 +75,8 @@ class DemoController :
 public:
 	static const float GlowBufferWidthRatio;
 	static const float GlowBufferHeightRatio;
+
+	std::vector<GameObject*> m_gameObjects;
 
 	Content *m_content;
 
@@ -104,8 +107,6 @@ public:
 
 	Model *m_doors;
 	Animation *m_doorsAnim;
-
-	Model *m_teapots;
 
 	ICamera *m_activeCamera;
 

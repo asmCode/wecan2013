@@ -167,6 +167,9 @@ exit /B 0
     <ClCompile Include="Framework\XML\XMLLoader.cpp" />
     <ClCompile Include="Framework\XML\XMLNode.cpp" />
     <ClCompile Include="Frustum.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameObjects\Factory.cpp" />
+    <ClCompile Include="GameObjects\Teapots.cpp" />
     <ClCompile Include="ParticlesManager.cpp" />
     <ClCompile Include="Particles\Particle.cpp" />
     <ClCompile Include="Particles\ParticleEmmiter.cpp" />
@@ -253,6 +256,9 @@ exit /B 0
     <ClInclude Include="Framework\XML\XMLLoader.h" />
     <ClInclude Include="Framework\XML\XMLNode.h" />
     <ClInclude Include="Frustum.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjects\Factory.h" />
+    <ClInclude Include="GameObjects\Teapots.h" />
     <ClInclude Include="ParticlesManager.h" />
     <ClInclude Include="Particles\IParticleHandler.h" />
     <ClInclude Include="Particles\Particle.h" />

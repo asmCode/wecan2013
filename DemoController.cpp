@@ -26,6 +26,9 @@
 #include "DistortParticleHandler.h"
 #include "Particles/ParticleEmmiter.h"
 #include "Particles/IParticleHandler.h"
+#include "GameObject.h"
+#include "GameObjects/Factory.h"
+#include "GameObjects/Teapots.h"
 
 #include <Graphics/TextureLoader.h>
 #include <Graphics/ModelLoader.h>
@@ -182,8 +185,7 @@ void DemoController::InitializeBlur()
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
-	eyeBlinkVal = 0.0f;
-	eyeRangeVal = 0.0f;
+	m_gameObjects.push_back(new Factory());
 
 	delay = 0.0f;
 	delayLimit = 500.0f;
@@ -293,22 +295,18 @@ bool DemoController::LoadContent(const char *basePath)
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
 
-	m_teapots = m_content->Get<Model>("teapots");
-	assert(m_teapots != NULL);
-
-
-	for (uint32_t i = 0; i < m_teapots->m_meshParts.size(); i++)
-	{
-		m_teapots->m_meshParts[i]->mesh->Transform() = sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f);
-	}
+	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
+		m_gameObjects[i]->Awake();
 
 	m_robot = new Robot();
 	m_robot->Initialize(m_content);
 
-	std::vector<Model*> allModels;
-	m_content->GetAll<Model>(allModels);
-	for (uint32_t i = 0; i < allModels.size(); i++)
-		allModels[i]->GetMeshParts(allMeshParts);
+
+	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
+	{
+		std::vector<MeshPart*> &meshParts = m_gameObjects[i]->GetMeshParts();
+		allMeshParts.insert(allMeshParts.end(), meshParts.begin(), meshParts.end());
+	}
 
 	SortByOpacity(allMeshParts);
 
@@ -484,6 +482,9 @@ bool DemoController::Update(float time, float ms)
 	m_view.a[14] = -10.1110f;
 	m_view.a[15] = 1.0000f;
 #endif
+
+	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
+		m_gameObjects[i]->Update(time, seconds);
 
 	m_viewProj = m_proj * m_view;
 
