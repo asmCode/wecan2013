@@ -1,65 +1,58 @@
 #include "DepthTexture.h"
+#include <GL/glew.h>
+#include <gl/gl.h>
+#include <stddef.h>
 
-DepthTexture::DepthTexture(int width, int height)
+DepthTexture::DepthTexture(uint32_t width, uint32_t height)
 {
-	this ->width = width;
-	this ->height = height;
+	m_width = width;
+	m_height = height;
 
-	glGenTextures(1, &id);
-	glBindTexture(GL_TEXTURE_2D, id);
+	glGenTextures(1, &m_id);
+	glBindTexture(GL_TEXTURE_2D, m_id);
 
-	unsigned err = 0;
-	err = glGetError();
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16,
-		width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	err = glGetError();
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32,
+		m_width, m_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	/*glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL );*/
-
-
-//	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
-	err = glGetError();
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 DepthTexture::~DepthTexture()
 {
-	if (id != 0)
-		glDeleteTextures(1, &id);
+	if (m_id != 0)
+		glDeleteTextures(1, &m_id);
 }
 
-int DepthTexture::GetWidth() const
+uint32_t DepthTexture::GetWidth() const
 {
-	return width;
+	return m_width;
 }
 
-int DepthTexture::GetHeight() const
+uint32_t DepthTexture::GetHeight() const
 {
-	return height;
+	return m_height;
 }
 
 void DepthTexture::BindTexture()
 {
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(GL_TEXTURE_2D, m_id);
 }
 
 unsigned DepthTexture::GetId()
 {
-	return id;
+	return m_id;
 }
 
-void DepthTexture::SetTextureData(const unsigned char *data)
+void DepthTexture::SetTextureData(const uint8_t *data)
 {
-	glBindTexture(GL_TEXTURE_2D, id);
+	glBindTexture(GL_TEXTURE_2D, m_id);
 
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, data);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, GL_DEPTH_COMPONENT, GL_FLOAT, data);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
 }

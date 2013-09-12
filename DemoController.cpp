@@ -11,8 +11,8 @@
 #include <Graphics/Shader.h>
 #include "Blur.h"
 #include "ManCam.h"
-#include "GraphicsLibrary\DepthTexture.h"
-#include <Graphics\MeshPart.h>
+#include <Graphics/DepthTexture.h>
+#include <Graphics/MeshPart.h>
 #include "Frustum.h"
 #include <Graphics/BoundingSphere.h>
 #include "common.h"
@@ -29,6 +29,7 @@
 #include "GameObject.h"
 #include "GameObjects/Factory.h"
 #include "GameObjects/Teapots.h"
+#include "GameObjects/ShadowmapTest.h"
 
 #include <Graphics/TextureLoader.h>
 #include <Graphics/ModelLoader.h>
@@ -65,7 +66,6 @@ DemoController::DemoController() :
 	fade = 0.0f;
 	blurFbo = NULL;
 	dofBlur = NULL;
-	framebuffer = NULL;
 	isPlaying = false;
 	demoMode = DemoMode_Demo;
 
@@ -81,9 +81,12 @@ DemoController::DemoController() :
 
 	blur = NULL;
 
+	m_biasScale = 0.0f;
+	m_biasClamp = 0.0f;
+
 	currentCamera = NULL;
 	cameraMode = CameraMode_Free;
-	depthTex = NULL;
+	m_shadowMapTexture = NULL;
 
 	electroNoiseVal = 0.0f;
 	camShakeVal = 0.0f;
@@ -185,7 +188,7 @@ void DemoController::InitializeBlur()
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
-	m_gameObjects.push_back(new Factory());
+	m_gameObjects.push_back(new ShadowmapTest());
 
 	delay = 0.0f;
 	delayLimit = 500.0f;
@@ -217,25 +220,45 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 
 	loadingScreen = new LoadingScreen();
 
-	framebuffer = new Framebuffer();
-	framebuffer ->Initialize(width, height, 32);
-
 	targetTex0 = new Texture(width, height, 32, NULL, Texture::Wrap_ClampToEdge, Texture::Filter_Nearest, Texture::Filter_Nearest, false);
 
 	blurFbo = new Framebuffer();
 	blurFbo ->Initialize(width / 2, height / 2, 32);
 
-	depthTex = new DepthTexture(demo ->width, demo ->height);
-	depthTex->BindTexture();
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_INTENSITY);
-	framebuffer ->AttachDepthTexture(depthTex ->GetId());
+	m_shadowMapTexture = new DepthTexture(width, height);
+	m_dummyColorTexture = new Texture(width, height, 32, NULL, Texture::Wrap_ClampToEdge,
+		Texture::Filter_Nearest, Texture::Filter_Nearest, false);
+
+	m_shadowMappingFramebuffer = new Framebuffer();
+	m_shadowMappingFramebuffer->Initialize(width, height, 32);
+	m_shadowMappingFramebuffer->BindFramebuffer();
+	m_shadowMappingFramebuffer->AttachColorTexture(m_dummyColorTexture->GetId());
+	m_shadowMappingFramebuffer->AttachDepthTexture(m_shadowMapTexture->GetId());
+	m_shadowMappingFramebuffer->Validate();
+	Framebuffer::RestoreDefaultFramebuffer();
 
 	Billboard::Initialize();
 
+ m_lightViewMatrix.a[0] = 0.8616f;
+ m_lightViewMatrix.a[1] = 0.2764f;
+ m_lightViewMatrix.a[2] = -0.4257f;
+ m_lightViewMatrix.a[3] = 0.0000f;
+ m_lightViewMatrix.a[4] = 0.0000f;
+ m_lightViewMatrix.a[5] = 0.8387f;
+ m_lightViewMatrix.a[6] = 0.5446f;
+ m_lightViewMatrix.a[7] = 0.0000f;
+ m_lightViewMatrix.a[8] = 0.5075f;
+ m_lightViewMatrix.a[9] = -0.4693f;
+ m_lightViewMatrix.a[10] = 0.7226f;
+ m_lightViewMatrix.a[11] = 0.0000f;
+ m_lightViewMatrix.a[12] = -0.0708f;
+ m_lightViewMatrix.a[13] = 1.4161f;
+ m_lightViewMatrix.a[14] = -7.5742f;
+ m_lightViewMatrix.a[15] = 1.0000f;
+
+	m_lightProjMatrix = sm::Matrix::PerspectiveMatrix(60.0f, (float)width / (float)height, 1.0f, 60.0f);
+	//m_lightProjMatrix = sm::Matrix::Ortho2DMatrix(-10, 10, -10, 10);
+	
 	return true;
 }
 
@@ -245,7 +268,7 @@ bool DemoController::LoadContent(const char *basePath)
 {
 	m_content = new Content(this);
 	Content *dc = m_content;
-
+	
 	loadingScreen ->Initialize(basePath);
 
 	m_strBasePath = basePath;
@@ -408,12 +431,6 @@ void DemoController::Release()
 		m_content = NULL;
 	}
 
-	if (framebuffer != NULL)
-	{
-		delete framebuffer;
-		framebuffer = NULL;
-	}
-
 	if (glWnd != NULL)
 	{
 		glWnd ->Release();
@@ -435,7 +452,6 @@ void DemoController::Release()
 
 	Billboard::Release();
 
-	DeleteObject(depthTex);
 	DeleteObject(m_glowTex);
 	DeleteObject(blurFbo);
 	DeleteObject(m_envTexture);
@@ -661,16 +677,17 @@ float DemoController::CalcFlash(float time, float ms)
 	return fade;
 }
 
-Particle *ddd = NULL;
-
 bool DemoController::Draw(float time, float ms)
 {
 	float seconds = ms / 1000.0f;
 	time /= 1000.0f;
 
+	DrawShadowMap();
+
 	m_distortionFramebuffer->BindFramebuffer();
 	glViewport(0, 0, width, height);
 	glDepthMask(true);
+	glColorMask(true, true, true, true);
 	
 	GLenum enabledBuffers[2];
 	enabledBuffers[0] = GL_COLOR_ATTACHMENT0;
@@ -682,12 +699,14 @@ bool DemoController::Draw(float time, float ms)
 	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
 	DrawingRoutines::SetLightPosition(m_activeCamera->GetPosition());
+	DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
 
 	//m_robot->Draw(time, seconds);
 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-	DrawingRoutines::DrawWithMaterial(allMeshParts);
+	//DrawingRoutines::DrawWithMaterial(allMeshParts);
+	DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
 
 	glDrawBuffers(2, enabledBuffers);
 
@@ -722,17 +741,29 @@ bool DemoController::Draw(float time, float ms)
 	Billboard::Setup();
 	Billboard::Draw();
 	Billboard::Clean();
-		
-	//RenderGlowTexture();
-
+	
+// glow stuff
 #if 0
+
+	DrawGlowTexture();
+
 	glViewport(0, 0, width, height);
 	m_spriteBatch->Begin();
 	glBlendFunc(GL_ONE, GL_ONE);
-	glDisable(GL_BLEND);
+	glEnable(GL_BLEND);
 	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0, width, height);
-	m_spriteBatch->Draw(m_distortionTexture, 0, 0, width, height);
-	m_spriteBatch->Draw(m_mainFrameTexture, 0, 0, width, height);
+	//m_spriteBatch->Draw(m_distortionTexture, 0, 0, width, height);
+	//m_spriteBatch->Draw(m_mainFrameTexture, 0, 0, width, height);
+	m_spriteBatch->End();
+#endif
+
+// testing texture
+#if 0
+	glViewport(0, 0, width, height);
+	m_spriteBatch->Begin();
+	glDisable(GL_BLEND);
+	//m_spriteBatch->Draw(m_shadowMapTexture->GetId(), 0, 0, width / 2, height / 2);
+	m_spriteBatch->Draw(m_dummyColorTexture->GetId(), 0, 0, width / 2, height / 2);
 	m_spriteBatch->End();
 #endif
 
@@ -753,6 +784,12 @@ bool DemoController::Draw(float time, float ms)
 
 	sprintf(fpsText, "time: %.2f", time / 1000.0f);
 	DrawText(fpsText, 4, height - 160, 255, 0, 0);
+
+	sprintf(fpsText, "bias scale = %.5f, bias clamp = %.5f", m_biasScale, m_biasClamp);
+	DrawText(fpsText, 4, height - 180, 255, 0, 0);
+
+	float m_biasScale;
+	float m_biasClamp;
 #endif
 
 	glWnd ->SwapBuffers();
@@ -1009,7 +1046,7 @@ void DemoController::FilterOpacityObjects(const std::vector<Model*> &models,
 	}
 }
 
-void DemoController::RenderGlowTexture()
+void DemoController::DrawGlowTexture()
 {
 	glViewport(0, 0, width * GlowBufferWidthRatio, height * GlowBufferHeightRatio);
 
@@ -1037,6 +1074,32 @@ void DemoController::RenderGlowTexture()
 	m_spriteBatch->Draw(m_glowBlur->GetBlurredTexture(0), 0, 0);
 	m_spriteBatch->End();
 #endif
+}
+
+void DemoController::DrawShadowMap()
+{
+	m_shadowMappingFramebuffer->BindFramebuffer();
+
+	glDepthMask(true);
+	//glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glColorMask(false, false, false, false);
+	glDisable(GL_CULL_FACE);
+	//glCullFace(GL_FRONT);
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+
+	glViewport(0, 0, width, height);
+
+	DrawingRoutines::SetShadowCastingLightView(m_lightViewMatrix);
+	//DrawingRoutines::SetShadowCastingLightView(m_view);
+	DrawingRoutines::SetShadowCastingLightProj(m_lightProjMatrix);
+	
+	DrawingRoutines::DrawShadowMap(m_solidNonGlowObjects);
+	
+	Framebuffer::RestoreDefaultFramebuffer();
+	
+	glCullFace(GL_BACK);
 }
 
 void DemoController::FrustumCulling(std::vector<MeshPart*> &meshParts)
@@ -1152,6 +1215,14 @@ void DemoController::OnKeyDown(int keyCode)
 		}
 		break;
 
+	case 'T':
+		m_biasScale += 0.0001f;
+		break;
+
+	case 'G':
+		m_biasClamp += 0.0001f;
+		break;
+
 	case 'C':
 		Log::LogT("Camera");
 		for (uint32_t i = 0; i < 16; i++)
@@ -1164,7 +1235,7 @@ void DemoController::OnKeyDown(int keyCode)
 	case 'L':
 		Log::LogT("Light");
 		for (uint32_t i = 0; i < 16; i++)
-		{
+		{ 
 			Log::LogT("lightTransform.a[%d] = %.4ff;", i, m_view.a[i]);
 		}
 		Log::LogT("");

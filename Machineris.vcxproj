@@ -140,6 +140,7 @@ exit /B 0
     <ClCompile Include="Framework\Graphics\BoundingSphere.cpp" />
     <ClCompile Include="Framework\Graphics\Color.cpp" />
     <ClCompile Include="Framework\Graphics\Content\Content.cpp" />
+    <ClCompile Include="Framework\Graphics\DepthTexture.cpp" />
     <ClCompile Include="Framework\Graphics\FontLetter.cpp" />
     <ClCompile Include="Framework\Graphics\FontRenderer.cpp" />
     <ClCompile Include="Framework\Graphics\Framebuffer.cpp" />
@@ -169,6 +170,7 @@ exit /B 0
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjects\Factory.cpp" />
+    <ClCompile Include="GameObjects\ShadowmapTest.cpp" />
     <ClCompile Include="GameObjects\Teapots.cpp" />
     <ClCompile Include="ParticlesManager.cpp" />
     <ClCompile Include="Particles\Particle.cpp" />
@@ -205,6 +207,7 @@ exit /B 0
     <ClInclude Include="Framework\Graphics\BoundingSphere.h" />
     <ClInclude Include="Framework\Graphics\Content\Content.h" />
     <ClInclude Include="Framework\Graphics\Content\IContentObserver.h" />
+    <ClInclude Include="Framework\Graphics\DepthTexture.h" />
     <ClInclude Include="Framework\Graphics\FontLetter.h" />
     <ClInclude Include="Framework\Graphics\FontRenderer.h" />
     <ClInclude Include="Framework\Graphics\Framebuffer.h" />
@@ -258,6 +261,7 @@ exit /B 0
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjects\Factory.h" />
+    <ClInclude Include="GameObjects\ShadowmapTest.h" />
     <ClInclude Include="GameObjects\Teapots.h" />
     <ClInclude Include="ParticlesManager.h" />
     <ClInclude Include="Particles\IParticleHandler.h" />

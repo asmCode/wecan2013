@@ -86,7 +86,15 @@ void SpriteBatch::Draw(Texture *tex, int x, int y, int width, int height)
 	float verts[8];
 	CreateQuad(verts, x, y, width, height);
 	
-	Draw(tex, verts, Coords, NULL);	
+	Draw(tex->GetId(), verts, Coords, NULL);	
+}
+
+void SpriteBatch::Draw(uint32_t texId, int x, int y, int width, int height)
+{
+	float verts[8];
+	CreateQuad(verts, x, y, width, height);
+	
+	Draw(texId, verts, Coords, NULL);	
 }
 
 void SpriteBatch::Draw(Texture *tex, int x, int y)
@@ -99,7 +107,7 @@ void SpriteBatch::Draw(Texture *tex, const float *texCoords, int x, int y, int w
 	float verts[8];
 	CreateQuad(verts, x, y, width, height);
 	
-	Draw(tex, verts, texCoords, NULL);
+	Draw(tex->GetId(), verts, texCoords, NULL);
 }
 
 void SpriteBatch::Draw(const TexPart &texPart, int x, int y)
@@ -112,7 +120,7 @@ void SpriteBatch::Draw(const TexPart &texPart, int x, int y, int width, int heig
 	float verts[8];
 	CreateQuad(verts, x, y, width, height);
 	
-	Draw(texPart.Tex, verts, texPart.TexCoords, NULL);
+	Draw(texPart.Tex->GetId(), verts, texPart.TexCoords, NULL);
 }
 
 void SpriteBatch::Draw(const TexPart &texPart, const Color &colorMask, int x, int y)
@@ -132,7 +140,7 @@ void SpriteBatch::Draw(const TexPart &texPart, const Color &colorMask, int x, in
 		colorMask.R, colorMask.G, colorMask.B, colorMask.A
 	};
 	
-	Draw(texPart.Tex, verts, texPart.TexCoords, _color);
+	Draw(texPart.Tex->GetId(), verts, texPart.TexCoords, _color);
 }
 
 void SpriteBatch::Draw(const Color &color, sm::Matrix trans)
@@ -190,16 +198,16 @@ void SpriteBatch::Draw(const TexPart &texPart, const Color &colorMask, const sm:
 		colorMask.R, colorMask.G, colorMask.B, colorMask.A
 	};
 	
-	Draw(texPart.Tex, verts, texPart.TexCoords, _color);
+	Draw(texPart.Tex->GetId(), verts, texPart.TexCoords, _color);
 }
 
 // TODO: should be static!
-void SpriteBatch::Draw(Texture *tex,
+void SpriteBatch::Draw(uint32_t texId,
 		  const float *verts,
 		  const float *coords,
 		  const unsigned char *colorMask)
 {
-	m_shader->SetTextureParameter("u_tex", 0, tex->GetId());
+	m_shader->SetTextureParameter("u_tex", 0, texId);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, verts);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, coords);

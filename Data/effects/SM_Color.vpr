@@ -1,0 +1,30 @@
+#version 400
+
+layout (location = 0) in vec3 a_position;
+layout (location = 3) in vec3 a_normal;
+
+uniform mat4 u_worldMatrix;
+uniform mat4 u_viewProjMatrix;
+uniform vec3 u_lightPosition;
+uniform vec3 u_eyePosition;
+uniform mat4 u_lightViewProj;
+
+varying vec3 o_normal;
+varying vec3 o_lightDirection;
+varying vec3 o_eyeDirection;
+varying vec4 o_shadowMapCoords;
+
+void main()
+{	
+	vec4 worldPosition = u_worldMatrix * vec4(a_position, 1.0);
+	o_normal = mat3(u_worldMatrix) * a_normal;
+	
+	o_lightDirection = u_lightPosition - worldPosition.xyz;
+	o_eyeDirection = u_eyePosition - worldPosition.xyz;
+	
+	gl_Position = u_viewProjMatrix * worldPosition;
+	
+	o_shadowMapCoords = u_lightViewProj * worldPosition;
+	
+	o_shadowMapCoords.xyz = o_shadowMapCoords.xyz * 0.5 + (0.5 * o_shadowMapCoords.w);
+}

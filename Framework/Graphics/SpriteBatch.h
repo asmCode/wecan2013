@@ -5,6 +5,7 @@
 #include "../Math/Matrix.h"
 #include "../Math/Vec3.h"
 #include "Color.h"
+#include <stdint.h>
 
 class Shader;
 
@@ -18,6 +19,7 @@ public:
 	
 	void Draw(const Color &color, int x, int y, int width, int height);
 	void Draw(Texture *tex, int x, int y, int width, int height);
+	void Draw(uint32_t texId, int x, int y, int width, int height);
 	void Draw(Texture *tex, int x, int y);
 	void Draw(Texture *tex, const float *texCoords, int x, int y, int width, int height);
 	void Draw(const TexPart &texPart, int x, int y);
@@ -29,7 +31,7 @@ public:
 	void Draw(const TexPart &texPart, const Color &colorMask, const sm::Matrix &trans);
 	
 	void Draw(
-		Texture *tex,
+		uint32_t texId,
 		const float *verts,
 		const float *coords,
 		const unsigned char *colorMask);

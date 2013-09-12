@@ -161,8 +161,13 @@ public:
 	OpenglWindow *glWnd;
 	ManCam manCam;
 
+	float m_biasScale;
+	float m_biasClamp;
+
 	Animation *camerasAnimation;
 
+	sm::Matrix m_lightViewMatrix;
+	sm::Matrix m_lightProjMatrix;
 	Frustum *frustum;
 	sm::Matrix m_view;
 	sm::Matrix m_proj;
@@ -175,10 +180,12 @@ public:
 
 	PostProcessing *postProcessing;
 
-	Framebuffer *framebuffer;
 	Framebuffer *blurFbo;
 	Texture *targetTex0;
-	DepthTexture *depthTex;
+
+	DepthTexture *m_shadowMapTexture;
+	Texture *m_dummyColorTexture;
+	Framebuffer *m_shadowMappingFramebuffer;
 
 	Blur *blur;
 	Blur *dofBlur;
@@ -250,7 +257,8 @@ public:
 	BreakingWallScene *m_breakingWallScene;
 	AssemblingScene *m_assemblingScene;
 
-	void RenderGlowTexture();
+	void DrawGlowTexture();
+	void DrawShadowMap();
 
 	void FrustumCulling(std::vector<MeshPart*> &meshParts);
 

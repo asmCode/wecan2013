@@ -3,6 +3,7 @@
 #include <Math/Vec3.h>
 #include <Math/Matrix.h>
 #include <vector>
+#include <stdint.h>
 
 class Shader;
 class Model;
@@ -17,6 +18,9 @@ private:
 	static sm::Matrix m_viewProjMatrix;
 	static sm::Vec3 m_lightPosition;
 	static sm::Vec3 m_eyePosition;
+
+	static sm::Matrix m_lightViewMatrix;
+	static sm::Matrix m_lightProjMatrix;
 
 	// diffuse lighting, diff tex, shadowmap tex
 	static Shader *m_diffLightMapShader;
@@ -33,8 +37,14 @@ private:
 	// diffuse texture, normal map
 	static Shader *m_diffNormShader;
 
-	// only black objects
+	// only black objects with opacity
 	static Shader *m_blackShader;
+
+	// only black objects for shadowmap
+	static Shader *m_shadowMapShader;
+
+	// diffuse and specular lighting with shadow mapping (1 source)
+	static Shader *m_sm_colorShader;
 
 	static bool SetupShader(Material *material, MeshPart *meshPart, const sm::Matrix &worldatrix);
 	
@@ -45,79 +55,11 @@ public:
 	static void SetLightPosition(const sm::Vec3 &lightPosition);
 	static void SetEyePosition(const sm::Vec3 &eyePosition);
 
+	static void SetShadowCastingLightView(const sm::Matrix &lightViewMatrix);
+	static void SetShadowCastingLightProj(const sm::Matrix &lightProjMatrix);
+
 	static void DrawWithMaterial(std::vector<MeshPart*> &meshParts);
-
+	static void DrawWithMaterialAndShadowMap(std::vector<MeshPart*> &meshParts, uint32_t shadowMapId);
 	static void DrawBlack(std::vector<MeshPart*> &meshParts);
-
-	static void DrawDiffLightLightMap(Model *model);
-
-	/*void Initialize(
-		Effect *stdLightingFx,
-		Effect *stdLightingFx_GlowShadow,
-		Effect *earlyZEffect);
-
-	void DrawStandardLighting(
-		std::vector<Model*> *models,
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world,
-		const sm::Vec3 &lightPosition,
-		const sm::Vec3 &eyePosition);
-
-	void DrawStandardLighting(
-		const std::vector<MeshPart*> &meshParts,
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world,
-		const sm::Vec3 &lightPosition,
-		const sm::Vec3 &eyePosition);
-
-	void DrawStandardLighting_GlowShadow(
-		const std::vector<MeshPart*> &meshParts,
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world,
-		const sm::Vec3 &lightPosition,
-		const sm::Vec3 &eyePosition,
-		const sm::Matrix &lightWorld,
-		const sm::Matrix &lightProj,
-		unsigned int shadowMapTexId);
-
-	void DrawGlowMask(
-		const std::vector<MeshPart*> &meshParts,
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world);
-
-	void DrawDepthBuffer(
-		const std::vector<MeshPart*> &meshParts,
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world);
-
-	static void DrawModel(Model *model);
-
-	void DrawShadowMap(
-		std::vector<MeshPart*> *meshParts,
-		Effect *effect,
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world,
-		bool lightPass);
-
-	static void DrawCustomModel(
-		Model *model,
-		Effect *effect,
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Matrix &world,
-		const sm::Vec3 &eyePosition,
-		const sm::Vec3 &lightPosition);
-
-	static void DrawSpark(
-		const sm::Matrix &proj,
-		const sm::Matrix &view,
-		const sm::Vec3 &start, 
-		const sm::Vec3 &end,
-		float power);*/
+	static void DrawShadowMap(std::vector<MeshPart*> &meshParts);
 };

@@ -1,24 +1,22 @@
 #pragma once
 
-#include <Windows.h>
-#include <gl/gl.h>
-#include <glext.h>
+#include <stdint.h>
 
 class DepthTexture
 {
 private:
-	unsigned	id;
-	int			width;
-	int			height;
+	uint32_t m_id;
+	uint32_t m_width;
+	uint32_t m_height;
 
 public:
-	DepthTexture(int width, int height);
+	DepthTexture(uint32_t width, uint32_t height);
 	~DepthTexture();
 
-	int GetWidth() const;
-	int GetHeight() const;
+	uint32_t GetWidth() const;
+	uint32_t GetHeight() const;
 
 	void BindTexture();
-	unsigned GetId();
-	void SetTextureData(const unsigned char *data);
+	uint32_t GetId();
+	void SetTextureData(const uint8_t *data);
 };

@@ -243,14 +243,18 @@ namespace sm
 
 		static Matrix Ortho2DMatrix(float left, float right, float bottom, float top)
 		{
+			float _near = -100.0f;
+			float _far = 100.0f;
+
 			Matrix matrix = IdentityMatrix();
 
 			matrix.a[0] = 2.0f / (right - left);
 			matrix.a[5] = 2.0f / (top - bottom);
-			matrix.a[10] = -1.0f;
+			matrix.a[10] = -2.0f / (_far - _near);
 
 			matrix.a[12] = -(right + left) / (right - left);
 			matrix.a[13] = -(top + bottom) / (top - bottom);
+			matrix.a[14] = -(_far + _near) / (_far - _near);
 
 			return matrix;
 		}
