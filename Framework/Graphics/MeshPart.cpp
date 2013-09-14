@@ -10,6 +10,7 @@
 
 MeshPart::MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexType) :
 	m_vertexType(vertexType),
+	m_parentNode(NULL),
 	m_lightmap(NULL)
 {
 	bbox = new BoundingBox();

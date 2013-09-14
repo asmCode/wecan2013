@@ -48,9 +48,6 @@ class Blur;
 class PostProcessing;
 class Frustum;
 class Screens;
-class BreakingWallScene;
-class AssemblingScene;
-class Robot;
 class PropertySignal;
 class Content;
 class SpriteBatch;
@@ -145,8 +142,6 @@ public:
 	AnimCameraManager animCamsMng;
 
 	float fade;
-
-	Robot *m_robot;
 
 	float CalcFlash(float time, float ms);
 
@@ -253,9 +248,6 @@ public:
 	float delay;
 	float delayLimit;
 	float fps;
-
-	BreakingWallScene *m_breakingWallScene;
-	AssemblingScene *m_assemblingScene;
 
 	void DrawGlowTexture();
 	void DrawShadowMap();

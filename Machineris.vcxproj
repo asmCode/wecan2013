@@ -170,6 +170,7 @@ exit /B 0
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjects\Factory.cpp" />
+    <ClCompile Include="GameObjects\Robot.cpp" />
     <ClCompile Include="GameObjects\ShadowmapTest.cpp" />
     <ClCompile Include="GameObjects\Teapots.cpp" />
     <ClCompile Include="ParticlesManager.cpp" />
@@ -180,7 +181,6 @@ exit /B 0
     <ClCompile Include="LoadingScreen.cpp" />
     <ClCompile Include="MechArm.cpp" />
     <ClCompile Include="PropertySignal.cpp" />
-    <ClCompile Include="Robot.cpp" />
     <ClCompile Include="ShadowMappingTest.cpp" />
     <ClCompile Include="Blur.cpp" />
     <ClCompile Include="DemoController.cpp" />
@@ -261,6 +261,7 @@ exit /B 0
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjects\Factory.h" />
+    <ClInclude Include="GameObjects\Robot.h" />
     <ClInclude Include="GameObjects\ShadowmapTest.h" />
     <ClInclude Include="GameObjects\Teapots.h" />
     <ClInclude Include="ParticlesManager.h" />
@@ -274,7 +275,6 @@ exit /B 0
     <ClInclude Include="LoadingScreen.h" />
     <ClInclude Include="MechArm.h" />
     <ClInclude Include="PropertySignal.h" />
-    <ClInclude Include="Robot.h" />
     <ClInclude Include="ShadowMappingTest.h" />
     <ClInclude Include="bass.h" />
     <ClInclude Include="Blur.h" />

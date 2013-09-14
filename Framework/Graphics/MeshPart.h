@@ -8,6 +8,7 @@
 class Mesh;
 class BoundingBox;
 class BoundingSphere;
+class ITransformable;
 
 class MeshPart
 {
@@ -21,6 +22,7 @@ public:
 	int verticesCount;
 	void *vertices;
 	Mesh *mesh;
+	ITransformable *m_parentNode;
 
 	BoundingBox *bbox;
 	BoundingSphere *bsphere;

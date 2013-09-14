@@ -6,7 +6,8 @@ Animation::Animation(void) :
 	m_animLength(-1.0f),
 	m_lastPosKeyframeIndex(0),
 	m_lastRotKeyframeIndex(0),
-	m_lastScaleKeyframeIndex(0)
+	m_lastScaleKeyframeIndex(0),
+	m_flattenedChilds(NULL)
 {
 	id = 0;
 	mesh = NULL;
@@ -38,6 +39,14 @@ Animation::~Animation(void)
 
 	for (unsigned i = 0; i < subAnims.size(); i++)
 		delete subAnims[i];
+}
+
+void Animation::FlattenChilds(std::vector<Animation*> &flattenChilds)
+{
+	flattenChilds.push_back(this);
+
+	for (unsigned int i = 0; i < subAnims.size(); i++)
+		subAnims[i]->FlattenChilds(flattenChilds);
 }
 
 void Animation::AssignModel(Model *model)
@@ -136,13 +145,15 @@ void Animation::Update(float time, const sm::Matrix &transform, float seconds)
 		rotVal.QuatToRotate(angle, axis);
 
 		tr *= sm::Matrix::TranslateMatrix(posVal);
+		tr *= sm::Matrix::RotateAxisMatrix(angle, axis);
 		tr *= sm::Matrix::ScaleMatrix(scaleVal);
 
-		sm::Matrix loda = tr;
-		
-		loda *= sm::Matrix::RotateAxisMatrix(angle, axis);
+		//tr *= worldTMInv;
 
-		tr *= sm::Matrix::RotateAxisMatrix(angle, axis);
+		if (nodeName == "RFoot")
+		{
+			int f = 0;
+		}
 
 		if (mesh != NULL)
 		{
@@ -152,7 +163,7 @@ void Animation::Update(float time, const sm::Matrix &transform, float seconds)
 		}
 
 		for (unsigned i = 0; i < subAnims.size(); i++)
-			subAnims[i] ->Update(time, loda, seconds);
+			subAnims[i] ->Update(time, tr, seconds);
 	}
 }
 
@@ -245,3 +256,51 @@ float Animation::GetAnimLengthById(int id)
 
 	return max(max(posTime, rotTime), scaleTime);
 }
+
+void Animation::ReplaceAnimation(Animation *sourceAnim)
+{
+	assert(sourceAnim != NULL);
+
+	if (m_flattenedChilds != NULL)
+		m_flattenedChilds->clear();
+	else
+		m_flattenedChilds = new std::vector<Animation*>();
+
+	if (sourceAnim->m_flattenedChilds != NULL)
+		sourceAnim->m_flattenedChilds->clear();
+	else
+		sourceAnim->m_flattenedChilds = new std::vector<Animation*>();
+
+	FlattenChilds(*m_flattenedChilds);
+	sourceAnim->FlattenChilds(*sourceAnim->m_flattenedChilds);
+
+	for (unsigned i = 0; i < m_flattenedChilds->size(); i++)
+	{
+		Animation *dstChild = (*m_flattenedChilds)[i];
+
+		for (unsigned j = 0; j < sourceAnim->m_flattenedChilds->size(); j++)
+		{
+			Animation *sourceChild = (*sourceAnim->m_flattenedChilds)[j];
+
+			if ((*m_flattenedChilds)[i]->nodeName == sourceChild->nodeName)
+			{
+				dstChild->m_animLength = -1.0f;
+
+				dstChild->m_lastPosKeyframeIndex = 0;
+				dstChild->m_lastRotKeyframeIndex = 0;
+				dstChild->m_lastScaleKeyframeIndex = 0;
+
+				dstChild->worldTMInv = sourceChild->worldTMInv;
+
+				dstChild->localPos = sourceChild->localPos;
+				dstChild->localRot = sourceChild->localRot;
+				dstChild->localScale = sourceChild->localScale;
+
+				dstChild->pos = sourceChild->pos;
+				dstChild->rot = sourceChild->rot;
+				dstChild->scale = sourceChild->scale;
+			}
+		}
+	}
+}
+

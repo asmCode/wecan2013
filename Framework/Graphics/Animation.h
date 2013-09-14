@@ -42,6 +42,9 @@ public:
 
 	float m_animLength;
 
+	std::vector<Animation*> *m_flattenedChilds;
+	void FlattenChilds(std::vector<Animation*> &flattenChilds);
+
 public:
 	Animation(void);
 	~Animation(void);
@@ -54,4 +57,9 @@ public:
 	Animation *GetAnimationByNodeName(const std::string &name);
 	float GetAnimLength();
 	float GetAnimLengthById(int id);
+
+	// podmienia keyframy i transformacje ze zrodlowej animacji.
+	// taki troche hack. przydatne do bindowania postaci do szkieletu.
+	// Po zbindowaniu mozna wsadzac dowolna inna animacje.
+	void ReplaceAnimation(Animation *sourceAnim);
 };

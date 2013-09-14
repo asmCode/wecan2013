@@ -16,7 +16,6 @@
 #include "Frustum.h"
 #include <Graphics/BoundingSphere.h>
 #include "common.h"
-#include "Robot.h"
 #include "MechArm.h"
 #include "AssemblingScene.h"
 #include "GraphicsLibrary\Property.h"
@@ -29,6 +28,7 @@
 #include "GameObject.h"
 #include "GameObjects/Factory.h"
 #include "GameObjects/Teapots.h"
+#include "GameObjects/Robot.h"
 #include "GameObjects/ShadowmapTest.h"
 
 #include <Graphics/TextureLoader.h>
@@ -55,7 +55,6 @@ Randomizer DemoController::random;
 DemoController::DemoController() :
 	shadowPass(NULL),
 	m_envTexture(NULL),
-	m_robot(NULL),
 	m_activeScene(NULL),
 	demoEnded(false),
 	m_doors(NULL),
@@ -188,7 +187,8 @@ void DemoController::InitializeBlur()
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
-	m_gameObjects.push_back(new ShadowmapTest());
+	//m_gameObjects.push_back(new ShadowmapTest());
+	m_gameObjects.push_back(new Robot());
 
 	delay = 0.0f;
 	delayLimit = 500.0f;
@@ -275,7 +275,7 @@ bool DemoController::LoadContent(const char *basePath)
 
 	//dc->AddContentObserver(this);
 	dc->LoadModels(m_strBasePath + "models\\");
-	dc->LoadModels(m_strBasePath + "models\\robot_elements\\");
+	dc->LoadModels(m_strBasePath + "models\\robot_parts\\");
 	dc->LoadTextures(m_strBasePath + "textures\\");
 	dc->LoadTextures(m_strBasePath + "textures\\lightmaps\\");
 	dc->LoadShaders(m_strBasePath + "effects\\");
@@ -320,10 +320,6 @@ bool DemoController::LoadContent(const char *basePath)
 
 	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
 		m_gameObjects[i]->Awake();
-
-	m_robot = new Robot();
-	m_robot->Initialize(m_content);
-
 
 	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
 	{
@@ -477,7 +473,8 @@ bool DemoController::Update(float time, float ms)
 	m_activeCamera = animCamsMng.GetActiveCamera(time);
 #endif	
 
-	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f);
+	//m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f);
+	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 1.0f, 1000.0f);
 	m_view = m_activeCamera->GetViewMatrix();
 
 #if 0
@@ -682,7 +679,7 @@ bool DemoController::Draw(float time, float ms)
 	float seconds = ms / 1000.0f;
 	time /= 1000.0f;
 
-	DrawShadowMap();
+	//DrawShadowMap();
 
 	m_distortionFramebuffer->BindFramebuffer();
 	glViewport(0, 0, width, height);
@@ -699,14 +696,14 @@ bool DemoController::Draw(float time, float ms)
 	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
 	DrawingRoutines::SetLightPosition(m_activeCamera->GetPosition());
-	DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
+	//DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
 
 	//m_robot->Draw(time, seconds);
 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-	//DrawingRoutines::DrawWithMaterial(allMeshParts);
-	DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
+	DrawingRoutines::DrawWithMaterial(allMeshParts);
+	//DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
 
 	glDrawBuffers(2, enabledBuffers);
 

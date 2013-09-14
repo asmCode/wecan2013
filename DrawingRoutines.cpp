@@ -232,7 +232,11 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 	{
 		m_colorShader->UseProgram();
 		m_colorShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
-		m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
+		//m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
+		if (meshPart->m_parentNode != NULL)
+			m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->m_parentNode->AnimTransform());
+		else
+			m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->Transform());
 		m_colorShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_colorShader->SetParameter("u_eyePosition", m_eyePosition);
 		m_colorShader->SetParameter("u_diffuseColor", material->diffuseColor);
@@ -332,7 +336,10 @@ void DrawingRoutines::DrawWithMaterialAndShadowMap(std::vector<MeshPart*> &meshP
 
 		m_sm_colorShader->SetTextureParameter("u_shadowMap", 0, shadowMapId);
 		m_sm_colorShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
-		m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshParts[i]->mesh->Transform());
+		if (meshParts[i]->m_parentNode != NULL)
+			m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshParts[i]->m_parentNode->Transform());
+		else
+			m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshParts[i]->mesh->Transform());
 		m_sm_colorShader->SetMatrixParameter("u_lightViewProj", lightViewProj);
 		m_sm_colorShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_sm_colorShader->SetParameter("u_eyePosition", m_eyePosition);
