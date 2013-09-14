@@ -162,6 +162,7 @@ exit /B 0
     <ClCompile Include="Framework\IO\BinaryReader.cpp" />
     <ClCompile Include="Framework\IO\BinaryWriter.cpp" />
     <ClCompile Include="Framework\IO\Win32\Path.cpp" />
+    <ClCompile Include="Framework\Math\MathUtils.cpp" />
     <ClCompile Include="Framework\Utils\Log.cpp" />
     <ClCompile Include="Framework\Utils\Randomizer.cpp" />
     <ClCompile Include="Framework\Utils\StringUtils.cpp" />

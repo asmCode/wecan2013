@@ -6,7 +6,6 @@
 class Model;
 class Mesh;
 class Animation;
-class RobotElement;
 
 class Robot : public GameObject
 {
@@ -31,21 +30,6 @@ private:
 		Actions_Count
 	};
 
-	enum BodyIndices
-	{
-		Head = 0,
-		LFoot,
-		RFoot,
-		LShin,
-		RShin,
-		LThigh,
-		RThigh,
-
-		BodyIndicesCount
-	};
-
-	RobotElement **m_robotElements;
-
 	Animation *m_bindPose;
 	Animation *m_testWalk;
 	Animation *m_currentAnimation;
@@ -53,7 +37,5 @@ private:
 	std::vector<MeshPart*> m_allMeshParts;
 
 	Model *m_robot;
-
-	std::string m_robotElementNamesMapping[BodyIndicesCount];
 };
 

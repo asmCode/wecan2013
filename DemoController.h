@@ -141,6 +141,9 @@ public:
 	ICamera *currentCamera;
 	AnimCameraManager animCamsMng;
 
+	AnimCameraManager m_lightCamsMng;
+	ICamera *m_currentLightCamera;
+
 	float fade;
 
 	float CalcFlash(float time, float ms);

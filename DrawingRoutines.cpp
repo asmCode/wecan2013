@@ -233,10 +233,8 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_colorShader->UseProgram();
 		m_colorShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
 		//m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
-		if (meshPart->m_parentNode != NULL)
-			m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->m_parentNode->AnimTransform());
-		else
-			m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->Transform());
+		m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->model->m_baseTransform * meshPart->mesh->Transform());
+		//m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->Transform());
 		m_colorShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_colorShader->SetParameter("u_eyePosition", m_eyePosition);
 		m_colorShader->SetParameter("u_diffuseColor", material->diffuseColor);

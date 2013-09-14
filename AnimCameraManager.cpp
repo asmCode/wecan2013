@@ -1,6 +1,6 @@
 #include "AnimCameraManager.h"
+#include <IO/Path.h>
 #include <algorithm>
-#include <fstream>
 
 AnimCameraManager::AnimCameraManager(void)
 {
@@ -13,30 +13,29 @@ AnimCameraManager::~AnimCameraManager(void)
 
 void AnimCameraManager::Load(const std::string &path, Animation *anim)
 {
-	std::ifstream file(path, std::ios_base::binary);
-	file.seekg(0, std::ios::end);
-	unsigned fileSize = file.tellg();
-	file.seekg(0, std::ios::beg);
-	char *buff = new char[fileSize];
-	file.read(buff, fileSize);
-	file.close();
+	uint8_t *data;
+	uint32_t size;
+	Path::GetFileContent(path.c_str(), data, size);
 
-	BinaryReader br(buff);
+	BinaryReader br(data);
 
 	int camCount = br.Read<int>();
 	for (int i = 0; i < camCount; i++)
 	{
 		AnimCamera *cam = AnimCamera::FromStream(br);
 
-		float animLen = anim->GetAnimLengthById(cam->GetId());
-		cam->SetLastKeyFrameTime(animLen);
+		if (anim != NULL)
+		{
+			float animLen = anim->GetAnimLengthById(cam->GetId());
+			cam->SetLastKeyFrameTime(animLen);
 
-		anim->AssignTransformable(cam);
+			anim->AssignTransformable(cam);
+		}
 
 		cameras.push_back(cam);
 	}
 
-	delete [] buff;
+	delete [] data;
 
 	std::sort(cameras.begin(), cameras.end(), AnimCameraComparer());
 }
@@ -48,3 +47,13 @@ AnimCamera *AnimCameraManager::GetActiveCamera(float time)
 
 	return cameras[min(camIndex, cameras.size() - 1)];
 }
+
+AnimCamera *AnimCameraManager::GetCameraByName(const std::string &name)
+{
+	for (uint32_t i = 0; i < cameras.size(); i++)
+		if (cameras[i]->GetName() == name)
+			return cameras[i];
+
+	return NULL;
+}
+

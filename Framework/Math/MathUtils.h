@@ -210,6 +210,10 @@ public:
 	{
 		return a > b ? a : b;
 	}
+
+	static float PI;
+	static float PI2;
+	static float PI4;
 };
 
 #endif

@@ -18,6 +18,7 @@ Mesh::Mesh()
 	colorMask = sm::Vec3(1, 1, 1);
 	transform = sm::Matrix::IdentityMatrix();
 	animTransform = sm::Matrix::IdentityMatrix();
+	model = NULL;
 }
 
 Mesh::~Mesh()

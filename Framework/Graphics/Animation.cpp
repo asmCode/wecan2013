@@ -150,11 +150,6 @@ void Animation::Update(float time, const sm::Matrix &transform, float seconds)
 
 		//tr *= worldTMInv;
 
-		if (nodeName == "RFoot")
-		{
-			int f = 0;
-		}
-
 		if (mesh != NULL)
 		{
 			mesh ->AnimTransform() = tr;

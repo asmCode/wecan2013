@@ -9,6 +9,7 @@
 
 class MeshPart;
 class Property;
+class Model;
 
 class Mesh : public ITransformable
 {
@@ -41,6 +42,8 @@ public:
 	std::vector<MeshPart*> meshParts;
 	sm::Matrix transform;
 	sm::Matrix animTransform;
+
+	Model *model;
 
 	std::map<std::string, Property*> m_properties;
 };

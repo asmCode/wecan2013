@@ -189,6 +189,7 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 {
 	//m_gameObjects.push_back(new ShadowmapTest());
 	m_gameObjects.push_back(new Robot());
+	m_gameObjects.push_back(new Factory());
 
 	delay = 0.0f;
 	delayLimit = 500.0f;
@@ -256,7 +257,6 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
  m_lightViewMatrix.a[14] = -7.5742f;
  m_lightViewMatrix.a[15] = 1.0000f;
 
-	m_lightProjMatrix = sm::Matrix::PerspectiveMatrix(60.0f, (float)width / (float)height, 1.0f, 60.0f);
 	//m_lightProjMatrix = sm::Matrix::Ortho2DMatrix(-10, 10, -10, 10);
 	
 	return true;
@@ -396,6 +396,15 @@ bool DemoController::LoadContent(const char *basePath)
 	assert(camerasAnimation != NULL);
 	animCamsMng.Load(m_strBasePath + "cameras\\cameras.cam", camerasAnimation);
 
+	m_lightCamsMng.Load(m_strBasePath + "cameras\\piwnica.cam", NULL);
+	m_currentLightCamera = m_lightCamsMng.GetCameraByName("piwnica");
+
+	m_lightProjMatrix = sm::Matrix::PerspectiveMatrix(
+		deg(m_currentLightCamera->GetFov(0)),
+		(float)width / (float)height,
+		m_currentLightCamera->GetNearClip(),
+		m_currentLightCamera->GetFarClip());
+
 	//if (width <= 1024)
 	//	mask = dc->Get<Texture>("mask");
 	//else
@@ -473,8 +482,7 @@ bool DemoController::Update(float time, float ms)
 	m_activeCamera = animCamsMng.GetActiveCamera(time);
 #endif	
 
-	//m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 0.1f, 100.0f);
-	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 1.0f, 1000.0f);
+	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 100.0f, 10000.0f);
 	m_view = m_activeCamera->GetViewMatrix();
 
 #if 0
@@ -498,6 +506,16 @@ bool DemoController::Update(float time, float ms)
 
 	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
 		m_gameObjects[i]->Update(time, seconds);
+
+	/*m_proj = sm::Matrix::PerspectiveMatrix(
+		deg(m_currentLightCamera->GetFov(0)),
+		(float)width / (float)height,
+		m_currentLightCamera->GetNearClip(),
+		m_currentLightCamera->GetFarClip());
+
+	m_view =
+		sm::Matrix::RotateAxisMatrix(1.57f, 1, 0, 0) *
+		m_currentLightCamera->GetViewMatrix();*/
 
 	m_viewProj = m_proj * m_view;
 
@@ -679,7 +697,7 @@ bool DemoController::Draw(float time, float ms)
 	float seconds = ms / 1000.0f;
 	time /= 1000.0f;
 
-	//DrawShadowMap();
+	DrawShadowMap();
 
 	m_distortionFramebuffer->BindFramebuffer();
 	glViewport(0, 0, width, height);
@@ -691,19 +709,21 @@ bool DemoController::Draw(float time, float ms)
 	enabledBuffers[1] = GL_COLOR_ATTACHMENT1;
 	glDrawBuffers(2, enabledBuffers);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	m_lightViewMatrix = m_currentLightCamera->GetViewMatrix();
 	
 	DrawingRoutines::SetViewProjMatrix(m_viewProj);
 	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
 	DrawingRoutines::SetLightPosition(m_activeCamera->GetPosition());
-	//DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
+	DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
 
 	//m_robot->Draw(time, seconds);
 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-	DrawingRoutines::DrawWithMaterial(allMeshParts);
-	//DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
+	//DrawingRoutines::DrawWithMaterial(allMeshParts);
+	DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
 
 	glDrawBuffers(2, enabledBuffers);
 

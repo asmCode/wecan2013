@@ -31,4 +31,6 @@ public:
 
 	// nie mozna cofac czasu!
 	AnimCamera *GetActiveCamera(float time);
+
+	AnimCamera *GetCameraByName(const std::string &name);
 };

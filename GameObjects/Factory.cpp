@@ -17,7 +17,7 @@ void Factory::Awake()
 
 	for (uint32_t i = 0; i < m_factoryModel->m_meshParts.size(); i++)
 	{
-		m_factoryModel->m_meshParts[i]->mesh->Transform() = sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f);
+		//m_factoryModel->m_meshParts[i]->mesh->Transform() = sm::Matrix::ScaleMatrix(0.01f, 0.01f, 0.01f);
 	}
 }
 

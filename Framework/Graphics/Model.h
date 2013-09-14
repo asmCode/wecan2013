@@ -12,6 +12,8 @@ private:
 	std::vector<Mesh*> meshes;
 
 public:
+	sm::Matrix m_baseTransform;
+
 	Model();
 	~Model();
 

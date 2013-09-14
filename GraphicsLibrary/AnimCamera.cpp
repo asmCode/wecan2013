@@ -1,4 +1,5 @@
 #include "AnimCamera.h"
+#include <IO/Path.h>
 
 AnimCamera::AnimCamera(int id)
 {
@@ -46,6 +47,13 @@ AnimCamera* AnimCamera::FromStream(BinaryReader &br)
 	int id = br.Read<int>();
 
 	AnimCamera *animCam = new AnimCamera(id);
+
+	animCam->m_name = br.Read<std::string>();
+
+	br.ReadBuffer(reinterpret_cast<char*>(animCam->view.a), sizeof(float) * 16);
+
+	animCam->view = sm::Matrix::RotateAxisMatrix(MathUtils::PI2, 1, 0, 0) * animCam->view;
+
 	bool hasFovAnim = br.Read<bool>();
 	if (hasFovAnim)
 	{
@@ -82,7 +90,26 @@ AnimCamera* AnimCamera::FromStream(BinaryReader &br)
 		animCam->trgDist = br.Read<float>();
 	}
 
+	animCam->m_nearClip = br.Read<float>();
+	animCam->m_farClip = br.Read<float>();
+
 	return animCam;
+}
+
+AnimCamera* AnimCamera::FromFile(const std::string &path)
+{
+	uint32_t size;
+	uint8_t *data;
+	if (!Path::GetFileContent(path.c_str(), data, size))
+		return NULL;
+
+	BinaryReader br(data);
+
+	AnimCamera *cam = FromStream(br);
+
+	delete [] data;
+
+	return cam;
 }
 
 float AnimCamera::GetFov(float time)
@@ -128,3 +155,19 @@ sm::Vec3 AnimCamera::GetPosition()
 {
 	return Transform().GetInversed() * sm::Vec3(0, 0, 0);
 }
+
+std::string AnimCamera::GetName() const
+{
+	return m_name;
+}
+
+float AnimCamera::GetNearClip()
+{
+	return m_nearClip;
+}
+
+float AnimCamera::GetFarClip()
+{
+	return m_farClip;
+}
+

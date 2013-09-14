@@ -58,7 +58,11 @@ Model* ModelLoader::LoadFromFile(const std::string &path)
 	int meshesCount = br.Read<int>();
 
 	for (int i = 0; i < meshesCount; i++)
-		meshes.push_back(LoadMesh(br));
+	{
+		Mesh *mesh = LoadMesh(br);
+		mesh->model = model;
+		meshes.push_back(mesh);
+	}
 
 	delete [] buff;
 

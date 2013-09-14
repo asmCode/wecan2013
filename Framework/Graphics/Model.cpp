@@ -5,6 +5,7 @@
 
 Model::Model()
 {
+	m_baseTransform = sm::Matrix::IdentityMatrix();
 }
 
 Model::~Model()

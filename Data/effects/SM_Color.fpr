@@ -40,21 +40,28 @@ void main()
 		FragColor = vec4(0, 0, 0, 1);
 	*/
 	
-	vec4 c = o_shadowMapCoords;		
-	c.xyz /= c.w;
-	
-	float cosTheta = clamp(dot(lightDirection, normal), 0.0, 1.0);
-	
-	float shadowMapValue = texture(u_shadowMap, c.xy).z;
-	//float bias = 0.001;
-	float bias = u_biasScale * tan(acos(cosTheta));
-	bias = clamp(bias, 0, u_biasClamp);
-	//bias = 0.0001;
-	
-	//bias = u_biasScale;
-	if (shadowMapValue < c.z - bias)
-		FragColor.xyz *= 0.5;
+	if (diffValue > 0.0)
+	{
+		vec4 c = o_shadowMapCoords;
+		c.xyz /= c.w;
 		
-	//FragColor.x = acos(cosTheta);
+		if (c.x >= 0.0 && c.x <= 1.0 &&
+			c.y >= 0.0 && c.y <= 1.0)
+		{
+			float cosTheta = clamp(dot(lightDirection, normal), 0.0, 1.0);
+			
+			float shadowMapValue = texture(u_shadowMap, c.xy).z;
+			//float bias = 0.001;
+			float bias = u_biasScale * tan(acos(cosTheta));
+			bias = clamp(bias, 0, u_biasClamp);
+			//bias = 0.0001;
+			
+			//bias = u_biasScale;
+			if (shadowMapValue < c.z - bias)
+				FragColor.xyz *= 0.5;
+				
+			//FragColor.x = acos(cosTheta);
+		}
+	}
 }
 
