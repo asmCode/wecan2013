@@ -1011,6 +1011,9 @@ void DemoController::FilterGlowObjects()
 	{
 		MeshPart *mp = allMeshParts[i];
 
+		if (mp->mesh->m_isShadowCaster)
+			m_shadowCasterObjects.push_back(mp);
+
 		if (HasGlowMaterial(mp))
 		{
 			if (HasOpacityMaterial(mp))
@@ -1112,7 +1115,7 @@ void DemoController::DrawShadowMap()
 	//DrawingRoutines::SetShadowCastingLightView(m_view);
 	DrawingRoutines::SetShadowCastingLightProj(m_lightProjMatrix);
 	
-	DrawingRoutines::DrawShadowMap(m_solidNonGlowObjects);
+	DrawingRoutines::DrawShadowMap(m_shadowCasterObjects);
 	
 	Framebuffer::RestoreDefaultFramebuffer();
 	

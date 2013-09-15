@@ -201,6 +201,7 @@ public:
 	std::vector<MeshPart*> m_solidGlowObjects;
 	std::vector<MeshPart*> m_opacityNonGlowObjects;
 	std::vector<MeshPart*> m_solidNonGlowObjects;
+	std::vector<MeshPart*> m_shadowCasterObjects;
 
 	void SortByOpacity(std::vector<MeshPart*> &meshParts);
 	void FilterGlowObjects();

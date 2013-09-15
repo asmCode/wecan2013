@@ -60,6 +60,7 @@ Model* ModelLoader::LoadFromFile(const std::string &path)
 	for (int i = 0; i < meshesCount; i++)
 	{
 		Mesh *mesh = LoadMesh(br);
+		mesh->Initialize();
 		mesh->model = model;
 		meshes.push_back(mesh);
 	}

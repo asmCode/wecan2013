@@ -38,12 +38,17 @@ public:
 
 	Mesh *CreateReference();
 
+	void Initialize();
+
 public:
 	std::vector<MeshPart*> meshParts;
 	sm::Matrix transform;
 	sm::Matrix animTransform;
 
 	Model *model;
+
+	bool m_isShadowCaster;
+	bool m_isShadowReceiver;
 
 	std::map<std::string, Property*> m_properties;
 };

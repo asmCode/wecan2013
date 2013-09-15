@@ -19,6 +19,9 @@ Mesh::Mesh()
 	transform = sm::Matrix::IdentityMatrix();
 	animTransform = sm::Matrix::IdentityMatrix();
 	model = NULL;
+
+	m_isShadowCaster = false;
+	m_isShadowReceiver = false;
 }
 
 Mesh::~Mesh()
@@ -81,5 +84,16 @@ Mesh *Mesh::CreateReference()
 	mesh->meshParts.insert(mesh->meshParts.begin(), meshParts.begin(), meshParts.end());
 
 	return mesh;
+}
+
+void Mesh::Initialize()
+{
+	Property *shadowCasterProperty = FindProperty("castShadows");
+	if (shadowCasterProperty != NULL)
+		m_isShadowCaster = shadowCasterProperty->GetIntValue() == 1;
+
+	Property *shadowReceiverProperty = FindProperty("receiveshadows");
+	if (shadowReceiverProperty != NULL)
+		m_isShadowReceiver = shadowReceiverProperty->GetIntValue() == 1;
 }
 
