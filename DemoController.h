@@ -75,6 +75,8 @@ public:
 
 	std::vector<GameObject*> m_gameObjects;
 
+	float tmp_progress;
+
 	Content *m_content;
 
 	enum GeometryBatches

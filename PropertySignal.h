@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GraphicsLibrary\Property.h"
+#include <Graphics/Property.h>
 
 class PropertySignal
 {

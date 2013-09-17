@@ -35,4 +35,14 @@ public:
 
 	float GetFov(float time);
 	float GetFocal(float time);
+
+	float GetNearClip()
+	{
+		return 100.0f;
+	}
+
+	float GetFarClip()
+	{
+		return 12000.0f;
+	}
 };

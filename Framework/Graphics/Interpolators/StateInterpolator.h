@@ -31,12 +31,16 @@ public:
 		//key on right side
 		std::vector<KeyFrame<Type>*>::iterator rk;
 
-		for (rk = keys.begin() + lastKeyframeIndex; rk != keys.end(); rk++, lastKeyframeIndex++)
+		for (rk = keys.begin() + lastKeyframeIndex; rk != keys.end(); rk++)
+		{
 			if ((*rk) ->time > time)
 				break;
 
+			lastKeyframeIndex++;
+		}
+
 		value = (*(rk - 1)) ->value;
 
-		return lastKeyframeIndex;
+		return lastKeyframeIndex - 1;
 	}
 };

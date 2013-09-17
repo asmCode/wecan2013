@@ -5,7 +5,7 @@
 #include <Graphics/Animation.h>
 #include <Graphics/Content/Content.h>
 #include "DemoController.h"
-#include "GraphicsLibrary/Property.h"
+#include <Graphics/Property.h>
 
 
 MechArm::MechArm() :

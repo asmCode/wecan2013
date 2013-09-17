@@ -1,6 +1,7 @@
 #include "Animation.h"
 #include "Model.h"
 #include "Mesh.h"
+#include <stdint.h>
 
 Animation::Animation(void) :
 	m_animLength(-1.0f),
@@ -297,5 +298,59 @@ void Animation::ReplaceAnimation(Animation *sourceAnim)
 			}
 		}
 	}
+}
+
+void Animation::SetAnimationTime(float time, const sm::Matrix &parentTransform)
+{
+	sm::Vec3 posVal;
+	sm::Quat rotVal;
+	sm::Vec3 scaleVal;
+
+	float angle;
+	sm::Vec3 axis;
+
+	if (pos != NULL)
+		pos ->GetValue(time, posVal, 0);
+	else
+		posVal = localPos;
+
+	if (rot != NULL)
+		rot ->GetValue(time, rotVal, 0);
+	else
+		rotVal = localRot;
+
+	if (scale != NULL)
+		scale ->GetValue(time, scaleVal, 0);
+	else
+		scaleVal = localScale;
+
+	rotVal.Normalize();
+	rotVal.QuatToRotate(angle, axis);
+
+	m_currentNodeTransform = parentTransform;
+	m_currentNodeTransform *= sm::Matrix::TranslateMatrix(posVal);
+	m_currentNodeTransform *= sm::Matrix::RotateAxisMatrix(angle, axis);
+	m_currentNodeTransform *= sm::Matrix::ScaleMatrix(scaleVal);
+
+	if (mesh != NULL)
+		mesh->AnimTransform() = m_currentNodeTransform;
+
+	for (unsigned i = 0; i < subAnims.size(); i++)
+		subAnims[i] ->SetAnimationTime(time, m_currentNodeTransform);
+}
+
+Animation *Animation::FindAnimationChild(const std::string &nodeName)
+{
+	if (m_flattenedChilds == NULL)
+	{
+		m_flattenedChilds = new std::vector<Animation*>();
+		FlattenChilds(*m_flattenedChilds);
+	}
+
+	for (uint32_t i = 0; i < (*m_flattenedChilds).size(); i++)
+		if ((*m_flattenedChilds)[i]->nodeName == nodeName)
+			return (*m_flattenedChilds)[i];
+
+	return NULL;
 }
 

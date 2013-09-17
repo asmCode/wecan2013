@@ -18,7 +18,7 @@
 #include "common.h"
 #include "MechArm.h"
 #include "AssemblingScene.h"
-#include "GraphicsLibrary\Property.h"
+#include <Graphics/Property.h>
 #include "PropertySignal.h"
 #include "DrawingRoutines.h"
 #include "Billboard.h"
@@ -30,6 +30,7 @@
 #include "GameObjects/Teapots.h"
 #include "GameObjects/Robot.h"
 #include "GameObjects/ShadowmapTest.h"
+#include "GameObjects/CreditsDance.h"
 
 #include <Graphics/TextureLoader.h>
 #include <Graphics/ModelLoader.h>
@@ -48,6 +49,7 @@ const float DemoController::GlowBufferHeightRatio = 0.5f;
 #define DISABLE_FRUSTUM_CULLING 1
 #define MAN_CAM 1
 #define SHOW_FPS 1
+//#define LOAD_LIGHTMAPS 1
 
 DemoController* GenericSingleton<DemoController>::instance;
 Randomizer DemoController::random;
@@ -122,7 +124,9 @@ void DemoController::AssignLightmapsToModels()
 		std::string lightmapName = allMeshParts[i]->mesh->name + "LightingMap";
 		Texture *lightmap = m_content->Get<Texture>(lightmapName);
 
-		if (lightmap != NULL &&	!HasGlowMaterial(allMeshParts[i]))
+		if (lightmap != NULL &&
+			!HasGlowMaterial(allMeshParts[i]) &&
+			!(meshPart->material != NULL && meshPart->material->IsOpacity()))
 			allMeshParts[i]->m_lightmap = lightmap;
 	}
 }
@@ -187,14 +191,20 @@ void DemoController::InitializeBlur()
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
+	CreditsDance *creditsDance = new CreditsDance();
+	Robot *robot = new Robot();
+	robot->SetCreditsDance(creditsDance);
 	//m_gameObjects.push_back(new ShadowmapTest());
-	m_gameObjects.push_back(new Robot());
-	m_gameObjects.push_back(new Factory());
+	m_gameObjects.push_back(robot);
+	//m_gameObjects.push_back(new Factory());
+	m_gameObjects.push_back(creditsDance);
 
 	delay = 0.0f;
 	delayLimit = 500.0f;
 	fps = 0.0f;
 
+	tmp_progress = 0.0f;
+	
 	frustum = new Frustum();
 
 	this ->demoMode = demoMode;
@@ -277,7 +287,10 @@ bool DemoController::LoadContent(const char *basePath)
 	dc->LoadModels(m_strBasePath + "models\\");
 	dc->LoadModels(m_strBasePath + "models\\robot_parts\\");
 	dc->LoadTextures(m_strBasePath + "textures\\");
+	dc->LoadTextures(m_strBasePath + "textures\\greetz\\");
+#if LOAD_LIGHTMAPS
 	dc->LoadTextures(m_strBasePath + "textures\\lightmaps\\");
+#endif
 	dc->LoadShaders(m_strBasePath + "effects\\");
 	dc->LoadAnimations(m_strBasePath + "animations\\");
 	dc->LoadMaterials(m_strBasePath + "materials\\");
@@ -301,15 +314,12 @@ bool DemoController::LoadContent(const char *basePath)
 	distortShader->BindVertexChannel(0, "a_position");
 	distortShader->LinkProgram();
 
-	m_bgTex = m_content->Get<Texture>("bg");
-	assert(m_bgTex != NULL);
-
 	m_distortShader = m_content->Get<Shader>("Distortion");
 	assert(m_distortShader != NULL);
 	m_distortShader->BindVertexChannel(0, "a_position");
 	m_distortShader->LinkProgram();
 
-	Model *particlesModel = m_content->Get<Model>("particles");
+	Model *particlesModel = m_content->Get<Model>("smoke_sources");
 	assert(particlesModel != NULL);
 
 	m_particlesManager = new ParticlesManager();
@@ -635,7 +645,13 @@ bool DemoController::Update(float time, float ms)
 //	//shadowPass->Update(time, ms);
 //
 #ifndef DISABLE_FRUSTUM_CULLING
-	frustum->SetFrustum(m_activeCamera->GetViewMatrix(), 0.1f, 100.0f, m_activeCamera->GetFov(time), (float)width / (float)height);
+	frustum->SetFrustum(
+		m_activeCamera->GetViewMatrix(),
+		m_activeCamera->GetNearClip(),
+		m_activeCamera->GetFarClip(),
+		m_activeCamera->GetFov(time),
+		(float)width / (float)height);
+
 	FrustumCulling(allMeshParts);
 #endif
 
@@ -716,14 +732,15 @@ bool DemoController::Draw(float time, float ms)
 	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
 	DrawingRoutines::SetLightPosition(m_activeCamera->GetPosition());
-	DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
+	//DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
 
 	//m_robot->Draw(time, seconds);
 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-	//DrawingRoutines::DrawWithMaterial(allMeshParts);
-	DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
+	DrawingRoutines::DrawWithMaterial(allMeshParts);
+	((CreditsDance*)m_gameObjects[1])->DrawOpacities();
+	//DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
 
 	glDrawBuffers(2, enabledBuffers);
 
@@ -760,7 +777,7 @@ bool DemoController::Draw(float time, float ms)
 	Billboard::Clean();
 	
 // glow stuff
-#if 0
+#if 1
 
 	DrawGlowTexture();
 
@@ -1237,10 +1254,12 @@ void DemoController::OnKeyDown(int keyCode)
 
 	case 'T':
 		m_biasScale += 0.0001f;
+		tmp_progress += 0.01f;
 		break;
 
 	case 'G':
 		m_biasClamp += 0.0001f;
+		tmp_progress -= 0.01f;
 		break;
 
 	case 'C':

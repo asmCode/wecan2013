@@ -135,7 +135,7 @@ public:
 		return value;
 	}
 
-	int GetIntValue(float time = 0.0f)
+	int GetIntValue(float time = 0.0f, int *keyframeIndex = NULL)
 	{
 		assert(m_propType == PropertyType_Int);
 
@@ -147,7 +147,9 @@ public:
 		}
 		else
 		{
-			((IInterpolator<int>*)m_value)->GetValue(time, value);
+			int lastKeyframeIndex = ((IInterpolator<int>*)m_value)->GetValue(time, value);
+			if (keyframeIndex != NULL)
+				*keyframeIndex = lastKeyframeIndex;
 		}
 
 		return value;

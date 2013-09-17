@@ -170,6 +170,7 @@ exit /B 0
     <ClCompile Include="Framework\XML\XMLNode.cpp" />
     <ClCompile Include="Frustum.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="GameObjects\CreditsDance.cpp" />
     <ClCompile Include="GameObjects\Factory.cpp" />
     <ClCompile Include="GameObjects\Robot.cpp" />
     <ClCompile Include="GameObjects\ShadowmapTest.cpp" />
@@ -261,6 +262,7 @@ exit /B 0
     <ClInclude Include="Framework\XML\XMLNode.h" />
     <ClInclude Include="Frustum.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="GameObjects\CreditsDance.h" />
     <ClInclude Include="GameObjects\Factory.h" />
     <ClInclude Include="GameObjects\Robot.h" />
     <ClInclude Include="GameObjects\ShadowmapTest.h" />

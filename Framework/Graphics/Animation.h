@@ -20,6 +20,9 @@ public:
 
 	sm::Matrix worldTMInv;
 
+	// matrix is updated every time when SetAnimationTime(); is called
+	sm::Matrix m_currentNodeTransform;
+
 	sm::Vec3 localPos;
 	sm::Quat localRot;
 	sm::Vec3 localScale;
@@ -62,4 +65,7 @@ public:
 	// taki troche hack. przydatne do bindowania postaci do szkieletu.
 	// Po zbindowaniu mozna wsadzac dowolna inna animacje.
 	void ReplaceAnimation(Animation *sourceAnim);
+
+	void SetAnimationTime(float time, const sm::Matrix &parentTransform);
+	Animation *FindAnimationChild(const std::string &nodeName);
 };

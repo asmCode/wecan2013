@@ -6,6 +6,7 @@
 class Model;
 class Mesh;
 class Animation;
+class CreditsDance;
 
 class Robot : public GameObject
 {
@@ -18,6 +19,8 @@ public:
 	void Draw();
 
 	std::vector<MeshPart*>& GetMeshParts();
+
+	void SetCreditsDance(CreditsDance *creditsDanceObject);
 
 private:
 	enum Actions
@@ -32,7 +35,10 @@ private:
 
 	Animation *m_bindPose;
 	Animation *m_testWalk;
+	Animation *m_creditsDance;
 	Animation *m_currentAnimation;
+
+	CreditsDance *m_creditsDanceObject;
 
 	std::vector<MeshPart*> m_allMeshParts;
 

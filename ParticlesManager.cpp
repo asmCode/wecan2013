@@ -111,11 +111,11 @@ void ParticlesManager::Initialize(Model *modelWithParticles)
 		emiter->SetSparksPerSecond(it->second->m_particlesPersSecond);
 		emiter->SetLifeTime(it->second->m_lifeTimeMin, it->second->m_lifeTimeMax);
 		emiter->SetSizeOverLifetime(it->second->m_sizeStart, it->second->m_sizeEnd);
-		emiter->SetGravityVelocity(sm::Vec3(0, 3, 0));
+		emiter->SetGravityVelocity(sm::Vec3(0, 200, 0));
 		emiter->SetColorOverLifetime(sm::Vec4(1, 1, 1, it->second->m_opacityStart), sm::Vec4(1, 1, 1, it->second->m_opacityEnd));
 		emiter->SetSpeedOverLifetime(it->second->m_speedStart, it->second->m_speedEnd);
 		emiter->SetSourceDirection(direction.GetNormalized(), 0.1f);
-
+		
 		emiter->SetSourceAsPlane(it->second->m_position, it->second->m_planeBase1, it->second->m_planeBase2);
 
 		m_emmiters.push_back(emiter);
