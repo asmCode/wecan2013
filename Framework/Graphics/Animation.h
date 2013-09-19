@@ -61,6 +61,8 @@ public:
 	float GetAnimLength();
 	float GetAnimLengthById(int id);
 
+	void ClearLastKeys();
+
 	// podmienia keyframy i transformacje ze zrodlowej animacji.
 	// taki troche hack. przydatne do bindowania postaci do szkieletu.
 	// Po zbindowaniu mozna wsadzac dowolna inna animacje.

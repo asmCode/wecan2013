@@ -154,6 +154,8 @@ void Animation::Update(float time, const sm::Matrix &transform, float seconds)
 		tr *= sm::Matrix::RotateAxisMatrix(angle, axis);
 		tr *= sm::Matrix::ScaleMatrix(scaleVal);
 
+		m_currentNodeTransform = tr;
+
 		//tr *= worldTMInv;
 
 		if (mesh != NULL)
@@ -398,4 +400,14 @@ void Animation::MergeAnimation(Animation *merge)
 	
 	//if (id == 0 && m_flattenedChilds != NULL)
 	//	delete m_flattenedChilds; // next time it hase to be calculated once again (hierarhy has changed)
+}
+
+void Animation::ClearLastKeys()
+{
+	m_lastPosKeyframeIndex = 0;
+	m_lastRotKeyframeIndex = 0;
+	m_lastScaleKeyframeIndex = 0;
+
+	for (uint32_t i = 0; i < subAnims.size(); i++)
+		subAnims[i]->ClearLastKeys();
 }

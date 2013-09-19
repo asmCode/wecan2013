@@ -30,6 +30,8 @@ Robot::~Robot()
 
 void Robot::Awake()
 {
+	m_lastRunPosition = sm::Vec3(0, 0, 0);
+
 	Content *content = demo->m_content;
 
 	m_robot = content->Get<Model>("bind_pose");
@@ -38,6 +40,9 @@ void Robot::Awake()
 
 	m_bindPose = content->Get<Animation>("bind_pose");
 	assert(m_bindPose != NULL);
+
+	m_run01Trajectory = content->Get<Animation>("run01");
+	assert(m_run01Trajectory != NULL);
 	
 	const char* animNames[] =
 	{
@@ -48,10 +53,11 @@ void Robot::Awake()
 		"cigarette",
 		"angry",
 		"porazenie",
-		"throw"
+		"throw",
+		"run"
 	};
 
-	for (uint32_t i = 0; i < 8; i++)
+	for (uint32_t i = 0; i < 9; i++)
 	{
 		Animation *anim = content->Get<Animation>(animNames[i]);
 		assert(anim != NULL);
@@ -60,9 +66,9 @@ void Robot::Awake()
 		assert(model != NULL);
 
 		m_allMeshParts.insert(m_allMeshParts.end(), model->m_meshParts.begin(), model->m_meshParts.end());
-
-		for (uint32_t i = 0; i < model->m_meshParts.size(); i++)
-			model->m_meshParts[i]->m_alwaysHide = true;
+		
+		for (uint32_t j = 0; j < model->m_meshParts.size(); j++)
+			model->m_meshParts[j]->m_alwaysHide = true;
 
 		anim->AssignModel(model);
 
@@ -83,7 +89,10 @@ void Robot::Awake()
 		}
 	}
 
-	std::sort(m_clips.begin(), m_clips.end(), AnimationClipComparer());
+	m_runTimeLEngth = m_clips[8]->GetAnimLength();
+	m_runTime = 0.0f;
+
+	//std::sort(m_clips.begin(), m_clips.end(), AnimationClipComparer());
 
 	m_allMeshParts.insert(m_allMeshParts.begin(), m_robot->m_meshParts.begin(), m_robot->m_meshParts.end());
 	//m_allMeshParts.insert(m_allMeshParts.begin(), m_goToPostersModel->m_meshParts.begin(), m_goToPostersModel->m_meshParts.end());
@@ -99,10 +108,16 @@ void Robot::Awake()
 	/////wheelAnimation->subAnims.push_back(hip);
 	
 	/////m_bindPose = m_goToPostersAnim;
+
+
+
+	/////////
+	m_bindPose->ReplaceAnimation(m_clips[8]);
 }
 
 void Robot::Update(float time, float seconds)
 {
+	/*
 	while (m_activeClipIndex < m_clips.size() && time > m_clips[m_activeClipIndex]->GetAnimLength())
 		m_activeClipIndex++;
 
@@ -133,8 +148,47 @@ void Robot::Update(float time, float seconds)
 		m_bindPose->Update(time, sm::Matrix::IdentityMatrix(), seconds);
 	}
 
-	//time = m_creditsDanceObject->GetAnimTime();
-	m_activeAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	if (m_activeClipIndex == 8)
+	{
+		m_run01Trajectory->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+
+		m_runTime += seconds;
+		m_runTime = fmod(m_runTime, m_runTimeLEngth);
+
+		m_activeAnimation->Update(m_runTime, sm::Matrix::IdentityMatrix(), seconds);
+	}
+	else
+	{
+		//time = m_creditsDanceObject->GetAnimTime();
+		m_activeAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	}
+	*/
+
+	m_run01Trajectory->Update(time * 0.5f, sm::Matrix::IdentityMatrix(), seconds);
+
+	sm::Vec3 curPos = m_run01Trajectory->subAnims[0]->m_currentNodeTransform * sm::Vec3(0, 0, 0);
+	sm::Vec3 dir = curPos - m_lastRunPosition;
+
+	dir.y = 0.0f;
+	float dirLength = dir.GetLength();
+	dir.Normalize();
+	m_lastRunPosition = curPos;
+	sm::Vec3 right = (dir * sm::Vec3(0, 1, 0)).GetNormalized();
+	sm::Vec3 up = (right * dir).GetNormalized();
+
+	sm::Matrix m = sm::Matrix::TranslateMatrix(curPos) * sm::Matrix::CreateLookAt(dir, up);
+
+	m_runTime += (m_runTimeLEngth * (dirLength / 412.0f));
+	
+	if (m_runTime >= m_runTimeLEngth)
+	{
+		m_runTime -= m_runTimeLEngth;
+		m_bindPose->ClearLastKeys();
+	}
+
+	//m_runTime = fmod(m_runTime, m_runTimeLEngth);
+
+	m_bindPose->Update(m_runTime, m, seconds);
 }
 
 void Robot::Draw()

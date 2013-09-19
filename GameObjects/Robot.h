@@ -1,6 +1,8 @@
 #pragma once
 
 #include "../GameObject.h"
+#include <Math/Vec3.h>
+#include <Math/Matrix.h>
 #include <vector>
 #include <stdint.h>
 
@@ -46,6 +48,8 @@ private:
 	Animation *m_porazenieAnim;
 	Animation *m_throwAnim;
 
+	Animation *m_run01Trajectory;
+
 	std::vector<Animation*> m_clips;
 	std::vector<Model*> m_clipsModels;
 	uint32_t m_activeClipIndex;
@@ -56,8 +60,13 @@ private:
 
 	CreditsDance *m_creditsDanceObject;
 
+	sm::Vec3 m_lastRunPosition;
+
 	std::vector<MeshPart*> m_allMeshParts;
 
 	Model *m_robot;
+
+	float m_runTime;
+	float m_runTimeLEngth;
 };
 

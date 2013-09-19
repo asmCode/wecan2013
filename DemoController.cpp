@@ -47,7 +47,7 @@ const float DemoController::GlowBufferHeightRatio = 0.5f;
 
 //#define DISABLE_MUSIC 1
 #define DISABLE_FRUSTUM_CULLING 1
-//#define MAN_CAM 1
+#define MAN_CAM 1
 #define SHOW_FPS 1
 //#define LOAD_LIGHTMAPS 1
 
@@ -482,7 +482,7 @@ bool DemoController::Update(float time, float ms)
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
 
-	time += 80.0f;
+	//time += 80.0f;
 
 	m_activeCamera = NULL;
 
