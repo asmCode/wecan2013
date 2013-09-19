@@ -37,6 +37,7 @@ public:
 	std::string GetName() const;
 	sm::Matrix& Transform();
 	sm::Matrix& AnimTransform();
+	sm::Matrix& BaseTransform();
 	float GetNearClip();
 	float GetFarClip();
 

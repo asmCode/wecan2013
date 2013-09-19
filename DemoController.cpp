@@ -196,7 +196,7 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 	robot->SetCreditsDance(creditsDance);
 	//m_gameObjects.push_back(new ShadowmapTest());
 	m_gameObjects.push_back(robot);
-	//m_gameObjects.push_back(new Factory());
+	m_gameObjects.push_back(new Factory());
 	m_gameObjects.push_back(creditsDance);
 
 	delay = 0.0f;
@@ -410,7 +410,7 @@ bool DemoController::LoadContent(const char *basePath)
 	m_currentLightCamera = m_lightCamsMng.GetCameraByName("piwnica");
 
 	m_lightProjMatrix = sm::Matrix::PerspectiveMatrix(
-		deg(m_currentLightCamera->GetFov(0)),
+		m_currentLightCamera->GetFov(0),
 		(float)width / (float)height,
 		m_currentLightCamera->GetNearClip(),
 		m_currentLightCamera->GetFarClip());
@@ -479,6 +479,7 @@ bool started = false;
 static float lastTime;
 bool DemoController::Update(float time, float ms)
 {
+
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
 
@@ -492,7 +493,11 @@ bool DemoController::Update(float time, float ms)
 	m_activeCamera = animCamsMng.GetActiveCamera(time);
 #endif	
 
-	m_proj = sm::Matrix::PerspectiveMatrix((m_activeCamera->GetFov(time) / 3.1415f) * 180.0f, (float)width / (float)height, 100.0f, 10000.0f);
+	m_proj = sm::Matrix::PerspectiveMatrix(
+		m_activeCamera->GetFov(time),
+		(float)width / (float)height,
+		m_activeCamera->GetNearClip(),
+		m_activeCamera->GetFarClip());
 	m_view = m_activeCamera->GetViewMatrix();
 
 #if 0
@@ -739,7 +744,7 @@ bool DemoController::Draw(float time, float ms)
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 	DrawingRoutines::DrawWithMaterial(allMeshParts);
-	((CreditsDance*)m_gameObjects[1])->DrawOpacities();
+	//((CreditsDance*)m_gameObjects[1])->DrawOpacities();
 	//DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
 
 	glDrawBuffers(2, enabledBuffers);
@@ -821,6 +826,9 @@ bool DemoController::Draw(float time, float ms)
 
 	sprintf(fpsText, "bias scale = %.5f, bias clamp = %.5f", m_biasScale, m_biasClamp);
 	DrawText(fpsText, 4, height - 180, 255, 0, 0);
+
+	sprintf(fpsText, "fov = %.2f", fov);
+	DrawText(fpsText, 4, height - 200, 255, 0, 0);
 
 	float m_biasScale;
 	float m_biasClamp;
@@ -1255,11 +1263,13 @@ void DemoController::OnKeyDown(int keyCode)
 	case 'T':
 		m_biasScale += 0.0001f;
 		tmp_progress += 0.01f;
+		fov += 1.0f;
 		break;
 
 	case 'G':
 		m_biasClamp += 0.0001f;
 		tmp_progress -= 0.01f;
+		fov -= 1.0f;
 		break;
 
 	case 'C':

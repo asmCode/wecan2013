@@ -209,7 +209,8 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_diffNormShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
 		m_diffNormShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_diffNormShader->SetParameter("u_eyePosition", m_eyePosition);
-		m_diffNormShader->SetMatrixParameter("u_worldMatrix", worldatrix);
+		//m_diffNormShader->SetMatrixParameter("u_worldMatrix", worldatrix);
+		m_diffNormShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->Transform());
 		m_diffNormShader->SetTextureParameter("u_diffTex", 0, material->diffuseTex->GetId());
 		m_diffNormShader->SetTextureParameter("u_normalTex", 1, material->normalTex->GetId());
 		m_diffNormShader->SetParameter("u_specularColor", material->specularColor);

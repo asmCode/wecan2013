@@ -32,6 +32,11 @@ sm::Matrix& AnimCamera::AnimTransform()
 	return dummy;
 }
 
+sm::Matrix& AnimCamera::BaseTransform()
+{
+	return dummy;
+}
+
 bool AnimCamera::IsCam()
 {
 	return true;

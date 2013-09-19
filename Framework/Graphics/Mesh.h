@@ -33,6 +33,7 @@ public:
 	int GetId();
 	sm::Matrix& Transform();
 	sm::Matrix& AnimTransform();
+	sm::Matrix& BaseTransform();
 
 	sm::Vec3 colorMask;
 

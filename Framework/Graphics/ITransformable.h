@@ -9,4 +9,5 @@ public:
 	virtual int GetId() = 0;
 	virtual sm::Matrix& Transform() = 0;
 	virtual sm::Matrix& AnimTransform() = 0;
+	virtual sm::Matrix& BaseTransform() = 0;
 };

@@ -118,7 +118,12 @@ void Animation::Update(float time, const sm::Matrix &transform, float seconds)
 	}
 	else
 	{
-		sm::Matrix tr = transform;
+		sm::Matrix tr = sm::Matrix::IdentityMatrix();
+
+		if (mesh != NULL)
+			tr *= mesh->BaseTransform();
+
+		tr *= transform;
 
 		sm::Vec3 posVal;
 		sm::Quat rotVal;
@@ -339,18 +344,58 @@ void Animation::SetAnimationTime(float time, const sm::Matrix &parentTransform)
 		subAnims[i] ->SetAnimationTime(time, m_currentNodeTransform);
 }
 
-Animation *Animation::FindAnimationChild(const std::string &nodeName)
+Animation *Animation::FindAnimationChild(const std::string &nodeName, bool recursively)
 {
-	if (m_flattenedChilds == NULL)
+	/*if (m_flattenedChilds == NULL)
 	{
 		m_flattenedChilds = new std::vector<Animation*>();
 		FlattenChilds(*m_flattenedChilds);
-	}
+	}*/
 
-	for (uint32_t i = 0; i < (*m_flattenedChilds).size(); i++)
+	/*for (uint32_t i = 0; i < (*m_flattenedChilds).size(); i++)
 		if ((*m_flattenedChilds)[i]->nodeName == nodeName)
 			return (*m_flattenedChilds)[i];
+
+	return NULL;*/
+
+	for (uint32_t i = 0; i < subAnims.size(); i++)
+		if (nodeName == subAnims[i]->nodeName)
+			return subAnims[i];
+
+	if (recursively)
+	{
+		for (uint32_t i = 0; i < subAnims.size(); i++)
+		{
+			Animation *anim = subAnims[i]->FindAnimationChild(nodeName, true);
+			if (anim != NULL)
+				return anim;
+		}
+	}
 
 	return NULL;
 }
 
+void Animation::MergeAnimation(Animation *merge)
+{
+	assert(merge != NULL);
+
+	if (merge->nodeName == nodeName)
+	{
+		for (uint32_t i = 0; i < merge->subAnims.size(); i++)
+		{
+			Animation *anim = FindAnimationChild(merge->subAnims[i]->nodeName, false);
+			if (anim == NULL)
+				subAnims.push_back(merge->subAnims[i]);
+		}
+
+		for (uint32_t i = 0; i < subAnims.size(); i++)
+		{
+			Animation *anim = merge->FindAnimationChild(subAnims[i]->nodeName, false);
+			if (anim != NULL)
+				subAnims[i]->MergeAnimation(anim);
+		}
+	}
+	
+	//if (id == 0 && m_flattenedChilds != NULL)
+	//	delete m_flattenedChilds; // next time it hase to be calculated once again (hierarhy has changed)
+}

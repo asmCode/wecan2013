@@ -67,5 +67,7 @@ public:
 	void ReplaceAnimation(Animation *sourceAnim);
 
 	void SetAnimationTime(float time, const sm::Matrix &parentTransform);
-	Animation *FindAnimationChild(const std::string &nodeName);
+	Animation *FindAnimationChild(const std::string &nodeName, bool recursively = true);
+
+	void MergeAnimation(Animation *merge);
 };

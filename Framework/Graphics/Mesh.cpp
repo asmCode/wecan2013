@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Model.h"
 #include "Property.h"
 #include "VertexP.h"
 #include "VertexPN.h"
@@ -69,6 +70,11 @@ sm::Matrix& Mesh::Transform()
 sm::Matrix& Mesh::AnimTransform()
 {
 	return animTransform;
+}
+
+sm::Matrix& Mesh::BaseTransform()
+{
+	return model->m_baseTransform;
 }
 
 Mesh *Mesh::CreateReference()

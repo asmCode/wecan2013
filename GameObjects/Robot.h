@@ -37,6 +37,11 @@ private:
 	Animation *m_testWalk;
 	Animation *m_creditsDance;
 	Animation *m_currentAnimation;
+	Animation *m_throwWheelAnim;
+	Animation *m_writtingAnim;
+	Animation *m_goToPostersAnim;
+
+	Model *m_goToPostersModel;
 
 	CreditsDance *m_creditsDanceObject;
 

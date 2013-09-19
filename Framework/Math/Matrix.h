@@ -222,13 +222,13 @@ namespace sm
 			return matrix;
 		}
 
-		static Matrix PerspectiveMatrix(float fov, float aspect, float znear, float zfar)
+		static Matrix PerspectiveMatrix(float fovH, float aspect, float znear, float zfar)
 		{
-			fov = 3.141592653f * (fov / 180.0f);
-
 			Matrix matrix = IdentityMatrix();
 
-			float f = 1.0f / tanf(fov / 2.0f);
+			float fovV = 2.0f * atanf(tanf(fovH / 2.0f) / aspect);
+
+			float f = 1.0f / tanf(fovV / 2.0f); // equal to cotangens((fov * aspect) / 2.0f)
 			float nearMinusFar = znear - zfar;
 
 			matrix.a[0] = f / aspect;
