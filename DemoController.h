@@ -142,6 +142,7 @@ public:
 
 	ICamera *currentCamera;
 	AnimCameraManager animCamsMng;
+	AnimCameraManager animCamsFactoryMng;
 
 	AnimCameraManager m_lightCamsMng;
 	ICamera *m_currentLightCamera;
@@ -165,6 +166,7 @@ public:
 	float m_biasClamp;
 
 	Animation *camerasAnimation;
+	Animation *camerasFactoryAnimation;
 
 	sm::Matrix m_lightViewMatrix;
 	sm::Matrix m_lightProjMatrix;

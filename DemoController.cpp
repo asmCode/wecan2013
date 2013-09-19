@@ -47,7 +47,7 @@ const float DemoController::GlowBufferHeightRatio = 0.5f;
 
 //#define DISABLE_MUSIC 1
 #define DISABLE_FRUSTUM_CULLING 1
-#define MAN_CAM 1
+//#define MAN_CAM 1
 #define SHOW_FPS 1
 //#define LOAD_LIGHTMAPS 1
 
@@ -406,6 +406,10 @@ bool DemoController::LoadContent(const char *basePath)
 	assert(camerasAnimation != NULL);
 	animCamsMng.Load(m_strBasePath + "cameras\\cameras.cam", camerasAnimation);
 
+	camerasFactoryAnimation = dc->Get<Animation>("cameras_factory");
+	assert(camerasFactoryAnimation != NULL);
+	animCamsFactoryMng.Load(m_strBasePath + "cameras\\cameras_factory.cam", camerasFactoryAnimation);
+
 	m_lightCamsMng.Load(m_strBasePath + "cameras\\piwnica.cam", NULL);
 	m_currentLightCamera = m_lightCamsMng.GetCameraByName("piwnica");
 
@@ -490,8 +494,11 @@ bool DemoController::Update(float time, float ms)
 	manCam.Process(ms);
 	m_activeCamera = &manCam;
 #else
-	camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
-	m_activeCamera = animCamsMng.GetActiveCamera(time);
+	//camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	//m_activeCamera = animCamsMng.GetActiveCamera(time);
+
+	camerasFactoryAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	m_activeCamera = animCamsFactoryMng.GetActiveCamera(time);
 #endif	
 
 	m_proj = sm::Matrix::PerspectiveMatrix(
