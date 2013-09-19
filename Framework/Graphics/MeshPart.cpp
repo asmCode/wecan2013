@@ -11,7 +11,8 @@
 MeshPart::MeshPart(int verticesCount, void *vertices, Mesh *mesh, uint8_t vertexType) :
 	m_vertexType(vertexType),
 	m_parentNode(NULL),
-	m_lightmap(NULL)
+	m_lightmap(NULL),
+	m_alwaysHide(false)
 {
 	bbox = new BoundingBox();
 	(*bbox) = BoundingBox::FromVertices(vertices, verticesCount, vertexType, 1.0f);
@@ -84,7 +85,7 @@ void MeshPart::SetVisibility(bool visible)
 
 bool MeshPart::IsVisible() const
 {
-	return visible;
+	return visible && !m_alwaysHide;
 }
 
 void MeshPart::SetupVertexPointers()

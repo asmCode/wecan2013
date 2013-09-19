@@ -34,7 +34,7 @@ void AnimCameraManager::Load(const std::string &path, Animation *anim)
 
 		cameras.push_back(cam);
 	}
-
+	
 	delete [] data;
 
 	std::sort(cameras.begin(), cameras.end(), AnimCameraComparer());

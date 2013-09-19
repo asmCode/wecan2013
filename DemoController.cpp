@@ -47,7 +47,7 @@ const float DemoController::GlowBufferHeightRatio = 0.5f;
 
 //#define DISABLE_MUSIC 1
 #define DISABLE_FRUSTUM_CULLING 1
-#define MAN_CAM 1
+//#define MAN_CAM 1
 #define SHOW_FPS 1
 //#define LOAD_LIGHTMAPS 1
 
@@ -479,9 +479,10 @@ bool started = false;
 static float lastTime;
 bool DemoController::Update(float time, float ms)
 {
-
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
+
+	time += 80.0f;
 
 	m_activeCamera = NULL;
 
@@ -821,12 +822,12 @@ bool DemoController::Draw(float time, float ms)
 	sprintf(fpsText, "camera position: (%.4f, %.4f, %.4f)", camPos.x, camPos.y, camPos.z);
 	DrawText(fpsText, 4, 20, 255, 255, 255);
 
-	sprintf(fpsText, "time: %.2f", time / 1000.0f);
+	sprintf(fpsText, "time: %.2f", time);
 	DrawText(fpsText, 4, height - 160, 255, 0, 0);
 
 	sprintf(fpsText, "bias scale = %.5f, bias clamp = %.5f", m_biasScale, m_biasClamp);
 	DrawText(fpsText, 4, height - 180, 255, 0, 0);
-
+	
 	sprintf(fpsText, "fov = %.2f", fov);
 	DrawText(fpsText, 4, height - 200, 255, 0, 0);
 

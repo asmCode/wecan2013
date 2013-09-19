@@ -6,6 +6,8 @@ ManCam::ManCam()
 
 	position.Set(0, 0, 0);
 
+	position.Set(-4862, 0, 0);
+
 	yaw = 0.0f;
 	pitch = 0.0f;
 	roll = 0.0f;
@@ -76,7 +78,7 @@ void ManCam::Process(float ms)
 	}
 
 	float ratio;
-	keys[VK_LCONTROL] ? ratio = ms * 0.1f : ratio = ms * 0.002f;
+	keys[VK_LCONTROL] ? ratio = ms * 0.02f : ratio = ms * 0.002f;
 	if (keys[VK_LSHIFT])
 		ratio *= 100.0f;
 

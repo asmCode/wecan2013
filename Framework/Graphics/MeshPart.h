@@ -48,4 +48,6 @@ public:
 
 	// Set enable proper vertex channels before calling this method
 	void Draw();
+
+	bool m_alwaysHide;
 };
