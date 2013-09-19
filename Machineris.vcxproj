@@ -128,6 +128,9 @@ exit /B 0
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationClips\SimpleClip.cpp" />
+    <ClCompile Include="AnimationClips\TrackClip.cpp" />
+    <ClCompile Include="AnimationClips\WheelClip.cpp" />
     <ClCompile Include="AnimCameraManager.cpp" />
     <ClCompile Include="AssemblingScene.cpp" />
     <ClCompile Include="BasicLightingEffect.cpp" />
@@ -195,6 +198,10 @@ exit /B 0
     <ClCompile Include="WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationClips\IAnimationClip.h" />
+    <ClInclude Include="AnimationClips\SimpleClip.h" />
+    <ClInclude Include="AnimationClips\TrackClip.h" />
+    <ClInclude Include="AnimationClips\WheelClip.h" />
     <ClInclude Include="AnimCameraManager.h" />
     <ClInclude Include="AssemblingScene.h" />
     <ClInclude Include="BasicLightingEffect.h" />
