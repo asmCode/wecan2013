@@ -19,6 +19,7 @@ public:
 	
 	void Draw(const Color &color, int x, int y, int width, int height);
 	void Draw(Texture *tex, int x, int y, int width, int height);
+	void Draw(Texture *tex, const sm::Vec4 &color, int x, int y, int width, int height);
 	void Draw(uint32_t texId, int x, int y, int width, int height);
 	void Draw(Texture *tex, int x, int y);
 	void Draw(Texture *tex, const float *texCoords, int x, int y, int width, int height);
@@ -34,7 +35,8 @@ public:
 		uint32_t texId,
 		const float *verts,
 		const float *coords,
-		const unsigned char *colorMask);
+		const unsigned char *colorMask,
+		sm::Vec4 color = sm::Vec4(1, 1, 1, 1));
 
 private:
 	Shader *m_shader;

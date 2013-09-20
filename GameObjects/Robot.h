@@ -26,6 +26,7 @@ public:
 	std::vector<MeshPart*>& GetMeshParts();
 
 	void SetCreditsDance(CreditsDance *creditsDanceObject);
+	void ClearLightmaps();
 
 private:
 	Animation *m_bindPose;

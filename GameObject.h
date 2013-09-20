@@ -16,6 +16,8 @@ public:
 
 	virtual std::vector<MeshPart*>& GetMeshParts();
 
+	virtual void ClearLightmaps() {}
+
 private:
 	static std::vector<MeshPart*> m_dummy;
 };

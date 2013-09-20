@@ -92,8 +92,6 @@ void Robot::Update(float time, float seconds)
 
 	IAnimationClip *clip = m_clips[m_activeClipIndex];
 
-	if (m_creditsDanceObject->IsActive())
-		time = m_creditsDanceObject->GetAnimTime();
 	clip->Update(time, seconds);
 }
 
@@ -111,3 +109,10 @@ void Robot::SetCreditsDance(CreditsDance *creditsDanceObject)
 	m_creditsDanceObject = creditsDanceObject;
 }
 
+void Robot::ClearLightmaps()
+{
+	for (int i = 0; i < m_allMeshParts.size(); i++)
+	{
+		m_allMeshParts[i]->m_lightmap = NULL;
+	}
+}

@@ -136,6 +136,7 @@ exit /B 0
     <ClCompile Include="BasicLightingEffect.cpp" />
     <ClCompile Include="Billboard.cpp" />
     <ClCompile Include="DistortParticleHandler.cpp" />
+    <ClCompile Include="Dream.cpp" />
     <ClCompile Include="Ext\tinyxml\tinyxml2.cpp" />
     <ClCompile Include="Framework\Graphics\Animation.cpp" />
     <ClCompile Include="Framework\Graphics\AnimationLoader.cpp" />
@@ -175,8 +176,10 @@ exit /B 0
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObjects\CreditsDance.cpp" />
     <ClCompile Include="GameObjects\Factory.cpp" />
+    <ClCompile Include="GameObjects\Fan.cpp" />
     <ClCompile Include="GameObjects\Robot.cpp" />
     <ClCompile Include="GameObjects\ShadowmapTest.cpp" />
+    <ClCompile Include="GameObjects\SimpleAnim.cpp" />
     <ClCompile Include="GameObjects\Teapots.cpp" />
     <ClCompile Include="ParticlesManager.cpp" />
     <ClCompile Include="Particles\Particle.cpp" />
@@ -209,6 +212,7 @@ exit /B 0
     <ClInclude Include="CameraMode.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="DistortParticleHandler.h" />
+    <ClInclude Include="Dream.h" />
     <ClInclude Include="Ext\tinyxml\tinyxml2.h" />
     <ClInclude Include="Framework\Graphics\Animation.h" />
     <ClInclude Include="Framework\Graphics\AnimationLoader.h" />
@@ -271,8 +275,10 @@ exit /B 0
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObjects\CreditsDance.h" />
     <ClInclude Include="GameObjects\Factory.h" />
+    <ClInclude Include="GameObjects\Fan.h" />
     <ClInclude Include="GameObjects\Robot.h" />
     <ClInclude Include="GameObjects\ShadowmapTest.h" />
+    <ClInclude Include="GameObjects\SimpleAnim.h" />
     <ClInclude Include="GameObjects\Teapots.h" />
     <ClInclude Include="ParticlesManager.h" />
     <ClInclude Include="Particles\IParticleHandler.h" />

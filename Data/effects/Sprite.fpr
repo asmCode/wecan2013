@@ -10,6 +10,5 @@ varying vec2 v_coords;
 void main()
 {
    FragColor = texture2D(u_tex, v_coords) * u_color;
-   FragColor = texture2D(u_tex, v_coords);
 }
 

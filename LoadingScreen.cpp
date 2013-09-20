@@ -1,6 +1,7 @@
 #include "LoadingScreen.h"
 #include <Graphics/Texture.h>
 #include <Graphics/TextureLoader.h>
+#include <Graphics/Shader.h>
 #include "DemoController.h"
 
 LoadingScreen::LoadingScreen(void)
@@ -24,6 +25,10 @@ void LoadingScreen::Initialize(const std::string &basePath)
 
 	scrWidth = demo ->glWnd ->GetWindowWidth();
 	scrHeight = demo ->glWnd ->GetWindowHeight();
+
+	m_spriteBatch = new SpriteBatch(
+		Shader::LoadFromFile((basePath + "Effects/Sprite.vpr").c_str(), (basePath + "Effects/Sprite.fpr").c_str()),
+		sm::Matrix::Ortho2DMatrix(0, scrWidth, 0, scrHeight));
 }
 
 void LoadingScreen::Release()
@@ -35,12 +40,14 @@ void LoadingScreen::Update(float time, float ms)
 {
 }
 
-void LoadingScreen::Draw(float time, float ms, const sm::Matrix &view, const sm::Matrix &proj, const sm::Vec3 &camPos)
+void LoadingScreen::Draw()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
-
-//	Utils::DrawSprite(loadingTex ->GetId(), 0, 0, scrWidth, scrHeight);
+	
+	m_spriteBatch->Begin();
+	glDisable(GL_BLEND);
+	m_spriteBatch->Draw(loadingTex, 0, 0, scrWidth, scrHeight);
+	m_spriteBatch->End();
 
 	OpenglWindow *gl = demo ->glWnd;
 
@@ -49,20 +56,20 @@ void LoadingScreen::Draw(float time, float ms, const sm::Matrix &view, const sm:
 	int top = gl ->Log2PY(1.0f - (665.0f / 768.0f));
 	int right = gl ->Log2PX((min(1, (float)progressStep / (float)steps)) * (636.0f / 1280.0f)) + left;
 
-	glDisable(GL_LIGHTING);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glColor4ub(0x16, 0xa0, 0xfc, 0xff);
-	glBegin(GL_QUADS);
-	glVertex2i(left, bottom);
-	glVertex2i(left, top);
-	glVertex2i(right, top);
-	glVertex2i(right, bottom);
-	glEnd();
-	glColor4f(1, 1, 1, 1);
+	//glDisable(GL_LIGHTING);
+	//glDisable(GL_TEXTURE_2D);
+	//glDisable(GL_BLEND);
+	////glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+	//glColor4ub(0x16, 0xa0, 0xfc, 0xff);
+	//glBegin(GL_QUADS);
+	//glVertex2i(left, bottom);
+	//glVertex2i(left, top);
+	//glVertex2i(right, top);
+	//glVertex2i(right, bottom);
+	//glEnd();
+	//glColor4f(1, 1, 1, 1);
 
-	glDisable(GL_BLEND);
+	//glDisable(GL_BLEND);
 
 	demo ->glWnd ->SwapBuffers();
 }

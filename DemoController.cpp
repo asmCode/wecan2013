@@ -1,3 +1,4 @@
+
 #include "DemoController.h"
 #include <Utils/Log.h>
 #include "BasicLightingEffect.h"
@@ -30,7 +31,11 @@
 #include "GameObjects/Teapots.h"
 #include "GameObjects/Robot.h"
 #include "GameObjects/ShadowmapTest.h"
+#include "GameObjects/SimpleAnim.h"
 #include "GameObjects/CreditsDance.h"
+#include "GameObjects/Fan.h"
+#include "Dream.h"
+Dream *m_dream;
 
 #include <Graphics/TextureLoader.h>
 #include <Graphics/ModelLoader.h>
@@ -51,6 +56,9 @@ const float DemoController::GlowBufferHeightRatio = 0.5f;
 #define SHOW_FPS 1
 //#define LOAD_LIGHTMAPS 1
 
+Texture *blackTex;
+LinearInterpolator<float> fadeAnim;
+
 DemoController* GenericSingleton<DemoController>::instance;
 Randomizer DemoController::random;
 
@@ -64,6 +72,12 @@ DemoController::DemoController() :
 	m_fovSignal(NULL),
 	m_fovPower(0.0f)
 {
+	fadeAnim.AddKeyframe(2 * 60.0f + 11.0f + (265.0f / 4800.0f), 0, true);
+	fadeAnim.AddKeyframe(2 * 60.0f + 11.0f + (265.0f / 4800.0f), 1, true);
+	fadeAnim.AddKeyframe(2 * 60.0f + 14.0f + (265.0f / 4800.0f), 1, false);
+	fadeAnim.AddKeyframe(2 * 60.0f + 18.0f + (265.0f / 4800.0f), 0, false);
+
+	firstupdate = true;
 	fade = 0.0f;
 	blurFbo = NULL;
 	dofBlur = NULL;
@@ -180,6 +194,9 @@ void DemoController::InitializeBlur()
 		Texture::Filter_Nearest,
 		false);
 
+	m_dream = new Dream();
+	m_dream->Initialize();
+
 	m_distortionFramebuffer = new Framebuffer();
 	m_distortionFramebuffer->Initialize(width, height, 32);
 	m_distortionFramebuffer->BindFramebuffer();
@@ -191,14 +208,6 @@ void DemoController::InitializeBlur()
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
-	m_creditsDance = new CreditsDance();
-	Robot *robot = new Robot();
-	robot->SetCreditsDance(m_creditsDance);
-	//m_gameObjects.push_back(new ShadowmapTest());
-	m_gameObjects.push_back(robot);
-	m_gameObjects.push_back(new Factory());
-	m_gameObjects.push_back(m_creditsDance);
-
 	delay = 0.0f;
 	delayLimit = 500.0f;
 	fps = 0.0f;
@@ -280,6 +289,7 @@ bool DemoController::LoadContent(const char *basePath)
 	Content *dc = m_content;
 	
 	loadingScreen ->Initialize(basePath);
+	loadingScreen->Draw();
 
 	m_strBasePath = basePath;
 
@@ -288,6 +298,7 @@ bool DemoController::LoadContent(const char *basePath)
 	dc->LoadModels(m_strBasePath + "models\\robot_parts\\");
 	dc->LoadTextures(m_strBasePath + "textures\\");
 	dc->LoadTextures(m_strBasePath + "textures\\greetz\\");
+	dc->LoadTextures(m_strBasePath + "textures\\dream\\");
 #if LOAD_LIGHTMAPS
 	dc->LoadTextures(m_strBasePath + "textures\\lightmaps\\");
 #endif
@@ -297,6 +308,13 @@ bool DemoController::LoadContent(const char *basePath)
 
 	if (!AssignAssets())
 		return false;
+
+	blackTex = dc->Get<Texture>("black");
+	assert(blackTex != NULL);
+
+	m_endScreen = dc->Get<Texture>("end");
+	assert(m_endScreen);
+	m_endScreenOpacity = 0.0f;
 
 	InitializeBlur();
 
@@ -328,6 +346,17 @@ bool DemoController::LoadContent(const char *basePath)
 	anim = dc->Get<Animation>("animacja");
 	Animation *headAnim = anim->GetAnimationByNodeName("Head");
 
+	m_creditsDance = new CreditsDance();
+	Robot *robot = new Robot();
+	robot->SetCreditsDance(m_creditsDance);
+	//m_gameObjects.push_back(new ShadowmapTest());
+	m_gameObjects.push_back(robot);
+	m_gameObjects.push_back(new Factory());
+	m_gameObjects.push_back(m_creditsDance);
+	m_gameObjects.push_back(new Fan());
+	m_gameObjects.push_back(new SimpleAnim(dc->Get<Animation>("flying_chair"), dc->Get<Model>("flying_chair"), 2 * 60.0f + 14.0f + (265.0f / 4800.0f)));
+	m_gameObjects.push_back(new SimpleAnim(dc->Get<Animation>("doors"), dc->Get<Model>("doors"), 0.0));
+
 	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
 		m_gameObjects[i]->Awake();
 
@@ -337,11 +366,14 @@ bool DemoController::LoadContent(const char *basePath)
 		allMeshParts.insert(allMeshParts.end(), meshParts.begin(), meshParts.end());
 	}
 
-	SortByOpacity(allMeshParts);
-
-	FilterGlowObjects();
-	
 	AssignLightmapsToModels();
+	SortByOpacity(allMeshParts);
+	FilterGlowObjects();
+
+	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
+	{
+		m_gameObjects[i]->ClearLightmaps();
+	}
 
 	//demo ->activeCamera = demo ->manualCamera;
 
@@ -483,11 +515,40 @@ bool started = false;
 static float lastTime;
 bool DemoController::Update(float time, float ms)
 {
+	if (demoMode != DemoMode_Editor && !started)
+	{
+#ifndef DISABLE_MUSIC
+		music.SetPosition(time / 1000.0f);
+		music.Play();
+
+		//music.SetPosition(time / 1000.0f);
+#endif
+		started = true;
+	}
+
+	if (!demoEnded)
+	{
+		time = music.GetPosition() * 1000.0f;
+
+		if ((time / 1000.0f) >= (240.0f + 12.0f))
+		{
+			music.Stop();
+			demoEnded = true;
+		}
+	}
+
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
 
-	if (m_creditsDance->IsActive())
-		time = m_creditsDance->GetAnimTime();
+	if (firstupdate)
+	{
+		firstupdate = false;
+		m_greetzDanceTime = time;
+	}
+	else
+	{
+		m_greetzDanceTime = m_creditsDance->GetAnimTime();
+	}
 
 	//time += 170.0f;
 	//time += 30.0f;
@@ -498,12 +559,14 @@ bool DemoController::Update(float time, float ms)
 	manCam.Process(ms);
 	m_activeCamera = &manCam;
 #else
-	camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	camerasAnimation->Update(m_greetzDanceTime, sm::Matrix::IdentityMatrix(), seconds);
 	m_activeCamera = animCamsMng.GetActiveCamera(time);
 
 	//camerasFactoryAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
 	//m_activeCamera = animCamsFactoryMng.GetActiveCamera(time);
 #endif	
+
+	m_dream->Update(time, seconds);
 
 	m_proj = sm::Matrix::PerspectiveMatrix(
 		m_activeCamera->GetFov(time),
@@ -532,7 +595,7 @@ bool DemoController::Update(float time, float ms)
 #endif
 
 	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
-		m_gameObjects[i]->Update(time, seconds);
+		m_gameObjects[i]->Update(m_greetzDanceTime, seconds);
 
 	/*m_proj = sm::Matrix::PerspectiveMatrix(
 		deg(m_currentLightCamera->GetFov(0)),
@@ -555,29 +618,29 @@ bool DemoController::Update(float time, float ms)
 	//m_robot->SetViewProjMatrix(m_viewProj);
 	//m_robot->Update(time, seconds);
 
-//	if (demoMode != DemoMode_Editor && !started)
-//	{
+////	if (demoMode != DemoMode_Editor && !started)
+////	{
 //#ifndef DISABLE_MUSIC
 //		music.SetPosition(time / 1000.0f);
 //		music.Play();
 //
 //		//music.SetPosition(time / 1000.0f);
 //#endif
-//		started = true;
-//	}
-//
-//	/*
-//	if (!demoEnded)
-//	{
-//		time = music.GetPosition() * 1000.0f;
-//
-//		if ((time / 1000.0f) >= (180.0f + 43.0f))
-//		{
-//			music.Stop();
-//			demoEnded = true;
-//		}
-//	}
-//	*/
+////		started = true;
+////	}
+////
+////	/*
+////	if (!demoEnded)
+////	{
+////		time = music.GetPosition() * 1000.0f;
+////
+////		if ((time / 1000.0f) >= (180.0f + 43.0f))
+////		{
+////			music.Stop();
+////			demoEnded = true;
+////		}
+////	}
+////	*/
 //
 //	lastTime = time;
 //
@@ -820,6 +883,30 @@ bool DemoController::Draw(float time, float ms)
 	m_spriteBatch->End();
 #endif
 
+	m_dream->Draw(time);
+
+	float fadeVal = 0.0f;
+	fadeAnim.GetValue(time, fadeVal);
+
+	if (fadeVal != 0.0f)
+	{
+		glViewport(0, 0, width, height);
+		m_spriteBatch->Begin();
+		m_spriteBatch->Draw(blackTex, sm::Vec4(1, 1, 1, fadeVal), 0, 0, width, height);
+		m_spriteBatch->End();
+	}
+
+	if (time > 256) // zaraz przed koncem ostatniej kamery
+	{
+		m_endScreenOpacity += 0.5f * seconds;
+		if (m_endScreenOpacity > 1.0f)
+			m_endScreenOpacity = 1.0f;
+		glViewport(0, 0, width, height);
+		m_spriteBatch->Begin();
+		m_spriteBatch->Draw(m_endScreen, sm::Vec4(1, 1, 1, m_endScreenOpacity), 0, 0, width, height);
+		m_spriteBatch->End();
+	}
+
 #ifdef SHOW_FPS
 	glViewport(0, 0, width, height);
 	glDisable(GL_BLEND);
@@ -835,7 +922,7 @@ bool DemoController::Draw(float time, float ms)
 	sprintf(fpsText, "camera position: (%.4f, %.4f, %.4f)", camPos.x, camPos.y, camPos.z);
 	DrawText(fpsText, 4, 20, 255, 255, 255);
 
-	sprintf(fpsText, "time: %.2f", time);
+	sprintf(fpsText, "time: %.2f, robot dance: %.2f", time, m_greetzDanceTime);
 	DrawText(fpsText, 4, height - 160, 255, 0, 0);
 
 	sprintf(fpsText, "bias scale = %.5f, bias clamp = %.5f", m_biasScale, m_biasClamp);
@@ -1120,6 +1207,8 @@ void DemoController::DrawGlowTexture()
 	DrawingRoutines::DrawBlack(m_solidNonGlowObjects);
 
 	DrawingRoutines::DrawWithMaterial(m_opacityGlowObjects);
+	if (m_creditsDance->IsActive())
+		m_creditsDance->DrawOpacities();
 	DrawingRoutines::DrawBlack(m_opacityNonGlowObjects);
 
 	Framebuffer::RestoreDefaultFramebuffer();

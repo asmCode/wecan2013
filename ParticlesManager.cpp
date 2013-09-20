@@ -34,20 +34,21 @@ void ParticlesManager::Initialize(Model *modelWithParticles)
 	std::vector<Mesh*> &m_meshes = modelWithParticles->GetMeshes();
 	for (uint32_t i = 0; i < m_meshes.size(); i++)
 	{
-		std::string id;
-		std::string type;
-		if (ParseName(m_meshes[i]->name, id, type))
+		///std::string id;
+//		std::string type;
+		//if (ParseName(m_meshes[i]->name, id, type))
 		{
-			assert(id.size() > 0);
-			assert(type.size() > 0);
+	//		assert(id.size() > 0);
+//			assert(type.size() > 0);
 
-			std::map<std::string, ParticlesSource*>::iterator it = m_particlesSources.find(id);
-			if (it == m_particlesSources.end())
-				m_particlesSources[id] = new ParticlesSource();
+			//std::map<std::string, ParticlesSource*>::iterator it = m_particlesSources.find(id);
+			//if (it == m_particlesSources.end())
+			ParticlesSource *s = new ParticlesSource();
+				m_particlesSources.push_back(s);
 
-			ParticlesSource *particleSource = m_particlesSources[id];
+			ParticlesSource *particleSource = s;
 
-			if (type == "src")
+			//if (type == "src")
 			{
 				assert(m_meshes[i]->meshParts.size() == 1);
 				assert(m_meshes[i]->meshParts[0]->verticesCount == 6);
@@ -81,10 +82,10 @@ void ParticlesManager::Initialize(Model *modelWithParticles)
 				particleSource->m_direction =
 					particleSource->m_planeBase2.GetNormalized() *
 					particleSource->m_planeBase1.GetNormalized();
-				particleSource->m_speedStart = p_speedStart->GetFloatValue();
+				particleSource->m_speedStart = p_speedStart->GetFloatValue() * 1.0f;
 				particleSource->m_speedEnd = p_speedEnd->GetFloatValue();
-				particleSource->m_sizeStart = p_sizeStart->GetFloatValue();
-				particleSource->m_sizeEnd = p_sizeEnd->GetFloatValue();
+				particleSource->m_sizeStart = p_sizeStart->GetFloatValue() * 10.0f;
+				particleSource->m_sizeEnd = p_sizeEnd->GetFloatValue() * 10;
 				particleSource->m_opacityStart = p_opacityStart->GetFloatValue();
 				particleSource->m_opacityEnd = p_opacityEnd->GetFloatValue();
 				particleSource->m_particlesPersSecond = p_particlesPerSecond->GetIntValue();
@@ -94,29 +95,30 @@ void ParticlesManager::Initialize(Model *modelWithParticles)
 				//particleSource->m_position = m_meshes[i]->m_worldMatrix * sm::Vec3(0, 0, 0);
 				//particleSource->
 			}
-			else if (type == "dir")
-				particleSource->m_direction = m_meshes[i]->m_worldMatrix * sm::Vec3(0, 0, 0);
+			//else if (type == "dir")
+				//particleSource->m_direction = m_meshes[i]->m_worldMatrix * sm::Vec3(0, 0, 0);
 		}
 	}
 
-	std::map<std::string, ParticlesSource*>::iterator it = m_particlesSources.begin();
-	for (; it != m_particlesSources.end(); it++)
+	for (int i = 0; i != m_particlesSources.size(); i++)
 	{
+		ParticlesSource *ee = m_particlesSources[i];
+
 		//sm::Vec3 direction = it->second->m_direction - it->second->m_position;
-		sm::Vec3 direction = it->second->m_direction;
+		sm::Vec3 direction = ee->m_direction;
 
 		ParticleEmmiter *emiter = new ParticleEmmiter(1000, m_distortParticleHandler);
 		emiter = new ParticleEmmiter(1000, m_distortParticleHandler);
-		emiter->SetSourcePosition(it->second->m_position);
-		emiter->SetSparksPerSecond(it->second->m_particlesPersSecond);
-		emiter->SetLifeTime(it->second->m_lifeTimeMin, it->second->m_lifeTimeMax);
-		emiter->SetSizeOverLifetime(it->second->m_sizeStart, it->second->m_sizeEnd);
+		emiter->SetSourcePosition(ee->m_position);
+		emiter->SetSparksPerSecond(ee->m_particlesPersSecond);
+		emiter->SetLifeTime(ee->m_lifeTimeMin, ee->m_lifeTimeMax);
+		emiter->SetSizeOverLifetime(ee->m_sizeStart, ee->m_sizeEnd);
 		emiter->SetGravityVelocity(sm::Vec3(0, 200, 0));
-		emiter->SetColorOverLifetime(sm::Vec4(1, 1, 1, it->second->m_opacityStart), sm::Vec4(1, 1, 1, it->second->m_opacityEnd));
-		emiter->SetSpeedOverLifetime(it->second->m_speedStart, it->second->m_speedEnd);
+		emiter->SetColorOverLifetime(sm::Vec4(1, 1, 1, ee->m_opacityStart), sm::Vec4(1, 1, 1, ee->m_opacityEnd));
+		emiter->SetSpeedOverLifetime(ee->m_speedStart, ee->m_speedEnd);
 		emiter->SetSourceDirection(direction.GetNormalized(), 0.1f);
 		
-		emiter->SetSourceAsPlane(it->second->m_position, it->second->m_planeBase1, it->second->m_planeBase2);
+		emiter->SetSourceAsPlane(ee->m_position, ee->m_planeBase1, ee->m_planeBase2);
 
 		m_emmiters.push_back(emiter);
 	}

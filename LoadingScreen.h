@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <Graphics/SpriteBatch.h>
 #include <Math\Matrix.h>
 
 class Texture;
@@ -15,6 +16,8 @@ private:
 	int scrWidth;
 	int scrHeight;
 
+	SpriteBatch *m_spriteBatch;
+
 public:
 	LoadingScreen(void);
 	~LoadingScreen(void);
@@ -27,5 +30,5 @@ public:
 	void ProgressStep();
 
 	void Update(float time, float ms);
-	void Draw(float time, float ms, const sm::Matrix &view, const sm::Matrix &proj, const sm::Vec3 &camPos);
+	void Draw();
 };

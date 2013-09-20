@@ -188,6 +188,13 @@ public:
 	Framebuffer *blurFbo;
 	Texture *targetTex0;
 
+	float m_greetzDanceTime;
+
+	bool firstupdate;
+
+	Texture *m_endScreen;
+	float m_endScreenOpacity;
+
 	DepthTexture *m_shadowMapTexture;
 	Texture *m_dummyColorTexture;
 	Framebuffer *m_shadowMappingFramebuffer;

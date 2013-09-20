@@ -17,6 +17,7 @@ CreditsDance::~CreditsDance()
 
 void CreditsDance::Awake()
 {
+	m_baseTime = -1.0f;
 	m_creditsIndex = -1;
 	m_danceTime = 0.0f;
 	m_danceTimeAddRatio = 1.0f;
@@ -72,13 +73,19 @@ void CreditsDance::Awake()
 
 void CreditsDance::Update(float time, float seconds)
 {
+	if (m_baseTime == -1.0f)
+	{
+		m_baseTime = 0.0f;
+		m_danceTime += time;
+	}
+
 	m_danceTime += seconds * m_danceTimeAddRatio;
 
 	m_creditsHandAnim->Update(m_danceTime, sm::Matrix::IdentityMatrix(), seconds);
 
 	int keyframeIndex;
 
-	if (m_creditsVisible->GetIntValue(m_danceTime, &keyframeIndex) == 1)
+	if (m_creditsVisible->GetIntValue(time, &keyframeIndex) == 1)
 	{
 		m_d = true;
 
@@ -162,9 +169,6 @@ void CreditsDance::Draw()
 
 void CreditsDance::DrawOpacities()
 {
-	if (!m_d)
-		return;
-
 	Billboard::Setup();
 
 	glEnable(GL_DEPTH_TEST);

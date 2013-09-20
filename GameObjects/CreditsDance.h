@@ -58,5 +58,7 @@ private:
 	bool m_d;
 
 	int m_creditsIndex;
+
+	float m_baseTime;
 };
 

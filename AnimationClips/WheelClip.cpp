@@ -3,6 +3,7 @@
 #include <Graphics/Animation.h>
 #include <Graphics/MeshPart.h>
 #include <Graphics/Model.h>
+#include <Graphics/Mesh.h>
 #include <assert.h>
 
 WheelClip::WheelClip(Animation *bindPose, Animation *clip, Model *model) :

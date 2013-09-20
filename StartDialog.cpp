@@ -25,7 +25,7 @@ HBITMAP LoadGraph(HWND hwnd)
 	bth.biWidth = width;
 	bth.biHeight = height;
 	bth.biPlanes = 1;
-	bth.biBitCount = bpp;
+	bth.biBitCount = bpp * 8;
 	bth.biCompression = BI_RGB;
 	bth.biSizeImage = 0;
 	bth.biXPelsPerMeter = 0;
@@ -106,7 +106,7 @@ StartDialog::~StartDialog(void)
 void StartDialog::Paint(HDC hdc)
 {
 	LOGBRUSH logBrush;
-	logBrush.lbColor = RGB(255, 255, 255);
+	logBrush.lbColor = RGB(0, 0, 0);
 	logBrush.lbStyle = BS_SOLID;
 	logBrush.lbHatch = 0;
 	HBRUSH blackBrush = CreateBrushIndirect(&logBrush);
@@ -115,10 +115,10 @@ void StartDialog::Paint(HDC hdc)
 
 	HDC memHdc = CreateCompatibleDC(hdc);
 	SelectObject(memHdc, bmpSetup);
-	BitBlt(hdc, 0, 0, 400, 150, memHdc, 0, 0, SRCCOPY);
+	BitBlt(hdc, 0, 0, 400, 155, memHdc, 0, 0, SRCCOPY);
 	SelectObject(hdc, blackBrush);
 	SelectObject(hdc, pen);
-	Rectangle(hdc, 0, 150, 400, 210);
+	Rectangle(hdc, 0, 150, 400, 250);
 	DeleteDC(memHdc);
 
 	DeleteObject(blackBrush);

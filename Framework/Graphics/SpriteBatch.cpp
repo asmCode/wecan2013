@@ -89,6 +89,14 @@ void SpriteBatch::Draw(Texture *tex, int x, int y, int width, int height)
 	Draw(tex->GetId(), verts, Coords, NULL);	
 }
 
+void SpriteBatch::Draw(Texture *tex, const sm::Vec4 &color, int x, int y, int width, int height)
+{
+	float verts[8];
+	CreateQuad(verts, x, y, width, height);
+	
+	Draw(tex->GetId(), verts, Coords, NULL, color);	
+}
+
 void SpriteBatch::Draw(uint32_t texId, int x, int y, int width, int height)
 {
 	float verts[8];
@@ -205,9 +213,11 @@ void SpriteBatch::Draw(const TexPart &texPart, const Color &colorMask, const sm:
 void SpriteBatch::Draw(uint32_t texId,
 		  const float *verts,
 		  const float *coords,
-		  const unsigned char *colorMask)
+		  const unsigned char *colorMask,
+		  sm::Vec4 color)
 {
 	m_shader->SetTextureParameter("u_tex", 0, texId);
+	m_shader->SetParameter("u_color", color);
 
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_TRUE, 0, verts);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_TRUE, 0, coords);

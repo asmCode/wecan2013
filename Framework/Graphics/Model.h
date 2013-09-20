@@ -8,7 +8,7 @@ class MeshPart;
 
 class Model
 {
-private:
+public:
 	std::vector<Mesh*> meshes;
 
 public:

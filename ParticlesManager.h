@@ -50,7 +50,7 @@ private:
 	sm::Matrix m_viewMatrix;
 	sm::Matrix m_projMatrix;
 
-	std::map<std::string, ParticlesSource*> m_particlesSources;
+	std::vector<ParticlesSource*> m_particlesSources;
 
 	DemoController *m_demo;
 	DistortParticleHandler *m_distortParticleHandler;
