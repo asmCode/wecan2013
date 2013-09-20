@@ -42,6 +42,7 @@ class ManCam;
 class ShadowMappingTest;
 class LoadingScreen;
 class ParticlesManager;
+class CreditsDance;
 class Framebuffer;
 class DepthTexture;
 class Blur;
@@ -177,6 +178,8 @@ public:
 	sm::Matrix glowProj;
 	Music music;
 	bool isStereo;
+
+	CreditsDance *m_creditsDance;
 
 	ParticlesManager *m_particlesManager;
 

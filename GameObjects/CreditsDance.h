@@ -25,6 +25,7 @@ public:
 	std::vector<MeshPart*>& GetMeshParts();
 
 	float GetAnimTime() const;
+	bool IsActive() const;
 
 private:
 	Animation *m_creditsHandAnim;
@@ -35,7 +36,7 @@ private:
 	Mesh *m_handUp;
 	Property *m_creditsVisible;
 	Shader *m_creditSpriteShader;
-	Texture *m_currentCreditTex;
+	Texture **m_greetzTexes;
 
 	sm::Vec3 m_startPos;
 	sm::Vec3 m_dir;
@@ -55,5 +56,7 @@ private:
 	float m_danceTime;
 
 	bool m_d;
+
+	int m_creditsIndex;
 };
 

@@ -44,21 +44,7 @@ void Robot::Awake()
 	assert(m_bindPose != NULL);
 
 	m_bindPose->AssignModel(m_robot);
-	
-	const char* animNames[] =
-	{
-		"writting",
-		"go_to_posters",
-		"back_to_cigarette",
-		"whisky",
-		"cigarette",
-		"angry",
-		"porazenie",
-		"throw",
-		"run"
-	};
 
-	/*
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("writting"), content->Get<Model>("writting")));
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("go_to_posters"), content->Get<Model>("go_to_posters")));
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("back_to_cigarette"), content->Get<Model>("back_to_cigarette")));
@@ -66,13 +52,14 @@ void Robot::Awake()
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("cigarette"), content->Get<Model>("cigarette")));
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("angry"), content->Get<Model>("angry")));
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("porazenie"), content->Get<Model>("porazenie")));
-
+	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("throw")));
 	m_clips.push_back(new TrackClip(m_bindPose, content->Get<Animation>("run"), content->Get<Animation>("run01")));
 	m_clips.push_back(new TrackClip(m_bindPose, content->Get<Animation>("run"), content->Get<Animation>("run02")));
 	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("branch")));
+	m_clips.push_back(new TrackClip(m_bindPose, content->Get<Animation>("run"), content->Get<Animation>("run021")));
 	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("jump")));
 	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("flip")));
-	*/
+	m_clips.push_back(new TrackClip(m_bindPose, content->Get<Animation>("run"), content->Get<Animation>("run03")));
 
 	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("credits_dance")));
 
@@ -105,6 +92,8 @@ void Robot::Update(float time, float seconds)
 
 	IAnimationClip *clip = m_clips[m_activeClipIndex];
 
+	if (m_creditsDanceObject->IsActive())
+		time = m_creditsDanceObject->GetAnimTime();
 	clip->Update(time, seconds);
 }
 

@@ -191,13 +191,13 @@ void DemoController::InitializeBlur()
 bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
-	CreditsDance *creditsDance = new CreditsDance();
+	m_creditsDance = new CreditsDance();
 	Robot *robot = new Robot();
-	robot->SetCreditsDance(creditsDance);
+	robot->SetCreditsDance(m_creditsDance);
 	//m_gameObjects.push_back(new ShadowmapTest());
 	m_gameObjects.push_back(robot);
 	m_gameObjects.push_back(new Factory());
-	m_gameObjects.push_back(creditsDance);
+	m_gameObjects.push_back(m_creditsDance);
 
 	delay = 0.0f;
 	delayLimit = 500.0f;
@@ -486,7 +486,11 @@ bool DemoController::Update(float time, float ms)
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
 
-	//time += 156.0f;
+	if (m_creditsDance->IsActive())
+		time = m_creditsDance->GetAnimTime();
+
+	//time += 170.0f;
+	//time += 30.0f;
 
 	m_activeCamera = NULL;
 
@@ -494,11 +498,11 @@ bool DemoController::Update(float time, float ms)
 	manCam.Process(ms);
 	m_activeCamera = &manCam;
 #else
-	//camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
-	//m_activeCamera = animCamsMng.GetActiveCamera(time);
+	camerasAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	m_activeCamera = animCamsMng.GetActiveCamera(time);
 
-	camerasFactoryAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
-	m_activeCamera = animCamsFactoryMng.GetActiveCamera(time);
+	//camerasFactoryAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	//m_activeCamera = animCamsFactoryMng.GetActiveCamera(time);
 #endif	
 
 	m_proj = sm::Matrix::PerspectiveMatrix(
@@ -752,6 +756,8 @@ bool DemoController::Draw(float time, float ms)
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
 	DrawingRoutines::DrawWithMaterial(allMeshParts);
+	if (m_creditsDance->IsActive())
+		m_creditsDance->DrawOpacities();
 	//((CreditsDance*)m_gameObjects[1])->DrawOpacities();
 	//DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
 

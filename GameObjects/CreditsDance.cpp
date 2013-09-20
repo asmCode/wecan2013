@@ -17,6 +17,7 @@ CreditsDance::~CreditsDance()
 
 void CreditsDance::Awake()
 {
+	m_creditsIndex = -1;
 	m_danceTime = 0.0f;
 	m_danceTimeAddRatio = 1.0f;
 	m_creditsProgress = 0.0f;
@@ -35,6 +36,10 @@ void CreditsDance::Awake()
 	m_creditsHand = content->Get<Model>("credits_dance_hand");
 	assert(m_creditsHand != NULL);
 
+	m_creditsHand->m_meshParts[0]->m_alwaysHide = true;
+	m_creditsHand->m_meshParts[1]->m_alwaysHide = true;
+	m_creditsHand->m_meshParts[2]->m_alwaysHide = true;
+
 	m_handTrg = m_creditsHand->FindMesh("credits_hand");
 	assert(m_handTrg != NULL);
 
@@ -52,8 +57,15 @@ void CreditsDance::Awake()
 	m_creditSpriteShader = content->Get<Shader>("CreditSprite");
 	assert(m_creditSpriteShader != NULL);
 
-	m_currentCreditTex = content->Get<Texture>("greetz00");
-	assert(m_currentCreditTex != NULL);
+	uint32_t greetzCount = 12;
+	m_greetzTexes = new Texture*[greetzCount];
+	for (uint32_t i = 0; i < greetzCount; i++)
+	{
+		char texName[64];
+		sprintf(texName, "greetz%d", i + 1);
+		m_greetzTexes[i] = content->Get<Texture>(texName);
+		assert(m_greetzTexes[i] != NULL);
+	}
 
 	m_allMeshParts.insert(m_allMeshParts.end(), m_creditsHand->m_meshParts.begin(), m_creditsHand->m_meshParts.end());
 }
@@ -72,6 +84,7 @@ void CreditsDance::Update(float time, float seconds)
 
 		if (!m_creditsActive)
 		{
+			m_creditsIndex++;
 			m_creditsActive = true;
 
 			assert(keyframeIndex < m_creditsVisible->GetKeysCount());
@@ -114,6 +127,8 @@ void CreditsDance::Update(float time, float seconds)
 			sm::Vec3 right = (endPos - startPos).GetNormalized();
 			m_dir = sm::Vec3(0, 1, 0) * right;
 			m_dir.Normalize();
+			if (m_creditsIndex == 1 || m_creditsIndex == 4 || m_creditsIndex == 7 || m_creditsIndex == 10)
+				m_dir.Reverse();
 			m_up = right * m_dir;
 			//m_up = m_dir * right;
 			m_up.Normalize();
@@ -128,13 +143,13 @@ void CreditsDance::Update(float time, float seconds)
 
 		m_creditsProgress = (m_danceTime - m_creditsStartTime) / m_creditsLength;
 
-		m_danceTimeAddRatio = MathUtils::Max(m_danceTimeAddRatio - seconds * 2.0f, 0.2f);
+		m_danceTimeAddRatio = MathUtils::Max(m_danceTimeAddRatio - seconds * 5.0f, 0.1f);
 	}
 	else
 	{
 		m_d = false;
 
-		m_danceTimeAddRatio = MathUtils::Min(m_danceTimeAddRatio + seconds * 2.0f, 1.0f);
+		m_danceTimeAddRatio = MathUtils::Min(m_danceTimeAddRatio + seconds * 5.0f, 1.0f);
 		m_creditsActive = false;
 	}
 
@@ -157,14 +172,16 @@ void CreditsDance::DrawOpacities()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(false);
 
+	Texture *t = m_greetzTexes[m_creditsIndex];
 	m_creditSpriteShader->UseProgram();
 	m_creditSpriteShader->SetMatrixParameter(
 		"u_mvp",
 		demo->m_viewProj *
 		sm::Matrix::TranslateMatrix(m_startPos) *
 		sm::Matrix::CreateLookAt(m_dir, m_up) *
-		sm::Matrix::ScaleMatrix(m_creditTexWidth, m_currentCreditTex->GetHeight() / 4, 1));
-	m_creditSpriteShader->SetTextureParameter("u_tex", 0, m_currentCreditTex->GetId());
+		sm::Matrix::ScaleMatrix(m_creditTexWidth, t->GetHeight() * (m_creditTexWidth / t->GetWidth()), 1) *
+		sm::Matrix::TranslateMatrix(sm::Vec3(0, -0.5f, 0.0f)));
+	m_creditSpriteShader->SetTextureParameter("u_tex", 0, t->GetId());
 	m_creditSpriteShader->SetParameter("u_progress", m_creditsProgress);
 	//m_creditSpriteShader->SetParameter("u_progress", 1.0f);
 
@@ -180,5 +197,10 @@ std::vector<MeshPart*>& CreditsDance::GetMeshParts()
 float CreditsDance::GetAnimTime() const
 {
 	return m_danceTime;
+}
+
+bool CreditsDance::IsActive() const
+{
+	return m_creditsIndex != -1;
 }
 
