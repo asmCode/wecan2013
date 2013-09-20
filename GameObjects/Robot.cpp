@@ -66,6 +66,11 @@ void Robot::Awake()
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("angry"), content->Get<Model>("angry")));
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("porazenie"), content->Get<Model>("porazenie")));
 
+	m_clips.push_back(new TrackClip(m_bindPose, content->Get<Animation>("run"), content->Get<Animation>("run01")));
+	m_clips.push_back(new TrackClip(m_bindPose, content->Get<Animation>("run"), content->Get<Animation>("run02")));
+	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("branch")));
+	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("jump")));
+
 	for (uint32_t i = 0; i < m_clips.size(); i++)
 	{
 		m_clips[i]->Deactivate();

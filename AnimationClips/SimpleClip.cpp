@@ -22,7 +22,7 @@ void SimpleClip::Deactivate()
 
 void SimpleClip::Update(float time, float seconds)
 {
-	m_clip->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	m_bindPose->Update(time, sm::Matrix::IdentityMatrix(), seconds);
 }
 
 float SimpleClip::GetLastKeyframeTime()

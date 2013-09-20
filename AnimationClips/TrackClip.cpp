@@ -42,10 +42,13 @@ void TrackClip::Update(float time, float seconds)
 
 	sm::Matrix m = sm::Matrix::TranslateMatrix(curPos) * sm::Matrix::CreateLookAt(dir, up);
 
-	m_runTime += (m_runLenght * (dirLength / 412.0f)); // 412 is distance from oryginal animation
+	m_runTime += (m_runLenght * (dirLength / 412.0f))  * 0.4f; // 412 is distance from oryginal animation
 	
 	if (m_runTime >= m_runLenght)
+	{
+	//	m_runTime -= m_runLenght;
 		m_bindPose->ClearLastKeys();
+	}
 
 	m_runTime = fmod(m_runTime, m_runLenght);
 
