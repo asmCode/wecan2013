@@ -486,7 +486,7 @@ bool DemoController::Update(float time, float ms)
 	time /= 1000.0f;
 	float seconds = ms / 1000.0f;
 
-	time += 156.0f;
+	//time += 156.0f;
 
 	m_activeCamera = NULL;
 

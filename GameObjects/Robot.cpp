@@ -58,6 +58,7 @@ void Robot::Awake()
 		"run"
 	};
 
+	/*
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("writting"), content->Get<Model>("writting")));
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("go_to_posters"), content->Get<Model>("go_to_posters")));
 	m_clips.push_back(new WheelClip(m_bindPose, content->Get<Animation>("back_to_cigarette"), content->Get<Model>("back_to_cigarette")));
@@ -70,6 +71,10 @@ void Robot::Awake()
 	m_clips.push_back(new TrackClip(m_bindPose, content->Get<Animation>("run"), content->Get<Animation>("run02")));
 	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("branch")));
 	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("jump")));
+	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("flip")));
+	*/
+
+	m_clips.push_back(new SimpleClip(m_bindPose, content->Get<Animation>("credits_dance")));
 
 	for (uint32_t i = 0; i < m_clips.size(); i++)
 	{
