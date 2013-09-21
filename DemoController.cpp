@@ -33,6 +33,7 @@
 #include "GameObjects/ShadowmapTest.h"
 #include "GameObjects/SimpleAnim.h"
 #include "GameObjects/CreditsDance.h"
+#include "GameObjects/Cigarette.h"
 #include "GameObjects/Fan.h"
 #include "Dream.h"
 Dream *m_dream;
@@ -53,14 +54,19 @@ const float DemoController::GlowBufferHeightRatio = 0.5f;
 //#define DISABLE_MUSIC 1
 #define DISABLE_FRUSTUM_CULLING 1
 //#define MAN_CAM 1
-#define SHOW_FPS 1
-//#define LOAD_LIGHTMAPS 1
+//#define SHOW_FPS 1
+#define LOAD_LIGHTMAPS 1
 
 Texture *blackTex;
 LinearInterpolator<float> fadeAnim;
 
 DemoController* GenericSingleton<DemoController>::instance;
 Randomizer DemoController::random;
+
+float conv(int a, int b, int c)
+{
+	return a * 60.0f + b + ((float)c / 4800.0f);
+}
 
 DemoController::DemoController() :
 	shadowPass(NULL),
@@ -72,7 +78,18 @@ DemoController::DemoController() :
 	m_fovSignal(NULL),
 	m_fovPower(0.0f)
 {
-	fadeAnim.AddKeyframe(2 * 60.0f + 11.0f + (265.0f / 4800.0f), 0, true);
+	fadeAnim.AddKeyframe(0, 0, true);
+
+	float baseDupa = conv(1,58,4480);
+	static Randomizer random;
+	int ee = 0;
+	while (baseDupa < conv(2, 11, 265))
+	{
+		ee ++;
+		fadeAnim.AddKeyframe(baseDupa, (float)(ee % 2 == 0), true);
+		baseDupa += random.GetFloat(0.01f, 0.03f);
+	}
+
 	fadeAnim.AddKeyframe(2 * 60.0f + 11.0f + (265.0f / 4800.0f), 1, true);
 	fadeAnim.AddKeyframe(2 * 60.0f + 14.0f + (265.0f / 4800.0f), 1, false);
 	fadeAnim.AddKeyframe(2 * 60.0f + 18.0f + (265.0f / 4800.0f), 0, false);
@@ -259,22 +276,22 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 
 	Billboard::Initialize();
 
- m_lightViewMatrix.a[0] = 0.8616f;
- m_lightViewMatrix.a[1] = 0.2764f;
- m_lightViewMatrix.a[2] = -0.4257f;
- m_lightViewMatrix.a[3] = 0.0000f;
- m_lightViewMatrix.a[4] = 0.0000f;
- m_lightViewMatrix.a[5] = 0.8387f;
- m_lightViewMatrix.a[6] = 0.5446f;
- m_lightViewMatrix.a[7] = 0.0000f;
- m_lightViewMatrix.a[8] = 0.5075f;
- m_lightViewMatrix.a[9] = -0.4693f;
- m_lightViewMatrix.a[10] = 0.7226f;
- m_lightViewMatrix.a[11] = 0.0000f;
- m_lightViewMatrix.a[12] = -0.0708f;
- m_lightViewMatrix.a[13] = 1.4161f;
- m_lightViewMatrix.a[14] = -7.5742f;
- m_lightViewMatrix.a[15] = 1.0000f;
+ //m_lightViewMatrix.a[0] = 0.8616f;
+ //m_lightViewMatrix.a[1] = 0.2764f;
+ //m_lightViewMatrix.a[2] = -0.4257f;
+ //m_lightViewMatrix.a[3] = 0.0000f;
+ //m_lightViewMatrix.a[4] = 0.0000f;
+ //m_lightViewMatrix.a[5] = 0.8387f;
+ //m_lightViewMatrix.a[6] = 0.5446f;
+ //m_lightViewMatrix.a[7] = 0.0000f;
+ //m_lightViewMatrix.a[8] = 0.5075f;
+ //m_lightViewMatrix.a[9] = -0.4693f;
+ //m_lightViewMatrix.a[10] = 0.7226f;
+ //m_lightViewMatrix.a[11] = 0.0000f;
+ //m_lightViewMatrix.a[12] = -0.0708f;
+ //m_lightViewMatrix.a[13] = 1.4161f;
+ //m_lightViewMatrix.a[14] = -7.5742f;
+ //m_lightViewMatrix.a[15] = 1.0000f;
 
 	//m_lightProjMatrix = sm::Matrix::Ortho2DMatrix(-10, 10, -10, 10);
 	
@@ -356,6 +373,9 @@ bool DemoController::LoadContent(const char *basePath)
 	m_gameObjects.push_back(new Fan());
 	m_gameObjects.push_back(new SimpleAnim(dc->Get<Animation>("flying_chair"), dc->Get<Model>("flying_chair"), 2 * 60.0f + 14.0f + (265.0f / 4800.0f)));
 	m_gameObjects.push_back(new SimpleAnim(dc->Get<Animation>("doors"), dc->Get<Model>("doors"), 0.0));
+	m_gameObjects.push_back(new SimpleAnim(dc->Get<Animation>("kubek"), dc->Get<Model>("kubek"), 0.0));
+	m_cigarette = new Cigarette(dc->Get<Animation>("epapieros"), dc->Get<Model>("epapieros"), 0.0);
+	m_gameObjects.push_back(m_cigarette);
 
 	for (uint32_t i = 0; i < m_gameObjects.size(); i++)
 		m_gameObjects[i]->Awake();
@@ -440,16 +460,8 @@ bool DemoController::LoadContent(const char *basePath)
 
 	camerasFactoryAnimation = dc->Get<Animation>("cameras_factory");
 	assert(camerasFactoryAnimation != NULL);
-	animCamsFactoryMng.Load(m_strBasePath + "cameras\\cameras_factory.cam", camerasFactoryAnimation);
+	m_lightCamsMng.Load(m_strBasePath + "cameras\\cameras_factory.cam", camerasFactoryAnimation);
 
-	m_lightCamsMng.Load(m_strBasePath + "cameras\\piwnica.cam", NULL);
-	m_currentLightCamera = m_lightCamsMng.GetCameraByName("piwnica");
-
-	m_lightProjMatrix = sm::Matrix::PerspectiveMatrix(
-		m_currentLightCamera->GetFov(0),
-		(float)width / (float)height,
-		m_currentLightCamera->GetNearClip(),
-		m_currentLightCamera->GetFarClip());
 
 	//if (width <= 1024)
 	//	mask = dc->Get<Texture>("mask");
@@ -530,7 +542,7 @@ bool DemoController::Update(float time, float ms)
 	{
 		time = music.GetPosition() * 1000.0f;
 
-		if ((time / 1000.0f) >= (240.0f + 12.0f))
+		if ((time / 1000.0f) >= (240.0f + 47.0f))
 		{
 			music.Stop();
 			demoEnded = true;
@@ -561,19 +573,32 @@ bool DemoController::Update(float time, float ms)
 #else
 	camerasAnimation->Update(m_greetzDanceTime, sm::Matrix::IdentityMatrix(), seconds);
 	m_activeCamera = animCamsMng.GetActiveCamera(time);
+#endif
 
-	//camerasFactoryAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
-	//m_activeCamera = animCamsFactoryMng.GetActiveCamera(time);
-#endif	
+	camerasFactoryAnimation->Update(time, sm::Matrix::IdentityMatrix(), seconds);
+	m_currentLightCamera = m_lightCamsMng.GetActiveCamera(time);
 
 	m_dream->Update(time, seconds);
 
+	m_view = m_activeCamera->GetViewMatrix();
 	m_proj = sm::Matrix::PerspectiveMatrix(
 		m_activeCamera->GetFov(time),
 		(float)width / (float)height,
 		m_activeCamera->GetNearClip(),
 		m_activeCamera->GetFarClip());
-	m_view = m_activeCamera->GetViewMatrix();
+
+	m_lightViewMatrix = m_currentLightCamera->GetViewMatrix();
+	m_lightProjMatrix = sm::Matrix::PerspectiveMatrix(
+		m_currentLightCamera->GetFov(time),
+		(float)width / (float)height,
+		m_currentLightCamera->GetNearClip(),
+		m_currentLightCamera->GetFarClip());
+
+// set camera wher light
+#if 0 
+	m_view = m_lightViewMatrix;
+	m_proj = m_lightProjMatrix;
+#endif
 
 #if 0
 	m_view.a[0] = 0.9890f;
@@ -812,17 +837,16 @@ bool DemoController::Draw(float time, float ms)
 	DrawingRoutines::SetLightPosition(sm::Vec3(0, 100, 100));
 	DrawingRoutines::SetEyePosition(m_activeCamera->GetPosition());
 	DrawingRoutines::SetLightPosition(m_activeCamera->GetPosition());
-	//DrawingRoutines::SetLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
+	DrawingRoutines::SetShadowLightPosition(m_lightViewMatrix.GetInversed() * sm::Vec3(0, 0, 0));
 
 	//m_robot->Draw(time, seconds);
 
 	glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-	DrawingRoutines::DrawWithMaterial(allMeshParts);
+	//DrawingRoutines::DrawWithMaterial(allMeshParts);
 	if (m_creditsDance->IsActive())
 		m_creditsDance->DrawOpacities();
-	//((CreditsDance*)m_gameObjects[1])->DrawOpacities();
-	//DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
+	DrawingRoutines::DrawWithMaterialAndShadowMap(allMeshParts, m_shadowMapTexture->GetId());
 
 	glDrawBuffers(2, enabledBuffers);
 
@@ -836,6 +860,7 @@ bool DemoController::Draw(float time, float ms)
 	glDepthMask(false);
 
 	m_particlesManager->Draw();
+	m_cigarette->DrawSmokes(time, seconds);
 	Framebuffer::RestoreDefaultFramebuffer();
 
 	glDrawBuffer(GL_BACK);
@@ -1240,7 +1265,6 @@ void DemoController::DrawShadowMap()
 	glViewport(0, 0, width, height);
 
 	DrawingRoutines::SetShadowCastingLightView(m_lightViewMatrix);
-	//DrawingRoutines::SetShadowCastingLightView(m_view);
 	DrawingRoutines::SetShadowCastingLightProj(m_lightProjMatrix);
 	
 	DrawingRoutines::DrawShadowMap(m_shadowCasterObjects);

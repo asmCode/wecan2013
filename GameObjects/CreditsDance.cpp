@@ -63,7 +63,7 @@ void CreditsDance::Awake()
 	for (uint32_t i = 0; i < greetzCount; i++)
 	{
 		char texName[64];
-		sprintf(texName, "greetz%d", i + 1);
+		sprintf(texName, "greetz%d", i);
 		m_greetzTexes[i] = content->Get<Texture>(texName);
 		assert(m_greetzTexes[i] != NULL);
 	}

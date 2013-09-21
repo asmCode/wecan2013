@@ -10,14 +10,16 @@ class SimpleAnim : public GameObject
 public:
 	SimpleAnim(Animation *anim, Model *model, float hideBefore);
 
-	void Awake();
+	virtual void Awake();
 
-	void Update(float time, float seconds);
-	void Draw();
+	virtual void Update(float time, float seconds);
+	virtual void Draw();
 
 	std::vector<MeshPart*>& GetMeshParts();
 
-private:
+	virtual void ClearLightmaps();
+
+protected:
 	Model *m_model;
 	Animation *m_anim;
 

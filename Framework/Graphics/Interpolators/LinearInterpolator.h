@@ -43,6 +43,12 @@ public:
 				break;
 		}
 
+		if (keys[i]->stopKey)
+		{
+			value = keys[i]->value;
+			return i;
+		}
+
 		float normalizedTime = (time - keys[i - 1]->time) / (keys[i]->time - keys[i - 1]->time);
 		value = (Type)((Type)keys[i - 1]->value * (1.0f - normalizedTime) + (Type)keys[i]->value * normalizedTime);
 

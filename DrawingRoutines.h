@@ -16,6 +16,7 @@ class DrawingRoutines
 {
 private:
 	static sm::Matrix m_viewProjMatrix;
+	static sm::Vec3 m_shadowLightPosition;
 	static sm::Vec3 m_lightPosition;
 	static sm::Vec3 m_eyePosition;
 
@@ -46,13 +47,21 @@ private:
 	// diffuse and specular lighting with shadow mapping (1 source)
 	static Shader *m_sm_colorShader;
 
+	// diffuse and specular lighting with shadow mapping (1 source)
+	static Shader *m_sm_diffNormShader;
+
+	// diffuse and specular lighting with shadow mapping (1 source)
+	static Shader *m_sm_diffNormLightmapShader;
+
 	static bool SetupShader(Material *material, MeshPart *meshPart, const sm::Matrix &worldatrix);
+	static bool SetupShaderShadowMap(Material *material, MeshPart *meshPart, const sm::Matrix &worldatrix, uint32_t shadowMapId);
 	
 public:
 	static bool Initialize(Content *content);
 
 	static void SetViewProjMatrix(const sm::Matrix &viewProj);
 	static void SetLightPosition(const sm::Vec3 &lightPosition);
+	static void SetShadowLightPosition(const sm::Vec3 &shadowLightPosition);
 	static void SetEyePosition(const sm::Vec3 &eyePosition);
 
 	static void SetShadowCastingLightView(const sm::Matrix &lightViewMatrix);

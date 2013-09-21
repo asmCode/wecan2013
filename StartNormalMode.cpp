@@ -16,11 +16,11 @@
 std::string baseDataPath;
 
 //#define TIME_SHIFT 200.0 * 1000.0f
-#define TIME_SHIFT 145.0 * 1000.0f
-//#define TIME_SHIFT 0
+//#define TIME_SHIFT 115.0f * 1000.0f
+#define TIME_SHIFT 0
 
-#define START_IN_WINDOW 1
-#define SKIP_SETUP_DIALOG 1
+//#define START_IN_WINDOW 1
+//#define SKIP_SETUP_DIALOG 1
 #define DONT_USE_ARCHIVE 1
 
 //int UnzipData(const std::string &zipFile, const std::string &dstDir)

@@ -37,6 +37,7 @@ DWORD WINAPI EditableDemoThread(void *params);
 class DemoController;
 class EditableDemo;
 class MachineScreen;
+class Cigarette;
 class EditableCamera;
 class ManCam;
 class ShadowMappingTest;
@@ -141,11 +142,9 @@ public:
 	float electroNoiseVal;
 	float camShakeVal;
 
-	ICamera *currentCamera;
 	AnimCameraManager animCamsMng;
-	AnimCameraManager animCamsFactoryMng;
-
 	AnimCameraManager m_lightCamsMng;
+	ICamera *currentCamera;
 	ICamera *m_currentLightCamera;
 
 	float fade;
@@ -232,6 +231,8 @@ public:
 
 	DemoController();
 	~DemoController();
+
+	Cigarette *m_cigarette;
 
 	void SetOpenglParams();
 	bool InitCg();

@@ -70,6 +70,10 @@ void Robot::Awake()
 	}
 
 	m_allMeshParts.insert(m_allMeshParts.end(), m_robot->m_meshParts.begin(), m_robot->m_meshParts.end());
+	for (int i = 0; i <  m_robot->meshes.size(); i++)
+	{
+		m_robot->meshes[i]->m_isShadowCaster = true;
+	}
 }
 
 void Robot::Update(float time, float seconds)

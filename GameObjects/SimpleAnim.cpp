@@ -23,6 +23,19 @@ SimpleAnim::SimpleAnim(Animation *anim, Model *model, float hideBefore) :
 	{
 		m_model->m_meshParts[i]->m_alwaysHide = true;
 	}
+
+	for (int i = 0; i <  model->meshes.size(); i++)
+	{
+		model->meshes[i]->m_isShadowCaster = true;
+	}
+}
+
+void SimpleAnim::ClearLightmaps()
+{
+	for (int i = 0; i < m_model->m_meshParts.size(); i++)
+	{
+		m_model->m_meshParts[i]->m_lightmap = NULL;
+	}
 }
 
 void SimpleAnim::Awake()

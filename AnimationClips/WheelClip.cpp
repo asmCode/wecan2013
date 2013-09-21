@@ -26,6 +26,11 @@ WheelClip::WheelClip(Animation *bindPose, Animation *clip, Model *model) :
 	assert(wheelAnimation);
 
 	wheelAnimation->subAnims.push_back(bindPoseHip);
+
+	for (int i = 0; i <  model->meshes.size(); i++)
+	{
+		model->meshes[i]->m_isShadowCaster = true;
+	}
 }
 
 void WheelClip::Activate()
