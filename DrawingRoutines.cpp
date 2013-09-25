@@ -258,7 +258,7 @@ bool DrawingRoutines::SetupShader(Material *material, MeshPart *meshPart, const 
 		m_colorShader->UseProgram();
 		m_colorShader->SetMatrixParameter("u_viewProjMatrix", m_viewProjMatrix);
 		//m_colorShader->SetMatrixParameter("u_worldMatrix", worldatrix);
-		m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->model->m_baseTransform * meshPart->mesh->Transform());
+		m_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->model->m_baseTransform * meshPart->mesh->Transform());
 		//m_sm_colorShader->SetMatrixParameter("u_worldMatrix", meshPart->mesh->Transform());
 		m_colorShader->SetParameter("u_lightPosition", m_lightPosition);
 		m_colorShader->SetParameter("u_eyePosition", m_eyePosition);
@@ -577,6 +577,9 @@ void DrawingRoutines::DrawBlack(std::vector<MeshPart*> &meshParts)
 
 	for (uint32_t i = 0; i < meshParts.size(); i++)
 	{
+		if (!meshParts[i]->IsVisible())
+			continue;
+
 		float opacity = 1.0f;
 		if (meshParts[i]->GetMaterial() != NULL)
 			opacity = meshParts[i]->GetMaterial()->Opacity();

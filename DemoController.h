@@ -1,13 +1,11 @@
 #pragma once
 
-#include "DemoMode.h"
 #include "CameraMode.h"
 #include "GraphicsLibrary\CubeTexture.h"
 
 #include <Core/GenericSingleton.h>
 
 #include <Graphics/Content/Content.h>
-#include "Music.h"
 
 #include <Graphics/Interpolators/InterpolatorFactory.h>
 #include <Graphics/IGraphicsEngine.h>
@@ -156,7 +154,6 @@ public:
 	Texture *mask;
 
 	bool errorOccured;
-	DemoMode demoMode;
 	MachineScreen *machineScreen;
 
 	OpenglWindow *glWnd;
@@ -175,7 +172,6 @@ public:
 	sm::Matrix m_proj;
 	sm::Matrix m_viewProj;
 	sm::Matrix glowProj;
-	Music music;
 	bool isStereo;
 
 	CreditsDance *m_creditsDance;
@@ -237,7 +233,6 @@ public:
 	void SetOpenglParams();
 	bool InitCg();
 
-	void InitializeProperties();
 	bool AssignAssets();
 
 	// IContentObserver interface
@@ -281,9 +276,7 @@ public:
 
 	void InitializeBlur();
 
-	bool demoEnded;
-
-	bool Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
+	bool Initialize(bool isStereo, HWND parent, const char *title, int width, int height,
 		int bpp, int freq, bool fullscreen, bool createOwnWindow);
 	bool LoadContent(const char *basePath);
 	bool BeforeStartSetups();

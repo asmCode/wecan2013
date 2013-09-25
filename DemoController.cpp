@@ -51,7 +51,6 @@ Dream *m_dream;
 const float DemoController::GlowBufferWidthRatio = 0.5f;
 const float DemoController::GlowBufferHeightRatio = 0.5f;
 
-//#define DISABLE_MUSIC 1
 #define DISABLE_FRUSTUM_CULLING 1
 //#define MAN_CAM 1
 //#define SHOW_FPS 1
@@ -63,6 +62,18 @@ LinearInterpolator<float> fadeAnim;
 DemoController* GenericSingleton<DemoController>::instance;
 Randomizer DemoController::random;
 
+  void APIENTRY OpenglDebugCallback(
+	  GLenum source,
+	  GLenum type,
+	  GLuint id,
+	  GLenum severity,
+	  GLsizei length,
+	  const GLchar* message,
+	  void* userParam)
+ {
+	 int houston = 0;
+ }
+
 float conv(int a, int b, int c)
 {
 	return a * 60.0f + b + ((float)c / 4800.0f);
@@ -72,7 +83,6 @@ DemoController::DemoController() :
 	shadowPass(NULL),
 	m_envTexture(NULL),
 	m_activeScene(NULL),
-	demoEnded(false),
 	m_doors(NULL),
 	m_doorsAnim(NULL),
 	m_fovSignal(NULL),
@@ -99,7 +109,6 @@ DemoController::DemoController() :
 	blurFbo = NULL;
 	dofBlur = NULL;
 	isPlaying = false;
-	demoMode = DemoMode_Demo;
 
 	errorOccured = false;
 	nextId = 0;
@@ -129,21 +138,6 @@ DemoController::DemoController() :
 DemoController::~DemoController()
 {
 	Release();
-}
-
-void DemoController::InitializeProperties()
-{
-	if (demoMode == DemoMode_Freelook)
-	{
-		currentCamera = new ManCam();
-	}
-	else if (demoMode == DemoMode_Editor)
-		currentCamera = new ManCam();
-	else if (demoMode == DemoMode_Demo)
-	{
-		currentCamera = NULL;
-		cameraMode = CameraMode_Preview;
-	}
 }
 
 void DemoController::AssignLightmapsToModels()
@@ -222,7 +216,7 @@ void DemoController::InitializeBlur()
 	m_distortionFramebuffer->Validate();
 }
 
-bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, const char *title, int width, int height,
+bool DemoController::Initialize(bool isStereo, HWND parent, const char *title, int width, int height,
 								int bpp, int freq, bool fullscreen, bool createOwnWindow)
 {
 	delay = 0.0f;
@@ -233,7 +227,6 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 	
 	frustum = new Frustum();
 
-	this ->demoMode = demoMode;
 	this ->width = width;
 	this ->height = height;
 	this ->isStereo = isStereo;
@@ -253,7 +246,10 @@ bool DemoController::Initialize(bool isStereo, DemoMode demoMode, HWND parent, c
 	}
 
 	SetOpenglParams();
-	InitializeProperties();
+
+	//glEnable(GL_DEBUG_OUTPUT);
+	//glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+	//glDebugMessageCallback(OpenglDebugCallback, this);
 
 	loadingScreen = new LoadingScreen();
 
@@ -397,11 +393,6 @@ bool DemoController::LoadContent(const char *basePath)
 
 	//demo ->activeCamera = demo ->manualCamera;
 
-#ifndef DISABLE_MUSIC
-	if (demoMode != DemoMode_Editor)
-		music.LoadMusic((m_strBasePath + "\\music\\traymuss.mp3").c_str());
-#endif
-
 	//m_mdl_factory = dc->Get<Model*>("factory");
 	//assert(m_mdl_factory != NULL);
 
@@ -483,11 +474,6 @@ bool DemoController::LoadContent(const char *basePath)
 
 void DemoController::Release()
 {
-#ifndef DISABLE_MUSIC
-	if (demoMode != DemoMode_Editor)
-		music.Stop();
-#endif
-
 	if (m_content != NULL)
 	{
 		delete m_content;
@@ -520,38 +506,9 @@ void DemoController::Release()
 	DeleteObject(m_envTexture);
 }
 
-float lightRot = 0.0f;
-
-bool started = false;
-
 static float lastTime;
-bool DemoController::Update(float time, float ms)
+bool DemoController::Update(float time, float seconds)
 {
-	if (demoMode != DemoMode_Editor && !started)
-	{
-#ifndef DISABLE_MUSIC
-		music.SetPosition(time / 1000.0f);
-		music.Play();
-
-		//music.SetPosition(time / 1000.0f);
-#endif
-		started = true;
-	}
-
-	if (!demoEnded)
-	{
-		time = music.GetPosition() * 1000.0f;
-
-		if ((time / 1000.0f) >= (240.0f + 47.0f))
-		{
-			music.Stop();
-			demoEnded = true;
-		}
-	}
-
-	time /= 1000.0f;
-	float seconds = ms / 1000.0f;
-
 	if (firstupdate)
 	{
 		firstupdate = false;
@@ -561,9 +518,6 @@ bool DemoController::Update(float time, float ms)
 	{
 		m_greetzDanceTime = m_creditsDance->GetAnimTime();
 	}
-
-	//time += 170.0f;
-	//time += 30.0f;
 
 	m_activeCamera = NULL;
 
@@ -813,11 +767,8 @@ float DemoController::CalcFlash(float time, float ms)
 	return fade;
 }
 
-bool DemoController::Draw(float time, float ms)
+bool DemoController::Draw(float time, float seconds)
 {
-	float seconds = ms / 1000.0f;
-	time /= 1000.0f;
-
 	DrawShadowMap();
 
 	m_distortionFramebuffer->BindFramebuffer();
@@ -855,8 +806,7 @@ bool DemoController::Draw(float time, float ms)
 	m_spriteBatch->Draw(m_bgTex, 0, 0);
 	m_spriteBatch->End();*/
 
-	glEnablei(GL_DEPTH_TEST, 0);
-	glEnablei(GL_DEPTH_TEST, 1);
+	glEnable(GL_DEPTH_TEST);
 	glDepthMask(false);
 
 	m_particlesManager->Draw();
@@ -1110,7 +1060,6 @@ void DemoController::DrawText(const std::string &text, int x, int y, BYTE r, BYT
 
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_LIGHTING);
 	glDisable(GL_BLEND);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);

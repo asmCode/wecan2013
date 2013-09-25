@@ -2,7 +2,7 @@
 
 #include "StartDialog.h"
 #include "DemoController.h"
-#include "DemoMode.h"
+#include "Music.h"
 
 #include <IO/Path.h>
 
@@ -11,65 +11,66 @@
 #include <fstream>
 #include <string>
 #include "GraphicsLibrary\TimeControl.h"
-//#include <unzip.h>
+#include <unzip.h>
 
 std::string baseDataPath;
 
-//#define TIME_SHIFT 200.0 * 1000.0f
-//#define TIME_SHIFT 115.0f * 1000.0f
+//#define TIME_SHIFT 200.0f
+//#define TIME_SHIFT 115.0f
 #define TIME_SHIFT 0
 
+//#define DISABLE_MUSIC 1
 //#define START_IN_WINDOW 1
 //#define SKIP_SETUP_DIALOG 1
 #define DONT_USE_ARCHIVE 1
 
-//int UnzipData(const std::string &zipFile, const std::string &dstDir)
-//{
-//	unzFile pizda = unzOpen(zipFile.c_str());
-//
-//	int res;
-//
-//	res = unzGoToFirstFile(pizda);
-//	assert(res == 0);
-//
-//	bool run = true;
-//	while (run)
-//	{
-//		unz_file_info fileInfo;
-//		char fileName[MAX_PATH + 1];
-//		res = unzGetCurrentFileInfo(pizda, &fileInfo, fileName, MAX_PATH, NULL, 0, NULL, 0);
-//		assert(res == 0);
-//
-//		if (fileName[strlen(fileName) - 1] == '/' || fileName[strlen(fileName) - 1] == '\\')
-//		{
-//			CreateDirectory((dstDir + fileName).c_str(), NULL);
-//		}
-//		else
-//		{
-//			res = unzOpenCurrentFile(pizda);
-//			assert(res == 0);
-//
-//			char *fileData = new char[fileInfo.uncompressed_size];
-//			res = unzReadCurrentFile(pizda, fileData, fileInfo.uncompressed_size);
-//			assert(res == fileInfo.uncompressed_size);
-//
-//			std::ofstream uncompFile((dstDir + fileName).c_str(), std::ios::binary);
-//			uncompFile.write(fileData, fileInfo.uncompressed_size);
-//			uncompFile.close();
-//
-//			delete [] fileData;
-//			res = unzCloseCurrentFile(pizda);
-//			assert(res == 0);
-//		}
-//
-//		if (unzGoToNextFile(pizda) == UNZ_END_OF_LIST_OF_FILE)
-//			run = false;
-//	}
-//
-//	unzClose(pizda);
-//
-//	return 0;
-//}
+int UnzipData(const std::string &zipFile, const std::string &dstDir)
+{
+	unzFile pizda = unzOpen(zipFile.c_str());
+
+	int res;
+
+	res = unzGoToFirstFile(pizda);
+	assert(res == 0);
+
+	bool run = true;
+	while (run)
+	{
+		unz_file_info fileInfo;
+		char fileName[MAX_PATH + 1];
+		res = unzGetCurrentFileInfo(pizda, &fileInfo, fileName, MAX_PATH, NULL, 0, NULL, 0);
+		assert(res == 0);
+
+		if (fileName[strlen(fileName) - 1] == '/' || fileName[strlen(fileName) - 1] == '\\')
+		{
+			CreateDirectory((dstDir + fileName).c_str(), NULL);
+		}
+		else
+		{
+			res = unzOpenCurrentFile(pizda);
+			assert(res == 0);
+
+			char *fileData = new char[fileInfo.uncompressed_size];
+			res = unzReadCurrentFile(pizda, fileData, fileInfo.uncompressed_size);
+			assert(res == fileInfo.uncompressed_size);
+
+			std::ofstream uncompFile((dstDir + fileName).c_str(), std::ios::binary);
+			uncompFile.write(fileData, fileInfo.uncompressed_size);
+			uncompFile.close();
+
+			delete [] fileData;
+			res = unzCloseCurrentFile(pizda);
+			assert(res == 0);
+		}
+
+		if (unzGoToNextFile(pizda) == UNZ_END_OF_LIST_OF_FILE)
+			run = false;
+	}
+
+	unzClose(pizda);
+
+	return 0;
+}
 
 bool ShowStartDialog(int &scrWidth, int &scrHeight, int &scrBpp, int &scrFreq)
 {
@@ -108,7 +109,7 @@ void ReleaseDemo()
 	SHFileOperation(&fileOp);*/
 }
 
-void StartNormalMode(DemoMode mode)
+void StartNormalMode()
 {
 	int scrWidth;
 	int scrHeight;
@@ -135,18 +136,18 @@ void StartNormalMode(DemoMode mode)
 	char tempFolder[MAX_PATH + 1];
 	GetTempPath(MAX_PATH, tempFolder);
 	std::string basePath = tempFolder;
-	baseDataPath = basePath + "futuris_data_fts13\\";
+	baseDataPath = basePath + "futuris_data\\";
 	UnzipData(moduleFilename.GetPath() + "demodat", basePath);
 #else
 	baseDataPath = moduleFilename.GetPath() + "Data\\";
 #endif
 
-	bool fullscreen = mode == DemoMode_Demo;
+	bool fullscreen = false;
 #ifndef START_IN_WINDOW
 	fullscreen = true;
 #endif
 
-	if (!demo ->Initialize(false, mode, NULL, "Breath :: by Futuris",
+	if (!demo ->Initialize(false, NULL, "Burb :: by Futuris",
 		scrWidth, scrHeight, scrBpp, scrFreq, fullscreen, true))
 	{
 		ReleaseDemo();
@@ -169,9 +170,9 @@ void StartNormalMode(DemoMode mode)
 	}
 
 	TimeControl tc;
-	tc.Start();
 
 	float time = 0;
+	float lastTime = 0;
 
 	MSG msg;
 	BOOL done = false;
@@ -179,6 +180,17 @@ void StartNormalMode(DemoMode mode)
 	bool waiting_for_release_key = false;
 	int propVal = 1;
 	float timeShift = -1.0f;
+
+	Music *music = NULL;
+
+#ifndef DISABLE_MUSIC
+	music = new Music();
+	music->LoadMusic((baseDataPath + "\\music\\traymuss.mp3").c_str());
+	music->SetPosition(TIME_SHIFT);
+	music->Play();
+#endif
+
+	tc.Start();
 
 	while (!done)
 	{
@@ -202,9 +214,14 @@ void StartNormalMode(DemoMode mode)
 			}
 			else
 			{
-				float ms = tc.CheckFrameMS();
-				time += ms;
 
+#ifndef DISABLE_MUSIC
+				time = music->GetPosition();
+#else
+				time = tc.GetTime() + TIME_SHIFT;
+#endif
+				float deltaTime = time - lastTime;
+				lastTime = time;
 #if 0
 
 				if ((GetAsyncKeyState(VK_SPACE) & 0x8000))
@@ -230,10 +247,10 @@ void StartNormalMode(DemoMode mode)
 #else
 //#endif
 
-				if (!demo ->Update(time + TIME_SHIFT, ms))
+				if (!demo ->Update(time, deltaTime))
 					done = true;
 
-				if (!demo ->Draw(time + TIME_SHIFT, ms))
+				if (!demo ->Draw(time, deltaTime))
 					done = true;
 #endif
 			}

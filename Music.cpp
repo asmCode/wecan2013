@@ -1,4 +1,5 @@
 #include "Music.h"
+#include <assert.h>
 
 Music::Music(void)
 {
@@ -15,7 +16,7 @@ void Music::LoadMusic(const char *filename)
 	results = BASS_Init(-1, 44100, 0, NULL, NULL);
 	if (results)
 	{
-		mp3Strewam = BASS_StreamCreateFile(false, filename, 0, 0, BASS_SAMPLE_LOOP);
+		mp3Strewam = BASS_StreamCreateFile(false, filename, 0, 0, 0);
 	}
 }
 
@@ -40,6 +41,7 @@ void Music::SetPosition(float time)
 	if (result != TRUE)
 	{
 		int errorCode = BASS_ErrorGetCode();
+		assert(false);
 	}
 }
 

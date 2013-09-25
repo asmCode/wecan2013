@@ -103,12 +103,6 @@ void Shader::SetTextureParameter(const char *name, unsigned channel, unsigned te
 
 void Shader::SetMatrixParameter(const char *name, const sm::Matrix &matrix)
 {
-	char dddd[100];
-	int l;
-	int s;
-	GLenum e;
-	glGetActiveUniform (m_programId, 0, 100, &l, &s, &e, dddd);
-
 	int uniformParam = glGetUniformLocation(m_programId, name);
 	assert(uniformParam != -1);
 	
@@ -180,13 +174,12 @@ void Shader::LinkProgram()
         free(log);
     }
 #endif
-    
-    glGetProgramiv(m_programId, GL_LINK_STATUS, &status);
-    if (status == 0)
+
+	glGetProgramiv(m_programId, GL_LINK_STATUS, &status);
+    if (status != GL_TRUE)
 	{
-        return;
 		assert(false);
-    }
+	}
 	
 	ValidateProgram(m_programId);
 }
@@ -208,10 +201,10 @@ bool Shader::ValidateProgram(GLuint programId)
 			glGetProgramInfoLog(programId, logLength, &logLength, _log);
 			printf("validate log: %s\n", _log);
 			delete _log;
-			//assert(false);
+			assert(false);
 		}
 	}    
     
-    return status == 0;
+    return status == GL_TRUE;
 }
 

@@ -29,7 +29,7 @@ void main()
 	
 	diffColor.w *= u_opacity;
 	diffColor.xyz += u_specularColor * specValue;
-	diffColor.xyz *= lightmapColor;
+	diffColor.xyz *= lightmapColor.xyz;
 	
     FragColor = diffColor;
 }

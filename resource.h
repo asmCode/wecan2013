@@ -3,7 +3,7 @@
 // Used by rw09.rc
 //
 #define IDD_STARTDIALOG                 101
-#define IDI_ICON1                       105
+#define IDI_ICON1                       111
 #define IDC_BTN_START                   1001
 #define IDC_BTN_QUIT                    1002
 #define IDC_CMB_RES                     1003
@@ -13,7 +13,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
+#define _APS_NEXT_RESOURCE_VALUE        112
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101

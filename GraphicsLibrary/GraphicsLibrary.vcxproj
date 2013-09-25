@@ -69,7 +69,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>C:\Program Files\NVIDIA Corporation\Cg\include;C:\Users\majak\code\mac\libs\Utils;C:\Users\majak\code\Machineris\Code\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\stuff\we-can_2013-demo\code\Framework;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -84,7 +84,10 @@
     <ClInclude Include="TimeControl.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AnimCamera.cpp" />
+    <ClCompile Include="AnimCamera.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">d:\stuff\we-can_2013-demo\code\zip\contrib\minizip\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">d:\stuff\we-can_2013-demo\code\zip\contrib\minizip\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="CubeTexture.cpp" />
     <ClCompile Include="OpenglWindow.cpp" />
     <ClCompile Include="SteerCamera.cpp" />

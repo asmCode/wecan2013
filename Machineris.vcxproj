@@ -46,6 +46,12 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>Burb</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <TargetName>Burb</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -57,10 +63,10 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <AdditionalIncludeDirectories>D:\stuff\we-can_2013-demo\code\Framework;D:\stuff\we-can_2013-demo\code\Ext;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\stuff\we-can_2013-demo\code\Framework;D:\stuff\we-can_2013-demo\code\Ext;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\include;d:\stuff\we-can_2013-demo\code\zip\contrib\minizip\;d:\stuff\we-can_2013-demo\code\zip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;libpng15.lib;zlib.lib;jpeg.lib;bass.lib;$(OutDir)GraphicsLibrary.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;libpng15.lib;zlib.lib;jpeg.lib;bass.lib;$(OutDir)GraphicsLibrary.lib;c:\users\szymon\documents\visual studio 2012\Projects\Win32Project1\Debug\Win32Project1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -97,15 +103,16 @@ exit /B 0
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>C:\Users\majak\code\mac\libs\Utils;C:\Program Files\NVIDIA Corporation\Cg\include;C:\Users\majak\code\Machineris\Code\headers;c:\Users\majak\code\Machineris\pen_na_party\libs\zlib-1.2.5\contrib\minizip;c:\Users\majak\code\Machineris\pen_na_party\libs\zlib-1.2.5;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\stuff\we-can_2013-demo\code\Framework;D:\stuff\we-can_2013-demo\code\Ext;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\include;d:\stuff\we-can_2013-demo\code\zip\contrib\minizip\;d:\stuff\we-can_2013-demo\code\zip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;glu32.lib;Libs\cg.lib;Libs\cgGL.lib;Libs\PngLoader.lib;Libs\Bass.lib;Shlwapi.lib;XmlLite.lib;$(OutDir)GraphicsLibrary.lib;c:\Users\majak\code\Machineris\Code\branches\camera_anim\jpeg\Release\jpeg.lib;c:\Users\majak\code\Machineris\Enliver\code\Release\EnliverAccess.lib;c:\Users\majak\code\Machineris\pen_na_party\libs\minizip_release.lib;c:\Users\majak\code\Machineris\pen_na_party\libs\zlib_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;glew32.lib;libpng15.lib;zlib.lib;jpeg.lib;bass.lib;$(OutDir)GraphicsLibrary.lib;c:\users\szymon\documents\visual studio 2012\Projects\Win32Project1\Debug\Win32Project1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalLibraryDirectories>D:\stuff\we-can_2013-demo\code\Ext\zlib;D:\stuff\we-can_2013-demo\code\Ext\jpeglib;D:\stuff\we-can_2013-demo\code\Ext\bass;D:\stuff\we-can_2013-demo\code\Ext\libpng;D:\stuff\we-can_2013-demo\code\Ext\tinyxml;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>rem if exist "$(OutDir)Data" goto DontNeedToCopyData
@@ -138,7 +145,9 @@ exit /B 0
     <ClCompile Include="DistortParticleHandler.cpp" />
     <ClCompile Include="Dream.cpp" />
     <ClCompile Include="Ext\tinyxml\tinyxml2.cpp" />
-    <ClCompile Include="Framework\Graphics\Animation.cpp" />
+    <ClCompile Include="Framework\Graphics\Animation.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">D:\stuff\we-can_2013-demo\code\Framework;D:\stuff\we-can_2013-demo\code\Ext;D:\stuff\we-can_2013-demo\code\Ext\glew-1.9.0\include;d:\stuff\we-can_2013-demo\code\zip\contrib\minizip\;d:\stuff\we-can_2013-demo\code\zip;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="Framework\Graphics\AnimationLoader.cpp" />
     <ClCompile Include="Framework\Graphics\BoundingBox.cpp" />
     <ClCompile Include="Framework\Graphics\BoundingSphere.cpp" />
@@ -297,7 +306,6 @@ exit /B 0
     <ClInclude Include="bass.h" />
     <ClInclude Include="Blur.h" />
     <ClInclude Include="DemoController.h" />
-    <ClInclude Include="DemoMode.h" />
     <ClInclude Include="DrawingRoutines.h" />
     <ClInclude Include="ManCam.h" />
     <ClInclude Include="MemoryLeak.h" />
@@ -338,7 +346,13 @@ exit /B 0
     <None Include="Data\effects\Sprite.vpr" />
     <None Include="Data\effects\VertBlur.fpr" />
     <None Include="Data\effects\VertBlur.vpr" />
-    <None Include="machineris_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="icon1.ico" />
+    <Image Include="icons\icon16.png" />
+    <Image Include="icons\icon32.png" />
+    <Image Include="icons\icon48.png" />
+    <Image Include="icons\icon64.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

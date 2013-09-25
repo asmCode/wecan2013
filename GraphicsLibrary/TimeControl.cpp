@@ -30,7 +30,7 @@ float TimeControl::GetTime()
 
 	tacts_elapsed.QuadPart = li.QuadPart - counter_base;
 	if (state == TC_PLAY)
-		time_elapsed += (float) ((/*(float)*/tacts_elapsed.QuadPart*1000.0f) / freq);
+		time_elapsed += (float) ((/*(float)*/tacts_elapsed.QuadPart) / freq);
 	counter_base = li.QuadPart;
 
 	return time_elapsed;
